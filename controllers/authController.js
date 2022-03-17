@@ -8,14 +8,11 @@ const tokenService = require("../services/tokenService");
 class AuthController {
     async registration(req, res, next){
         try {
-            const errors = validationResult(req)
-            if(!errors.isEmpty()){
-                return next(ApiError.BadRequest('Ошибка при валидации', errors))
-            }
             const { name, surname, email, password } = req.body;
             const userData = await userService.registration( name, surname, email, password );
             res.cookie('refreshToken', userData.refreshToken, { maxAge: 30*24*60*60*1000, httpOnly: true });
             return res.json(userData);
+
         } catch (e) {
             next(e);
         }
@@ -26,37 +23,6 @@ class AuthController {
             const userData = await userService.login(email, password);
             res.cookie('refreshToken', userData.refreshToken, { maxAge: 30*24*60*60*1000, httpOnly: true });
             return res.json(userData);
-        } catch (e) {
-            next(e);
-        }
-    }
-    async getResetToken(req, res, next){
-        try {
-            const { id, token } = req.params;
-            const resetToken = await userService.getResetToken(id, token);
-            res.cookie('resetToken', resetToken, { maxAge:10*60*1000, httpOnly: true });
-            res.redirect( config.get("ClientURL")+'/recover/'+id );
-        } catch (e) {
-            next(e);
-        }
-    }
-    async resetPassword(req, res, next){
-        try {
-            const errors = validationResult(req);
-            if(!errors.isEmpty()){
-                next(ApiError.BadRequest('Ошибка при валидации', errors));
-            }
-            const { id, newPassword, confirmNewPassword } = req.body;
-            if(newPassword != confirmNewPassword){
-                next(ApiError.BadRequest('Пароли отличаются'));
-            }   
-            const { resetToken } = req.cookies;
-            if(!resetToken){
-                next(ApiError.UnauthorizedError());
-            }
-            const userData = await userService.passwordReset(id, resetToken, newPassword);
-            res.clearCookie('resetToken');
-            res.json(userData);
         } catch (e) {
             next(e);
         }
@@ -80,6 +46,32 @@ class AuthController {
             next(e);
         }
     }
+    async getResetToken(req, res, next){
+        try {
+            const { id, token } = req.params;
+            const resetToken = await userService.getResetToken(id, token);
+            res.cookie('resetToken', resetToken, { maxAge:10*60*1000, httpOnly: true });
+            res.redirect( config.get("ClientURL")+'/recover/'+id );
+        } catch (e) {
+            next(e);
+        }
+    }
+    async resetPassword(req, res, next){
+        try {
+            const { id, newPassword } = req.body;
+            const { resetToken } = req.cookies;
+            if(!resetToken){
+                next(ApiError.UnauthorizedError());
+            }
+            const userData = await userService.passwordReset(id, resetToken, newPassword);
+            res.clearCookie('resetToken');
+            res.json(userData);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+
     async activate(req, res, next){
         try {
             const activateLink = req.params.link;

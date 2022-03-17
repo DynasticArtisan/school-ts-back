@@ -17,7 +17,25 @@ const UserSchema = new Schema({
         }
     },
     notifications: [],
-    courses: [],
+    courses: [
+        {
+            id: { type: Schema.Types.ObjectId, ref: 'Courses' },
+            currentModule: { type: Schema.Types.ObjectId, ref: 'Modules' },
+            currentLesson: { type: Schema.Types.ObjectId, ref: 'Lessons' },
+            progress: {
+                modules: [{ 
+                    id: { type: Schema.Types.ObjectId, ref: 'Modules' },
+                    available: { type: Boolean, default: false },
+                    passed: { type: Boolean, default: false }
+                 }],
+                lessons: [{ 
+                   id: { type: Schema.Types.ObjectId, ref: 'Lessons' },
+                   available: { type: Boolean, default: false },
+                   passed: { type: Boolean, default: false }
+                }]
+            }
+        }
+    ],
     name: { type: String, required: true },
     surname: { type: String, required: true },
     email : {type: String, unique: true, required: true},

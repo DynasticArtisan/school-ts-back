@@ -6,7 +6,7 @@ const mailService = require("./mailService");
 const tokenService = require("./tokenService");
 const userModel = require("../models/userModel");
 const UserDto = require('../dtos/userDto');
-const UserFullDto = require('../dtos/userFullDto');
+const UserTokenDto = require('../dtos/userTokenDto');
 const ApiError = require("../exceptions/ApiError");
 const fileService = require('./fileService');
 
@@ -24,7 +24,8 @@ class UserService {
         // await mailService.sendActivationMail(email, `${config.get("APIURL")}/api/auth/activate/${activateLink}`);
         console.log(`${config.get("APIURL")}/api/auth/activate/${activateLink}`)
         const userDto = new UserDto(user);
-        const tokens = await tokenService.generateTokens({...userDto});
+        const userTokenDto = new UserTokenDto(user);
+        const tokens = await tokenService.generateTokens({...userTokenDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
         return { ...tokens, user: userDto }
     }
@@ -46,7 +47,8 @@ class UserService {
             throw ApiError.BadRequest('Некорректный пароль');
         }
         const userDto = new UserDto(user);
-        const tokens = await tokenService.generateTokens({...userDto});
+        const userTokenDto = new UserTokenDto(user);
+        const tokens = await tokenService.generateTokens({...userTokenDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
         return { ...tokens, user: userDto }
     }
@@ -71,8 +73,8 @@ class UserService {
         if(!tokenData){
             throw ApiError.UnauthorizedError(); //redirect to homepage
         }
-        const userDto = new UserDto(user);
-        const resetToken = await tokenService.generateResetToken({...userDto}, user.password);
+        const userTokenDto = new UserTokenDto(user);
+        const resetToken = await tokenService.generateResetToken({...userTokenDto}, user.password);
         return resetToken;
     }
     async passwordReset(id, token, password){
@@ -91,19 +93,20 @@ class UserService {
     }
     async refresh(refreshToken){
         if(!refreshToken){
-            throw ApiError.UnauthorizedError();
+            throw ApiError.BadRequest('Невалидный токен');
         }
         const userData = await tokenService.validateRefreshToken(refreshToken);
         const tokenFromDB = await tokenService.findToken(refreshToken);
         if(!userData ){
-            throw ApiError.UnauthorizedError();
+            throw ApiError.BadRequest('Невалидный токен');
         }
         if(!tokenFromDB){
-            throw ApiError.UnauthorizedError();
+            throw ApiError.BadRequest('Невалидный токен');
         }
         const user = await userModel.findById( userData.id );
         const userDto = new UserDto(user);
-        const tokens = await tokenService.generateTokens({...userDto});
+        const userTokenDto = new UserTokenDto(user);
+        const tokens = await tokenService.generateTokens({...userTokenDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
         return { ...tokens, user: userDto }
     }
@@ -118,13 +121,13 @@ class UserService {
         }
         user.role = role;
         await user.save();
-        const userData = new UserFullDto(user);
+        const userData = new UserDto(user);
         return userData;
     }
     // users-information
     async getAllUsers(){
         const users = await userModel.find();
-        const usersData = users.map(user => new UserFullDto(user));
+        const usersData = users.map(user => new UserDto(user));
         return usersData;
     }
     async getOneUser(id){
@@ -132,7 +135,7 @@ class UserService {
         if(!user){
             throw ApiError.BadRequest('Пользователь не найден');
         }
-        const userData = new UserFullDto(user);
+        const userData = new UserDto(user);
         return userData;
     }
     async changePassword(userId, password, newPassword){
@@ -144,7 +147,7 @@ class UserService {
         const hashPassword = await bcrypt.hash(newPassword, 3);
         user.password = hashPassword;
         await user.save();
-        const userData = new UserFullDto(user);
+        const userData = new UserDto(user);
         return userData;
     }
     async updateUserInfo(id, data){
@@ -225,7 +228,7 @@ class UserService {
         }
         user.role = role;
         await user.save();
-        return new UserFullDto(user);
+        return new UserDto(user);
     }
 
     async deleteUser(userId){
