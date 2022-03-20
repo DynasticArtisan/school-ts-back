@@ -2,7 +2,7 @@ const { validationResult, checkSchema } = require('express-validator');
 const ApiError = require('../exceptions/ApiError');
 
 class Validator {
-    #validate(validations){
+    validate(validations) {
         return async (req, res, next) => {
             await Promise.all(validations.map(validation => validation.run(req)));
             const errors = validationResult(req);
@@ -31,7 +31,7 @@ class Validator {
             return value;
         }
     }
-    validateRegistrationData = this.#validate(checkSchema({
+    validateRegistrationData = this.validate(checkSchema({
         name: {
             notEmpty: { 
                 bail:true,
@@ -76,7 +76,7 @@ class Validator {
             custom: this.#isPassword
         }
     }))
-    validateResetPassword = this.#validate(checkSchema({
+    validateResetPassword = this.validate(checkSchema({
         newPassword: {
             notEmpty: { 
                 bail: true,
