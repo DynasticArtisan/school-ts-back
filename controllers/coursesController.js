@@ -2,11 +2,12 @@ const coursesService = require("../services/coursesService");
 
 
 class CoursesController {
-    async getCoursesData(req, res, next){
+    async getUserCoursesData(req, res, next){
         try {
-            const { userId } = req.body;
-            const coursesData = await coursesService.getUserCoursesData( userId)
-            res.json(coursesData);
+            const { userId } = req.params;
+            const courses = await coursesService.getAllCoursesData()
+            const progress = await coursesService.getUserProgress( userId )
+            res.json({courses, progress});
         } catch (e) {
             next(e)
         } 
@@ -47,6 +48,29 @@ class CoursesController {
             next(e)
         }
     }
+
+
+
+    async getUserProgress(req, res, next){
+        try {
+            const { userId } = req.params;
+            const progressData = await coursesService.getUserProgress( userId )
+            res.json(progressData)
+        } catch (e) {
+            next(e)
+        }
+    }
+    async copleteLesson(req, res, next){
+        try {
+            const { lessonId, userId } = req.body;
+            console.log(userId)
+            const progressData = await coursesService.copleteLesson( lessonId, userId )
+            res.json(progressData)
+        } catch (e) {
+            next(e)
+        }
+    }
+
 }
 
 module.exports = new CoursesController()

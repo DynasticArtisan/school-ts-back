@@ -1,6 +1,7 @@
 const courseModel = require("../models/courseModel")
 const moduleModel = require("../models/moduleModel")
 const lessonModel = require("../models/lessonModel")
+const userProgressModel = require("../models/userProgressModel")
 const ApiError = require("../exceptions/ApiError")
 
 class CoursesService {
@@ -17,7 +18,7 @@ class CoursesService {
             model: lessonModel
           }
         })
-        return { courses }
+        return courses
     }
 
     async createCourse( urlname, title, subtitle, description, image ){
@@ -26,7 +27,7 @@ class CoursesService {
       return Course
     }
 
-    async createModule({ urlname, title, description, courseId }){
+    async createModule( urlname, title, description, courseId ){
       const Course = await courseModel.findById(courseId)
       if(!Course){
         throw ApiError.BadRequest('Курс не найден')
@@ -37,7 +38,7 @@ class CoursesService {
       return Module
     }
 
-    async createLesson({ urlname, title, description, moduleId }){
+    async createLesson( urlname, title, description, moduleId ){
       const Module = await moduleModel.findById(moduleId)
       if(!Module){
         throw ApiError.BadRequest('Модуль не найден')
@@ -47,6 +48,32 @@ class CoursesService {
       await Module.save()
       return Lesson
     }
+
+    
+    async getUserProgress( userId ){   
+      const UserProgress = await userProgressModel.findOne({ user: userId });
+      if(!UserProgress){
+        throw ApiError.BadRequest('Прогресс пользователя не найден')
+      }
+      return UserProgress
+    }
+
+    async copleteLesson( lessonId, userId ){
+      console.log(userId)
+      let UserProgress = await userProgressModel.findOne({user: userId});
+      if(!UserProgress){
+        UserProgress = await userProgressModel.create({ user: userId, lessons: [] });
+      }
+      const lesson = UserProgress.lessons?.find(lesson => lesson.lesson === lessonId)
+      if(lesson) {
+        lesson.isCompleted = true
+      } else {
+        UserProgress.lessons.push({ lesson: lessonId, isCompleted: true })
+      }
+      await UserProgress.save()
+      return UserProgress
+    }
+
 
 }
 

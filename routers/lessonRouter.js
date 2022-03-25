@@ -1,9 +1,9 @@
 const express = require('express');
 const lessonController = require('../controllers/lessonController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 
 const lessonRouter = express.Router();
-lessonRouter.get('/', lessonController.getLesson)
-lessonRouter.get('/video', lessonController.getVideo)
-
+lessonRouter.get('/:lessonId', authMiddleware, lessonController.getLesson)
+lessonRouter.get('/videos/:video', lessonController.getVideo)
 module.exports = lessonRouter;

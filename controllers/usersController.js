@@ -1,12 +1,12 @@
-const { validationResult } = require('express-validator');
 const config = require("config");
 
 const userService = require("../services/userService")
-const validate = require("../utils/validate");
+
 const ApiError = require("../exceptions/ApiError");
 
 
 class UserController {
+    // get users
     async getUsers(req, res, next){
         try {
             const usersData = await userService.getAllUsers();
@@ -24,9 +24,23 @@ class UserController {
             next(e)
         }
     }
+    // user change
+    async updateUserInfo(req, res, next){
+        try {
+            const userId = req.user.id;
+            const data = req.body;
+            if(req.file){
+                data.avatar = `${config.get("APIURL")}/images/${req.file.filename}`;
+            }
+            const userData = await userService.updateUserInfo(userId, data);
+            res.json(userData);
+        } catch (e) {
+            next(e)
+        }
+    }
+
     async changePassword(req, res, next){
         try {
-            validate(req);
             const { password, newPassword, confirmNewPassword } = req.body;
             if(newPassword != confirmNewPassword){
                 return next( ApiError.BadRequest('Пароли не совпадают') );
@@ -48,28 +62,7 @@ class UserController {
             next(e)
         }
     }
-    async updateUserInfo(req, res, next){
-        try {
-            if(req.files && !req.file){
-                return next(ApiError.BadRequest("Ошибка записи файла"));
-            }
-            const errors = validationResult(req)
-            if(!errors.isEmpty()){
-                return next(ApiError.BadRequest('Ошибка при валидации', errors))
-            }
-            const userId = req.user.id;
-            const data = req.body;
-            if(req.file){
-                data.avatar = `${config.get("APIURL")}/images/${req.file.filename}`;
-            }
-            const userData = await userService.updateUserInfo(userId, data);
-            res.json(userData);
-        } catch (e) {
-            next(e)
-        }
 
-
-    }
     async uploadUserAvatar(req, res, next){
         try {
             if(!req.file){

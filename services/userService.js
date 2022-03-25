@@ -6,6 +6,7 @@ const mailService = require("./mailService");
 const tokenService = require("./tokenService");
 const userModel = require("../models/userModel");
 const UserDto = require('../dtos/userDto');
+const AuthDto = require('../dtos/authDto');
 const UserTokenDto = require('../dtos/userTokenDto');
 const ApiError = require("../exceptions/ApiError");
 const fileService = require('./fileService');
@@ -23,7 +24,7 @@ class UserService {
         const user = await userModel.create({ email, password: hashPassword, activateLink, name, surname });
         // await mailService.sendActivationMail(email, `${config.get("APIURL")}/api/auth/activate/${activateLink}`);
         console.log(`${config.get("APIURL")}/api/auth/activate/${activateLink}`)
-        const userDto = new UserDto(user);
+        const userDto = new AuthDto(user);
         const userTokenDto = new UserTokenDto(user);
         const tokens = await tokenService.generateTokens({...userTokenDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
@@ -46,7 +47,7 @@ class UserService {
         if(!isPassEquals){
             throw ApiError.BadRequest('Некорректный пароль');
         }
-        const userDto = new UserDto(user);
+        const userDto = new AuthDto(user);
         const userTokenDto = new UserTokenDto(user);
         const tokens = await tokenService.generateTokens({...userTokenDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
@@ -104,7 +105,7 @@ class UserService {
             throw ApiError.BadRequest('Невалидный токен');
         }
         const user = await userModel.findById( userData.id );
-        const userDto = new UserDto(user);
+        const userDto = new AuthDto(user);
         const userTokenDto = new UserTokenDto(user);
         const tokens = await tokenService.generateTokens({...userTokenDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
@@ -124,7 +125,8 @@ class UserService {
         const userData = new UserDto(user);
         return userData;
     }
-    // users-information
+
+    // get-users-information
     async getAllUsers(){
         const users = await userModel.find();
         const usersData = users.map(user => new UserDto(user));
@@ -138,18 +140,8 @@ class UserService {
         const userData = new UserDto(user);
         return userData;
     }
-    async changePassword(userId, password, newPassword){
-        const user = await userModel.findById(userId);
-        const isPassEquals = await bcrypt.compare(password, user.password);
-        if(!isPassEquals){
-            throw ApiError.BadRequest('Некорректный пароль');
-        }
-        const hashPassword = await bcrypt.hash(newPassword, 3);
-        user.password = hashPassword;
-        await user.save();
-        const userData = new UserDto(user);
-        return userData;
-    }
+
+    // change-users-information
     async updateUserInfo(id, data){
         const user = await userModel.findById(id);
         if(!user){
@@ -186,7 +178,10 @@ class UserService {
         if(!user){
             throw ApiError.BadRequest('Пользователь не найден');
         }
-        user.info.avatar = avatar;
+        if(user.avatar){
+            await fileService.removeAvatar(user.avatar) 
+        }
+        user.avatar = avatar;
         await user.save();
         return new UserDto(user);
     }
@@ -195,13 +190,25 @@ class UserService {
         if(!user){
             throw ApiError.BadRequest('Пользователь не найден');
         }
-        if(!user.info.avatar){
+        if(!user.avatar){
             throw ApiError.BadRequest('Файл не найден');
         }
-        const file = await fileService.removeAvatar(user.info.avatar)
-        user.info.avatar = null;
+        await fileService.removeAvatar(user.avatar)
+        user.avatar = null;
         await user.save();
         return new UserDto(user);
+    }
+    async changePassword(userId, password, newPassword){
+        const user = await userModel.findById(userId);
+        const isPassEquals = await bcrypt.compare(password, user.password);
+        if(!isPassEquals){
+            throw ApiError.BadRequest('Некорректный пароль');
+        }
+        const hashPassword = await bcrypt.hash(newPassword, 3);
+        user.password = hashPassword;
+        await user.save();
+        const userData = new UserDto(user);
+        return userData;
     }
     async updateNotificationSettings( id, courseNotif, lessonsNotif, actionsNotif ){
         const user = await userModel.findById(id);
@@ -215,36 +222,35 @@ class UserService {
         return new UserDto(user);
     }
 
-    async setUserRole(userId, role){
-        const user = await userModel.findById(userId);
-        if(!user){
-            throw ApiError.BadRequest('Некорректный пользователь' );
-        }
-        if(user.role == role){
-            throw ApiError.BadRequest('Некорректный запрос');
-        }
-        if(!Roles.includes(role)){
-            throw ApiError.BadRequest('Некорректный запрос');
-        }
-        user.role = role;
-        await user.save();
-        return new UserDto(user);
-    }
-
-    async deleteUser(userId){
-        const user = await userModel.deleteOne({_id: userId })
-        if(!user){
-            throw ApiError.BadRequest('Некорректный пользователь');
-        }
-        return user
-
-    }
 
 
 
 
 
 
+    // async setUserRole(userId, role){
+    //     const user = await userModel.findById(userId);
+    //     if(!user){
+    //         throw ApiError.BadRequest('Некорректный пользователь' );
+    //     }
+    //     if(user.role == role){
+    //         throw ApiError.BadRequest('Некорректный запрос');
+    //     }
+    //     if(!Roles.includes(role)){
+    //         throw ApiError.BadRequest('Некорректный запрос');
+    //     }
+    //     user.role = role;
+    //     await user.save();
+    //     return new UserDto(user);
+    // }
+    // async deleteUser(userId){
+    //     const user = await userModel.deleteOne({_id: userId })
+    //     if(!user){
+    //         throw ApiError.BadRequest('Некорректный пользователь');
+    //     }
+    //     return user
+
+    // }
 }
 
 module.exports = new UserService()
