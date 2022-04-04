@@ -6,8 +6,8 @@ class CoursesController {
         try {
             const { userId } = req.params;
             const courses = await coursesService.getAllCoursesData()
-            const progress = await coursesService.getUserProgress( userId )
-            res.json({courses, progress});
+            // const progress = await coursesService.getUserProgress( userId )
+            res.json({courses});
         } catch (e) {
             next(e)
         } 

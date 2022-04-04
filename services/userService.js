@@ -228,21 +228,21 @@ class UserService {
 
 
 
-    // async setUserRole(userId, role){
-    //     const user = await userModel.findById(userId);
-    //     if(!user){
-    //         throw ApiError.BadRequest('Некорректный пользователь' );
-    //     }
-    //     if(user.role == role){
-    //         throw ApiError.BadRequest('Некорректный запрос');
-    //     }
-    //     if(!Roles.includes(role)){
-    //         throw ApiError.BadRequest('Некорректный запрос');
-    //     }
-    //     user.role = role;
-    //     await user.save();
-    //     return new UserDto(user);
-    // }
+    async setUserRole(userId, role){
+        const user = await userModel.findById(userId);
+        if(!user){
+            throw ApiError.BadRequest('Некорректный пользователь' );
+        }
+        if(user.role == role){
+            throw ApiError.BadRequest('Некорректный запрос');
+        }
+        if(!Roles.includes(role)){
+            throw ApiError.BadRequest('Некорректный запрос');
+        }
+        user.role = role;
+        await user.save();
+        return new UserDto(user);
+    }
     // async deleteUser(userId){
     //     const user = await userModel.deleteOne({_id: userId })
     //     if(!user){
