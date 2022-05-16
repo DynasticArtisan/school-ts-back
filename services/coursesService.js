@@ -2,6 +2,7 @@ const courseModel = require("../models/courseModel")
 const moduleModel = require("../models/moduleModel")
 const lessonModel = require("../models/lessonModel")
 const userProgressModel = require("../models/userProgressModel")
+const ULProgressModel = require("../models/ULProgressModel")
 const ApiError = require("../exceptions/ApiError")
 
 class CoursesService {
@@ -17,49 +18,29 @@ class CoursesService {
         return Courses
     }
 
-    async getCoursesData(courseId){
-      const Course = await courseModel.findById(courseId).populate({
-        path: 'modules',
-        model: moduleModel,
-        populate: {
-          path: 'lessons',
-          model: lessonModel
-        }
-      })
-      return Course
-    }
-
-
-
-
     // COURSE SERVICE
 
-    async createCourse( urlname, title, subtitle, description, image ){
-      const Course = await courseModel.create({ urlname, title, subtitle, description, image })
+    async createCourse( payload ){
+      const Course = await courseModel.create(payload)
       return Course
     }
-
     async getAllCourses(){
       const Courses = await courseModel.find()
       return Courses
     }
-
     async getCourse(courseId){
       const Course = await courseModel.findById(courseId)
       return Course
     }
-
     async updateCourse(courseId, data){
       const Course = await courseModel.findByIdAndUpdate(courseId, data, {new: true})
       return Course
     }
-
     async deleteCourse(courseId){
       const Course = await courseModel.findByIdAndRemove(courseId)
       return Course
     }
-
-    async dropCourses(){
+    async dropAllCourses(){
       const Courses = await courseModel.deleteMany()
       return Courses
     }
@@ -72,9 +53,17 @@ class CoursesService {
       if(!Course){
         throw ApiError.BadRequest('Курс не найден')
       }
+      const PrevModule = await moduleModel.findById(payload.prevModule)
+      if(!PrevModule && payload.prevModule){
+        throw ApiError.BadRequest('Предыдущий модуль не найден')
+      }
       const Module = await moduleModel.create(payload)
       Course.modules.push(Module._id)
       await Course.save()
+      if(PrevModule){
+        PrevModule.nextModule = Module._id
+        await PrevModule.save()
+      }
       return Module
     }
     async getModules(){
@@ -102,7 +91,10 @@ class CoursesService {
       }
       return Module
     }
-
+    async dropAllModules(){
+      const Modules = await moduleModel.deleteMany()
+      return Modules
+    }
 
   // LESSON SERVICE
 
@@ -135,6 +127,17 @@ class CoursesService {
       }
       return Lesson
     }
+    // async getOneLesson(lessonId, userID){
+    //   const Lesson = await lessonModel.findById(lessonId).lean().populate({
+    //     path: 'progress',
+    //     model: ULProgressModel,
+    //     match: { user: userID }
+    //   });
+    //   if(!Lesson){
+    //     throw ApiError.BadRequest('Урок не найден')
+    //   }
+    //   return Lesson
+    // }
     async updateLesson(lessonId, data){
       const Lesson = await lessonModel.findByIdAndUpdate(lessonId, data, {new: true});
       if(!Lesson){
@@ -153,32 +156,6 @@ class CoursesService {
       const Lessons = await lessonModel.deleteMany()
       return Lessons
     }
-
-
-
-    async getUserProgress( userId ){   
-      const UserProgress = await userProgressModel.findOne({ user: userId });
-      if(!UserProgress){
-        throw ApiError.BadRequest('Прогресс пользователя не найден')
-      }
-      return UserProgress
-    }
-
-    async copleteLesson( lessonId, userId ){
-      let UserProgress = await userProgressModel.findOne({user: userId});
-      if(!UserProgress){
-        UserProgress = await userProgressModel.create({ user: userId, lessons: [] });
-      }
-      const lesson = UserProgress.lessons?.find(lesson => lesson.lesson === lessonId)
-      if(lesson) {
-        lesson.isCompleted = true
-      } else {
-        UserProgress.lessons.push({ lesson: lessonId, isCompleted: true })
-      }
-      await UserProgress.save()
-      return UserProgress
-    }
-
 
 }
 

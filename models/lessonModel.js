@@ -10,4 +10,10 @@ const LessonSchema = new Schema({
     nextLesson: { type: Schema.Types.ObjectId, rel: 'Lessons' },
 })
 
+LessonSchema.virtual('progress', {
+    ref: 'UsersLessonProgress',
+    localField: '_id',
+    foreignField: 'lesson'
+})
+
 module.exports = model('Lessons', LessonSchema)

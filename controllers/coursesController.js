@@ -1,17 +1,6 @@
 const coursesService = require("../services/coursesService");
 
-
 class CoursesController {
-    async getUserCoursesData(req, res, next){
-        try {
-            const { userId } = req.params;
-            const courses = await coursesService.getAllCoursesData()
-            // const progress = await coursesService.getUserProgress( userId )
-            res.json({courses});
-        } catch (e) {
-            next(e)
-        } 
-    }
     async getAllCoursesData(req, res, next){
         try {
             const coursesData = await coursesService.getAllCoursesData()
@@ -20,7 +9,6 @@ class CoursesController {
             next(e)
         }
     }
-
 
     // COURSE CONTROLLER
 
@@ -33,7 +21,6 @@ class CoursesController {
             next(e)
         }
     }
-
     async getCourse(req, res, next){
         try {
             const { courseId } = req.params;
@@ -43,7 +30,6 @@ class CoursesController {
             next(e)
         }
     }
-
     async getCourses(req, res, next){
         try {
             const data = await coursesService.getAllCourses()
@@ -52,7 +38,6 @@ class CoursesController {
             next(e)
         }
     }
-
     async updateCourse(req,res,next){
         try {
             const { courseId } = req.params;
@@ -62,7 +47,6 @@ class CoursesController {
             next(e)
         }
     }
-
     async deleteCourse(req,res,next){
         try {
             const { courseId } = req.params;
@@ -72,7 +56,14 @@ class CoursesController {
             next(e)
         }
     }
-
+    async dropAllCourses(req,res,next){
+        try {
+            const data = await coursesService.dropAllCourses()
+            res.json(data)
+        } catch (e) {
+            next(e)
+        }
+    }
 
     // MODULE CONTROLLER
 
@@ -85,7 +76,6 @@ class CoursesController {
             next(e)
         }
     }
-
     async getModules(req, res, next){
         try {
             const data = await coursesService.getModules()
@@ -94,7 +84,6 @@ class CoursesController {
             next(e)
         }
     }
-
     async getOneModule(req, res, next){
         try {
             const { moduleId } = req.params;
@@ -104,7 +93,6 @@ class CoursesController {
             next(e)
         }
     }
-
     async updateModule(req, res, next){
         try {
             const { moduleId } = req.params;
@@ -114,7 +102,6 @@ class CoursesController {
             next(e)
         }
     }
-
     async deleteModule(req, res, next){
         try {
             const { moduleId } = req.params;
@@ -124,7 +111,14 @@ class CoursesController {
             next(e)
         }
     }
-
+    async dropAllModules(req,res,next){
+        try {
+            const data = await coursesService.dropAllModules()
+            res.json(data)
+        } catch (e) {
+            next(e)
+        }
+    }
 
     // LESSON CONTROLLER
 
@@ -136,7 +130,6 @@ class CoursesController {
             next(e)
         }
     }
-
     async getAllLesson(req, res, next){
         try {
             const data = await coursesService.getLessons()
@@ -145,17 +138,16 @@ class CoursesController {
             next(e)
         }
     }
-
     async getOneLesson(req, res, next){
         try {
             const { lessonId } = req.params;
-            const data = await coursesService.getOneLesson(lessonId)
+            const { user } = req.query;
+            const data = await coursesService.getOneLesson(lessonId, user)
             res.json(data)
         } catch (e) {
             next(e)
         }
     }
-
     async updateLesson(req, res, next){
         try {
             const { lessonId } = req.params;
@@ -165,7 +157,6 @@ class CoursesController {
             next(e)
         }
     }
-
     async deleteLesson(req, res, next){
         try {
             const { lessonId } = req.params;
@@ -175,33 +166,10 @@ class CoursesController {
             next(e)
         }
     }
-
     async dropAllLessons(req,res,next){
         try {
             const data = await coursesService.dropAllLessons()
             res.json(data)
-        } catch (e) {
-            next(e)
-        }
-    }
-
-
-
-    async getUserProgress(req, res, next){
-        try {
-            const { userId } = req.params;
-            const progressData = await coursesService.getUserProgress( userId )
-            res.json(progressData)
-        } catch (e) {
-            next(e)
-        }
-    }
-    async copleteLesson(req, res, next){
-        try {
-            const { lessonId, userId } = req.body;
-            console.log(userId)
-            const progressData = await coursesService.copleteLesson( lessonId, userId )
-            res.json(progressData)
         } catch (e) {
             next(e)
         }
