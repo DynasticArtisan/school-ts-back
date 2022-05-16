@@ -7,6 +7,7 @@ const coursesRouter = require('./coursesRouter');
 const lessonRouter = require('./lessonRouter');
 const notificationRouter = require('./notificationsRouter');
 const profileRouter = require('./profileRouter');
+const progressRouter = require('./progressRouter');
 const superRouter = require('./superRouter');
 const usersRouter = require('./usersRouter');
 
@@ -14,6 +15,7 @@ const apiRouter = express.Router();
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/me', authMiddleware, profileRouter);
 
+apiRouter.use('/progress', progressRouter);
 
 apiRouter.use('/courses', coursesRouter);
 
