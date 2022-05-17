@@ -1,136 +1,122 @@
-const { populate } = require("../models/courseModel");
+const ApiError = require("../exceptions/ApiError");
 const courseModel = require("../models/courseModel");
-const lessonModel = require("../models/lessonModel");
-const moduleModel = require("../models/moduleModel");
+
 const UCProgressModel = require("../models/UCProgressModel");
 const ULProgressModel = require("../models/ULProgressModel");
 const UMProgressModel = require("../models/UMProgressModel");
 
 class ProgressService {
-    // lessons
+    // lessons progress
+    async createULProgress(payload) {
+        const ULProgress = await ULProgressModel.create(payload);
+        return ULProgress
+    }
     async getAllULProgress(){
         const ULProgress = await ULProgressModel.find();
         return ULProgress
     }
-
-    async createULProgress(userID, lessonID, moduleProgressID) {
-        const ULProgress = await ULProgressModel.create({ user: userID, lesson: lessonID, module: moduleProgressID });
+    async getOneULProgress(progressID){
+        const ULProgress = await ULProgressModel.findById(progressID)
+        return ULProgress
+    }
+    async updateULProgress(progressID, payload){
+        const ULProgress = await ULProgressModel.findByIdAndUpdate(progressID, payload, { new: true })
+        return ULProgress
+    }
+    async deleteULProgress(progressID){
+        const ULProgress = await ULProgressModel.findByIdAndDelete(progressID)
+        return ULProgress
+    }
+    async deleteAllULProgress(){
+        const ULProgress = await ULProgressModel.deleteMany()
         return ULProgress
     }
 
-    async readULProgress(userID, lessonID) {
-        const ULProgress = await ULProgressModel.findOne({ user: userID, lesson: lessonID });
-        return ULProgress
-    }
-
-    async deleteULProgress(userID, lessonID) {
-        const ULProgress = await ULProgressModel.deleteOne({ user: userID, lesson: lessonID });
-        return ULProgress
-    }
-
-    // modules
+    // modules progress
+    async createUMProgress(payload) {
+        const UMProgress = await UMProgressModel.create(payload);
+        return UMProgress
+    }    
     async getAllUMProgress(){
-        const UMProgress = await UMProgressModel.find().populate({
-            path: 'lessons',
-            model: ULProgressModel
-          });
+        const UMProgress = await UMProgressModel.find();
         return UMProgress
     }
-
-    async createUMProgress(userID, moduleID, courseProgressID) {
-        const UMProgress = await UMProgressModel.create({ user: userID, module: moduleID, course: courseProgressID });
-        return UMProgress
-    }
-
-    async readUMProgress(userID, moduleID) {
-        const UMProgress = await UMProgressModel.findOne({ user: userID, module: moduleID });
-        return UMProgress
-    }
-
-    async deleteUMProgress(userID, moduleID) {
-        const UMProgress = await UMProgressModel.deleteOne({ user: userID, module: moduleID });
-        return UMProgress
-    }
-
-    //courses 
-    async getAllUCProgress(){
-        const UCProgress = await UCProgressModel.find().populate([{
-            path: 'modules',
-            model: UMProgressModel,
-            select: 'module lessons isComplited',
-            populate: [
-                {
-                    path: 'lessons',
-                    model: ULProgressModel,
-                    select: 'lesson isComplited',
-                    populate: {
-                        path: 'lesson',
-                        model: lessonModel,
-                        select:'title description'
-                    }
-                },
-                {
-                    path: 'module',
-                    model: moduleModel,
-                    select:'title description'
-                }
-            ]
-        },
-        {
-            path: 'course',
-            model: courseModel,
-            select:'title subtitle description image'
-        }])
-        return UCProgress
-    }
-
-    async createUCProgress(userID, courseID) {
-        const UCProgress = await UCProgressModel.create({ user: userID, course: courseID });
-        return UCProgress
-    }
-
-    async readUCProgress(userID, courseID) {
-        const UCProgress = await UCProgressModel.findOne({ user: userID, course: courseID });
-        return UCProgress
-    }
-
-    async deleteUCProgress(userID, courseID) {
-        const UCProgress = await UCProgressModel.deleteOne({ user: userID, course: courseID });
-        return UCProgress
-    }
-
-
-
-    // progress
-    async createUserProgress(userID, courseID){
-        const Course = await courseModel.findById(courseID).populate({
-            path: 'modules',
-            model: moduleModel,
-          })
-        if(!Course){
-            throw ApiError.BadRequest('Неверный запрос')
+    async getOneUMProgress(progressID){
+        const UMProgress = await UMProgressModel.findById(progressID)
+        if(!UMProgress){
+            throw ApiError.BadRequest('Прогресс не найден')
         }
-        const Progress = await this.createUCProgress(userID, courseID);
+        return UMProgress
+    }
+    async updateUMProgress(progressID, payload){
+        const UMProgress = await UMProgressModel.findByIdAndUpdate(progressID, payload, { new: true })
+        if(!UMProgress){
+            throw ApiError.BadRequest('Прогресс не найден')
+        }
+        return UMProgress
+    }
+    async deleteUMProgress(progressID){
+        const UMProgress = await UMProgressModel.findByIdAndDelete(progressID)
+        if(!UMProgress){
+            throw ApiError.BadRequest('Прогресс не найден')
+        }
+        return UMProgress
+    }
+    async deleteAllUMProgress(){
+        const UMProgress = await UMProgressModel.deleteMany()
+        return UMProgress
+    }
 
-        for (const module of Course.modules) {
-            const ModuleProgress = await this.createUMProgress(userID, module._id, Progress._id);
-            for (const lesson of module.lessons){
-                const LessonProgress = await this.createULProgress(userID, lesson, ModuleProgress._id);
-                ModuleProgress.lessons.push(LessonProgress._id);
+    //courses progress
+    async createUCProgress(payload) {
+        const UCProgress = await UCProgressModel.create(payload);
+        return UCProgress
+    }
+    async getAllUCProgress(){
+        const UCProgress = await UCProgressModel.find()
+        return UCProgress
+    }
+    async getOneUCProgress(progressID){
+        const UCProgress = await UCProgressModel.find(progressID)
+        if(!UCProgress){
+            throw ApiError.BadRequest('Прогресс не найден')
+        }
+        return UCProgress
+    }
+    async updateUCProgress(progressID, payload){
+        const UCProgress = await UCProgressModel.findByIdAndUpdate(progressID, payload)
+        if(!UCProgress){
+            throw ApiError.BadRequest('Прогресс не найден')
+        }
+        return UCProgress
+    }
+    async deleteUCProgress(progressID){
+        const UCProgress = await UCProgressModel.findByIdAndDelete(progressID)
+        if(!UCProgress){
+            throw ApiError.BadRequest('Прогресс не найден')
+        }
+        return UCProgress
+    }
+    async deleteAllUCProgress(){
+        const UCProgress = await UCProgressModel.deleteMany()
+        return UCProgress
+    }
+
+    async getAllUserProgressWithData(userId){
+        const Courses = await UCProgressModel.find( { user: userId } ).select('course').populate({
+            path: 'course',
+            model: 'Courses',
+            populate: {
+                path: 'modules',
+                model: 'Modules',
             }
-            await ModuleProgress.save();
-            Progress.modules.push(ModuleProgress._id);
-          }
-
-        await Progress.save()
-        return Progress;
+        })
+        return Courses
     }
 
-    async dropAllProgress(){
-        await UCProgressModel.deleteMany()
-        await UMProgressModel.deleteMany()
-        await ULProgressModel.deleteMany()
-    }
+
+
+
 }
 
 module.exports = new ProgressService()

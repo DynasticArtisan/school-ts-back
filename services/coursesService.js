@@ -1,8 +1,7 @@
 const courseModel = require("../models/courseModel")
 const moduleModel = require("../models/moduleModel")
 const lessonModel = require("../models/lessonModel")
-const userProgressModel = require("../models/userProgressModel")
-const ULProgressModel = require("../models/ULProgressModel")
+
 const ApiError = require("../exceptions/ApiError")
 
 class CoursesService {
@@ -18,8 +17,8 @@ class CoursesService {
         return Courses
     }
 
-    // COURSE SERVICE
 
+    // COURSE SERVICE
     async createCourse( payload ){
       const Course = await courseModel.create(payload)
       return Course

@@ -1,15 +1,7 @@
 const progressService = require("../services/progressService");
 
 class ProgressController {
-    async getAllULProgress (req, res, next) {
-        try {
-            const ULProgress = await progressService.getAllULProgress();
-            res.json(ULProgress)
-        } catch (err) {
-            next(err)
-        }
-    }
-
+    // Lesson progress
     async createULProgress (req, res, next) {
         try {
             const { userID, lessonID } = req.body;
@@ -19,28 +11,59 @@ class ProgressController {
             next(err)
         }
     }
-
-    async readULProgress (req, res, next) {
+    async getAllULProgress (req, res, next) {
         try {
-            const { userID, lessonID } = req.body;
-            const ULProgress = await progressService.readULProgress(userID, lessonID);
+            const ULProgress = await progressService.getAllULProgress();
             res.json(ULProgress)
         } catch (err) {
             next(err)
         }
     }
-
+    async getOneULProgress (req, res, next) {
+        try {  
+            const { progressID } = req.params;
+            const ULProgress = await progressService.getOneULProgress(progressID);
+            res.json(ULProgress)
+        } catch (e) {
+            next(e)
+        }
+    }
+    async updateULProgress (req, res, next) {
+        try {
+            const { progressID } = req.params;
+            const ULProgress = await progressService.updateULProgress(progressID, req.body)
+            res.json(ULProgress)
+        } catch (e) {
+            next(e)
+        }
+    }
     async deleteULProgress (req, res, next) {
         try {
-            const { userID, lessonID } = req.body;
-            const ULProgress = await progressService.deleteULProgress(userID, lessonID);
+            const { progressID } = req.params;
+            const ULProgress = await progressService.deleteULProgress(progressID);
             res.json(ULProgress)
         } catch (err) {
             next(err)
         }
     }
+    async deleteAllULProgress (req, res, next) {
+        try {
+            const ULProgress = await progressService.deleteAllULProgress()
+            res.json(ULProgress)
+        } catch (e) {
+            next(e)
+        }
+    }
 
-    // Module
+    // Module progress
+    async createUMProgress (req, res, next) {
+        try {
+            const UMProgress = await progressService.createUMProgress(req.body);
+            res.json(UMProgress)
+        } catch (err) {
+            next(err)
+        }
+    }
     async getAllUMProgress (req, res, next) {
         try {
             const UMProgress = await progressService.getAllUMProgress();
@@ -49,38 +72,51 @@ class ProgressController {
             next(err)
         }
     }
-
-    async createUMProgress (req, res, next) {
+    async getOneUMProgress (req, res, next) {
         try {
-            const { userID, moduleID } = req.body;
-            const UMProgress = await progressService.createUMProgress(userID, moduleID);
+            const { progressID } = req.params;
+            const UMProgress = await progressService.getOneUMProgress(progressID)
             res.json(UMProgress)
         } catch (err) {
             next(err)
         }
     }
-
-    async readUMProgress (req, res, next) {
+    async updateUMProgress (req, res, next) {
         try {
-            const { userID, moduleID } = req.body;
-            const UMProgress = await progressService.readUMProgress(userID, moduleID);
+            const { progressID } = req.params;
+            const UMProgress = await progressService.updateUMProgress(progressID, req.body)
             res.json(UMProgress)
         } catch (err) {
             next(err)
         }
     }
-
     async deleteUMProgress (req, res, next) {
         try {
-            const { userID, moduleID } = req.body;
-            const UMProgress = await progressService.deleteUMProgress(userID, moduleID);
+            const { progressID } = req.params;
+            const UMProgress = await progressService.deleteUMProgress(progressID)
             res.json(UMProgress)
         } catch (err) {
             next(err)
         }
     }
+    async deleteAllUMProgress (req, res, next) {
+        try {
+            const UMProgress = await progressService.deleteAllUMProgress()
+            res.json(UMProgress)            
+        } catch (e) {
+            next(e)
+        }
+    }
 
-    // Courses
+    // Courses progress
+    async createUCProgress (req, res, next) {
+        try {
+            const UCProgress = await progressService.createUCProgress(req.body);
+            res.json(UCProgress)
+        } catch (err) {
+            next(err)
+        }
+    }
     async getAllUCProgress (req, res, next) {
         try {
             const UCProgress = await progressService.getAllUCProgress();
@@ -89,57 +125,44 @@ class ProgressController {
             next(err)
         }
     }
-
-    async createUCProgress (req, res, next) {
+    async getOneUCProgress (req, res, next) {
         try {
-            const { userID, courseID } = req.body;
-            const UCProgress = await progressService.createUCProgress(userID, courseID);
+            const { progressID } = req.params;
+            const UCProgress = await progressService.getOneUCProgress(progressID)
             res.json(UCProgress)
         } catch (err) {
             next(err)
         }
     }
-
-    async readUCProgress (req, res, next) {
+    async updateUCProgress (req, res, next) {
         try {
-            const { userID, courseID } = req.body;
-            const UCProgress = await progressService.readUCProgress(userID, courseID);
+            const { progressID } = req.params;
+            const UCProgress = await progressService.updateUCProgress(progressID, req.body)
             res.json(UCProgress)
         } catch (err) {
             next(err)
         }
     }
-
     async deleteUCProgress (req, res, next) {
         try {
-            const { userID, courseID } = req.body;
-            const UCProgress = await progressService.deleteUCProgress(userID, courseID);
+            const { progressID } = req.params;
+            const UCProgress = await progressService.deleteUCProgress(progressID)
             res.json(UCProgress)
         } catch (err) {
             next(err)
         }
     }
-
-
-
-    async createUserProgress (req, res, next) {
+    async deleteAllUCProgress (req, res, next) {
         try {
-            const { userID, courseID } = req.body;
-            const UserProgress = await progressService.createUserProgress(userID, courseID);
-            res.json(UserProgress)
-        } catch (err) {
-            next(err)
+            const UCProgress = await progressService.deleteAllUCProgress()
+            res.json(UCProgress)            
+        } catch (e) {
+            next(e)
         }
     }
 
-    async dropDB(req,res,next){
-        try {
-            await progressService.dropAllProgress()
-            res.json('data droped')
-        } catch (err) {
-            next(err)
-        }
-    }
+
+    
 }
 
 module.exports = new ProgressController()

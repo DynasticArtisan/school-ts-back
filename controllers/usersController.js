@@ -6,8 +6,16 @@ const ApiError = require("../exceptions/ApiError");
 
 
 class UserController {
-    // get users
-    async getUsers(req, res, next){
+    // user controller
+    async createUser(req, res, next) {
+        try {
+            const User = await userService.createUser(req.body)
+            res.json(User)
+        } catch (e) {
+            next(e)
+        }
+    }
+    async getAllUsers(req, res, next){
         try {
             const usersData = await userService.getAllUsers();
             res.json(usersData)
@@ -17,14 +25,35 @@ class UserController {
     }
     async getOneUser(req, res,next){
         try {
-            const { id } = req.params;
-            const userData = await userService.getOneUser(id);
+            const { userId } = req.params;
+            const userData = await userService.getOneUser(userId);
             res.json(userData);
         } catch (e) {
             next(e)
         }
     }
-    // user change
+    async updateUser(req, res, next){
+        try {
+            const { userId } = req.params;
+            const userData = await userService.updateUser(userId)
+            res.json(userData);
+        } catch (e) {
+            next(e)
+        }
+    }
+    async deleteUser(req, res, next){
+        try {
+            const { userId } = req.params;
+            const userData = await userService.deleteUser(userId)
+            res.json("Пользователь был удален");
+        } catch (e) {
+            next(e)
+        }
+    }
+
+
+
+
     async updateUserInfo(req, res, next){
         try {
             const userId = req.user.id;
@@ -83,13 +112,17 @@ class UserController {
         }
     }
 
-    async changeUserRole(req, res, next){
+
+
+
+    async updateUserRole(req, res, next){
         try {
-            const { id, role } = req.body;
-            if(req.user.role != 'super'){
-                return next(ApiError.UnauthorizedError())
-            }
-            const userData = await userService.changeRole(id, role)
+            const { role } = req.body;
+            const { userId } = req.params;
+            // if(req.user.role !== 'super'){
+            //     return next(ApiError.UnauthorizedError())
+            // }
+            const userData = await userService.updateUser(userId, { role })
             res.json(userData)
         } catch (e) {
             next(e)

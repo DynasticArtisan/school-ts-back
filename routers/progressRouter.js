@@ -3,19 +3,26 @@ const progressController = require('../controllers/progressController');
 
 const progressRouter = express.Router();
  
-progressRouter.get('/lesson', progressController.getAllULProgress)
 progressRouter.post('/lesson', progressController.createULProgress)
-progressRouter.delete('/lesson', progressController.deleteULProgress)
+progressRouter.get('/lesson', progressController.getAllULProgress)
+progressRouter.get('/lesson/:progressID', progressController.getOneULProgress)
+progressRouter.put('/lesson/:progressID', progressController.updateULProgress)
+progressRouter.delete('/lesson/:progressID', progressController.deleteULProgress)
+progressRouter.delete('/lesson', progressController.deleteAllULProgress)
 
-progressRouter.get('/module', progressController.getAllUMProgress)
 progressRouter.post('/module', progressController.createUMProgress)
-progressRouter.delete('/module', progressController.deleteUMProgress)
+progressRouter.get('/module', progressController.getAllUMProgress)
+progressRouter.get('/module/:progressID', progressController.getOneUMProgress)
+progressRouter.put('/module/:progressID', progressController.updateUMProgress)
+progressRouter.delete('/module/:progressID', progressController.deleteUMProgress)
+progressRouter.delete('/module', progressController.deleteAllUMProgress)
 
-progressRouter.get('/course', progressController.getAllUCProgress)
 progressRouter.post('/course', progressController.createUCProgress)
-progressRouter.delete('/course', progressController.deleteUCProgress)
+progressRouter.get('/course', progressController.getAllUCProgress)
+progressRouter.get('/course/:progressID', progressController.getOneUCProgress)
+progressRouter.put('/course/:progressID', progressController.updateUCProgress)
+progressRouter.delete('/course/:progressID', progressController.deleteUCProgress)
+progressRouter.delete('/course', progressController.deleteAllUCProgress)
 
-progressRouter.post('/', progressController.createUserProgress)
-progressRouter.post('/drop', progressController.dropDB)
 
 module.exports = progressRouter;

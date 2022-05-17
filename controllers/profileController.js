@@ -1,6 +1,8 @@
 const ApiError = require("../exceptions/ApiError");
 const userService = require("../services/userService")
 const notificationsService = require("../services/notificationsService");
+const coursesService = require("../services/coursesService");
+const progressService = require("../services/progressService");
 
 class UserController {
     async getProfile(req, res,next){
@@ -91,6 +93,19 @@ class UserController {
             next(e)
         }
     }
+
+
+    async getMyCourses(req, res, next){
+        try {
+            // const { userId } = req.user;
+            const { userId } = req.params;
+            const courseData = await progressService.getAllUserProgressWithData(userId)
+            res.json(courseData)
+        } catch (e) {
+            next(e)
+        }
+    }
+
 
 
 }

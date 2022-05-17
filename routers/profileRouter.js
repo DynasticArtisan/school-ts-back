@@ -11,5 +11,6 @@ profileRouter.post('/password', profileController.changePassword) //validate tha
 profileRouter.get('/notifications', profileController.getNotifications)
 profileRouter.post('/notifications', profileController.updateNotificationsSettings) //validate that
 profileRouter.get('/notifications/check', profileController.checkNewNotifications)
+profileRouter.get('/courses/:userId', profileController.getMyCourses)
 
 module.exports = profileRouter;

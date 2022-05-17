@@ -2,11 +2,15 @@ const express = require('express');
 const usersController = require('../controllers/usersController');
 
 const usersRouter = express.Router();
- 
-// maybe into super-router
-usersRouter.post("/changerole", usersController.changeUserRole);
-usersRouter.get("/", usersController.getUsers );
-usersRouter.get("/:id", usersController.getOneUser );
+
+usersRouter.post('/', usersController.createUser)
+usersRouter.get('/', usersController.getAllUsers)
+usersRouter.get('/:userId', usersController.getOneUser)
+usersRouter.put('/:userId', usersController.updateUser)
+usersRouter.delete('/:userId', usersController.deleteUser)
+
+usersRouter.put("/:userId/role", usersController.updateUserRole);
+
 
    
 module.exports = usersRouter;

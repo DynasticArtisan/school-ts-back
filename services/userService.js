@@ -14,6 +14,37 @@ const fileService = require('./fileService');
 const Roles = [ 'teacher', 'curator', 'user' ];
 
 class UserService {
+    async createUser(payload) {
+        const User = await userModel.create(payload);
+        return User
+    }
+    async getAllUsers() {
+        const Users = await userModel.find()
+        return Users
+    }
+    async getOneUser(userId) {
+        const User = await userModel.findById(userId);
+        if(!User){
+            throw ApiError.BadRequest('Пользователь не найден')
+        }
+        return User
+    }
+    async updateUser(userId, payload) {
+        const User = await userModel.findByIdAndUpdate(userId, payload, { new: true });
+        if(!User){
+            throw ApiError.BadRequest('Пользователь не найден')
+        }
+        return User
+    }
+    async deleteUser(userId) {
+        const User = await userModel.findByIdAndDelete(userId);
+        if(!User){
+            throw ApiError.BadRequest('Пользователь не найден')
+        }
+        return User
+    }
+
+
     async registration (name, surname, email, password) {
         const candidate = await userModel.findOne({ email });
         if(candidate){
@@ -126,20 +157,7 @@ class UserService {
         return userData;
     }
 
-    // get-users-information
-    async getAllUsers(){
-        const users = await userModel.find();
-        const usersData = users.map(user => new UserDto(user));
-        return usersData;
-    }
-    async getOneUser(id){
-        const user = await userModel.findById(id);
-        if(!user){
-            throw ApiError.BadRequest('Пользователь не найден');
-        }
-        const userData = new UserDto(user);
-        return userData;
-    }
+
 
     // change-users-information
     async updateUserInfo(id, data){
@@ -243,14 +261,6 @@ class UserService {
         await user.save();
         return new UserDto(user);
     }
-    // async deleteUser(userId){
-    //     const user = await userModel.deleteOne({_id: userId })
-    //     if(!user){
-    //         throw ApiError.BadRequest('Некорректный пользователь');
-    //     }
-    //     return user
-
-    // }
 }
 
 module.exports = new UserService()
