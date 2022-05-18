@@ -6,7 +6,20 @@ const CourseSchema = new Schema({
     subtitle: { type: String },
     description: { type: String },
     image: { type: String },
-    modules: [ { type: Schema.Types.ObjectId, rel: 'Modules' } ]
 })
+
+CourseSchema.virtual('modules',{
+    ref: "Modules",
+    localField: "_id",
+    foreignField: "course",
+})
+
+CourseSchema.virtual('totalLessons',{
+    ref: "Lessons",
+    localField: "_id",
+    foreignField: "course",
+    count: true
+})
+
 
 module.exports = model('Courses', CourseSchema)

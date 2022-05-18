@@ -4,10 +4,15 @@ const ModuleSchema = new Schema({
     urlname: { type: String },
     title: { type: String },
     description: { type: String },
-    lessons: [{ type: Schema.Types.ObjectId, rel: 'Lessons' }],
     course: { type: Schema.Types.ObjectId, rel: 'Courses' },
+    firstModule: { type: Boolean },
     prevModule: { type: Schema.Types.ObjectId, rel: 'Modules' },
-    nextModule: { type: Schema.Types.ObjectId, rel: 'Modules' },
+})
+
+ModuleSchema.virtual('lessons', {
+    ref: 'Lessons',
+    localField: '_id',
+    foreignField: 'module'
 })
 
 module.exports = model('Modules', ModuleSchema)

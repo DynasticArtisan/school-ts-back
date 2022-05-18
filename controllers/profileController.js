@@ -99,8 +99,8 @@ class UserController {
         try {
             // const { userId } = req.user;
             const { userId } = req.params;
-            const courseData = await progressService.getAllUserProgressWithData(userId)
-            res.json(courseData)
+            const courses = await progressService.getUserCourses(userId)
+            res.json(courses)
         } catch (e) {
             next(e)
         }

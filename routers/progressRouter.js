@@ -24,5 +24,8 @@ progressRouter.put('/course/:progressID', progressController.updateUCProgress)
 progressRouter.delete('/course/:progressID', progressController.deleteUCProgress)
 progressRouter.delete('/course', progressController.deleteAllUCProgress)
 
+progressRouter.post('/', progressController.unlockCourseToUser)
+// for complete lesson -> homework api
+progressRouter.post('/complete', progressController.completeLesson)
 
 module.exports = progressRouter;

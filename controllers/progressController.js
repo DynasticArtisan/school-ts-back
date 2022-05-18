@@ -163,6 +163,29 @@ class ProgressController {
 
 
     
+
+
+
+    // User Access Managing
+    async unlockCourseToUser(req, res, next){
+        try {
+            const { user, course } = req.body;
+            const Course = await progressService.unlockCourseToUser(course, user)
+            res.json(Course)
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async completeLesson(req, res, next){
+        try {
+            const { lesson, user } = req.body;
+            const data = await progressService.completeLesson(lesson, user)
+            res.json(data)
+        } catch (e) {
+            next(e)
+        }
+    }
 }
 
 module.exports = new ProgressController()

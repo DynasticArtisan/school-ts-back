@@ -24,7 +24,7 @@ class CoursesService {
       return Course
     }
     async getAllCourses(){
-      const Courses = await courseModel.find()
+      const Courses = await courseModel.find().lean().populate('totalLessons')
       return Courses
     }
     async getCourse(courseId){
@@ -52,17 +52,13 @@ class CoursesService {
       if(!Course){
         throw ApiError.BadRequest('Курс не найден')
       }
-      const PrevModule = await moduleModel.findById(payload.prevModule)
-      if(!PrevModule && payload.prevModule){
-        throw ApiError.BadRequest('Предыдущий модуль не найден')
+      if(payload.prevModule){
+        const PrevModule = await moduleModel.findById(payload.prevModule)
+        if(!PrevModule){
+          throw ApiError.BadRequest('Предыдущий модуль не найден')
+        }
       }
       const Module = await moduleModel.create(payload)
-      Course.modules.push(Module._id)
-      await Course.save()
-      if(PrevModule){
-        PrevModule.nextModule = Module._id
-        await PrevModule.save()
-      }
       return Module
     }
     async getModules(){
@@ -70,7 +66,7 @@ class CoursesService {
       return Modules
     }
     async getOneModule(moduleId){
-      const Module = await moduleModel.findById(moduleId);
+      const Module = await moduleModel.findById(moduleId).lean();
       if(!Module){
         throw ApiError.BadRequest('Модуль не найден')
       }
@@ -102,17 +98,13 @@ class CoursesService {
       if(!Module){
         throw ApiError.BadRequest('Модуль не найден')
       }
-      const PrevLesson = await lessonModel.findById(payload.prevLesson)
-      if(!PrevLesson && payload.prevLesson){
-        throw ApiError.BadRequest('Предыдущий урок не найден')
+      if(payload.prevLesson){
+        const PrevLesson = await lessonModel.findById(payload.prevLesson)
+        if(!PrevLesson){
+          throw ApiError.BadRequest('Предыдущий урок не найден')
+        }
       }
       const Lesson = await lessonModel.create(payload)
-      Module.lessons.push(Lesson._id)
-      await Module.save()
-      if(PrevLesson){
-        PrevLesson.nextLesson = Lesson._id
-        await PrevLesson.save()
-      }
       return Lesson
     }
     async getLessons(){

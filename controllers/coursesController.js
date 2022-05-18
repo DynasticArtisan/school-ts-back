@@ -14,8 +14,7 @@ class CoursesController {
 
     async createCourse(req, res, next){
         try {
-            const { urlname, title, subtitle, description, image } = req.body;
-            const data = await coursesService.createCourse( urlname, title, subtitle, description, image )
+            const data = await coursesService.createCourse( req.body )
             res.json(data)
         } catch (e) {
             next(e)
