@@ -129,5 +129,19 @@ class UserController {
         }
 
     }
+
+
+    async getUsersList(req, res, next){
+        try {
+            const UsersList = await userService.getUsersList()
+            res.json(UsersList)
+        } catch (e) {
+            next(e)
+        }
+    }
+
+
+
+
 }
 module.exports = new UserController()

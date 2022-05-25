@@ -1,10 +1,31 @@
+const res = require("express/lib/response");
 const coursesService = require("../services/coursesService");
+const progressService = require("../services/progressService");
 
 class CoursesController {
     async getAllCoursesData(req, res, next){
         try {
             const coursesData = await coursesService.getAllCoursesData()
             res.json(coursesData);
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async getWholeCoursesProgress(req, res, next){
+        try {
+            const coursesData = await coursesService.getWholeCoursesProgress()
+            res.json(coursesData)
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async getUsersProgressesByCourse(req, res, next){
+        try {
+            const { course } = req.params;
+            const progressData = await progressService.getUsersProgressesByCourse(course);
+            res.json(progressData)
         } catch (e) {
             next(e)
         }

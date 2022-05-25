@@ -15,4 +15,11 @@ ModuleSchema.virtual('lessons', {
     foreignField: 'module'
 })
 
+ModuleSchema.virtual('progress', {
+    ref: 'UsersModuleProgress',
+    localField: '_id',
+    foreignField: 'module',
+    justOne: true
+})
+
 module.exports = model('Modules', ModuleSchema)

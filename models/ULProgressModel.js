@@ -7,6 +7,8 @@ const ULProgressSchema = new Schema({
     module: { type: Schema.Types.ObjectId, ref: 'Modules' },
     isCompleted: { type: Boolean, default: false },
     isAvailable: { type: Boolean, default: true },
+},{
+    timestamps: true
 })
 
 module.exports = model('UsersLessonProgress', ULProgressSchema)

@@ -4,11 +4,27 @@ const UCProgressSchema = new Schema({
     user: { type: Schema.Types.ObjectId, ref: 'User' },
     course: { type: Schema.Types.ObjectId, ref: 'Courses' },
     isAvailable: { type: Boolean, default: true },
-    lastLesson: { type: Schema.Types.ObjectId, ref: 'Lessons' },
     lastModule: { type: Schema.Types.ObjectId, ref: 'Modules' },
     isCompleted: { type: Boolean, default: false },
-},{
+},
+{
     timestamps: true
+})
+
+UCProgressSchema.virtual('totalCompleted',{
+    ref: "UsersLessonProgress",
+    localField: "course",
+    foreignField: "course",
+    match: progress => ({ user: progress.user, isCompleted: true }),
+    count: true
+})
+
+UCProgressSchema.virtual('lastLesson',{
+    ref: "UsersLessonProgress",
+    localField: "course",
+    foreignField: "course",
+    match: progress => ({ user: progress.user }),
+    justOne: true
 })
 
 

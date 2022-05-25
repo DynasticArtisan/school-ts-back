@@ -13,7 +13,8 @@ const LessonSchema = new Schema({
 LessonSchema.virtual('progress', {
     ref: 'UsersLessonProgress',
     localField: '_id',
-    foreignField: 'lesson',  
+    foreignField: 'lesson',
+    justOne: true
 })
 
 module.exports = model('Lessons', LessonSchema)

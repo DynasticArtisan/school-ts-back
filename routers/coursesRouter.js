@@ -4,6 +4,8 @@ const coursesController = require('../controllers/coursesController');
 const coursesRouter = express.Router();
 
 coursesRouter.get('/', coursesController.getAllCoursesData)
+coursesRouter.get('/progress', coursesController.getWholeCoursesProgress)
+coursesRouter.get('/progress/:course', coursesController.getUsersProgressesByCourse)
 
 
 coursesRouter.post('/course', coursesController.createCourse)

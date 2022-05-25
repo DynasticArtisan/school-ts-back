@@ -105,7 +105,25 @@ class UserController {
             next(e)
         }
     }
-
+    // Get user progerss
+    async getUserCoursesWithProgress(req, res, next) {
+        try {
+            const { userId } = req.params;
+            const CoursesData = await progressService.getUserCoursesWithProgress(userId);
+            res.json(CoursesData)
+        } catch (e) {
+            next(e)
+        }
+    }
+    async getMySingleCourseProgress(req, res, next){
+        try {
+            const { user, course } = req.params;
+            const CourseData = await progressService.getOneUserCourseProgress(user, course);
+            res.json(CourseData)
+        } catch (e) {
+            next(e)
+        }
+    }
 
 
 }

@@ -25,6 +25,13 @@ const UserSchema = new Schema({
         }
     },
 
+},{
+    timestamps: true
 })
+
+UserSchema.virtual('fullname', {
+
+})
+
 
 module.exports = model('User', UserSchema)

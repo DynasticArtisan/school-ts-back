@@ -130,10 +130,75 @@ class ProgressService {
         }).lean()
         return UserCourses
     }
+    async getUserCoursesWithProgress(userId){
+        const UserCourses = await UCProgressModel.find({ user: userId, isAvailable: true }).select(['isCompleted', 'course', '-_id']).populate({
+                    path: 'course',
+                    model: 'Courses',
+                    select: ['title', 'subtitle', 'urlname', 'image', 'totalLessons'],
+                    populate: 'totalLessons'
+            }).populate('totalCompleted').lean();
+        return UserCourses;
+    }
+    async getOneUserCourseProgress(userId, courseId){
+        const CourseData = await courseModel.findById(courseId).populate({
+            path: 'modules',
+            model: 'Modules',
+            select: 'title description -course',
+            populate: [
+                {
+                    path: 'progress',
+                    match: {
+                        user: userId
+                    },
+                    select: 'isCompleted -module -_id'
+                },
+                {
+                    path: 'lessons',
+                    select: 'title -module',
+                    populate: {
+                        path: 'progress',
+                        match: {
+                            user: userId
+                        },
+                        select: 'isCompleted -lesson -_id'
+                    }
+                }
+            ]
+        }).lean()
+        return CourseData
+    }
 
 
 
+    // getCourseProgressesWithUsers
+    async getUsersProgressesByCourse(courseId){
+        const ProgressData = await UCProgressModel.find({ course: courseId }).select('course createdAt isCompleted format').populate([
+            {
+                path: "user",
+                select: '-_id name surname'
+            },
+            {
+                path: 'lastLesson',
+                options: {
+                    sort: '-createdAt'
+                },
+                select: '-_id -course user lesson module',
+                populate: [
+                    {
+                        path: 'lesson',
+                        select: '-_id title',
+                    },
+                    {
+                        path: 'module',
+                        select: '-_id title',
+                    }
+                ]      
+            }
+        ]).lean()
 
+        return ProgressData
+
+    }
 
 
 

@@ -240,12 +240,6 @@ class UserService {
         return new UserDto(user);
     }
 
-
-
-
-
-
-
     async setUserRole(userId, role){
         const user = await userModel.findById(userId);
         if(!user){
@@ -261,6 +255,17 @@ class UserService {
         await user.save();
         return new UserDto(user);
     }
+
+
+
+    async getUsersList(){
+        const Users = await userModel.find().select('name surname email role createdAt')
+        return Users
+    }
+
+
+
+
 }
 
 module.exports = new UserService()

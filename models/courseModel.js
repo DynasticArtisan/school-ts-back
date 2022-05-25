@@ -21,5 +21,24 @@ CourseSchema.virtual('totalLessons',{
     count: true
 })
 
+CourseSchema.virtual('totalCompleted',{
+    ref: "UsersCourseProgress",
+    localField: "_id",
+    foreignField: "course",
+    match: {
+        isCompleted: true
+    },
+    count: true
+})
+
+CourseSchema.virtual('totalInProgress',{
+    ref: "UsersCourseProgress",
+    localField: "_id",
+    foreignField: "course",
+    match: {
+        isCompleted: false
+    },
+    count: true
+})
 
 module.exports = model('Courses', CourseSchema)

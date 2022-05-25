@@ -17,6 +17,12 @@ class CoursesService {
         return Courses
     }
 
+    async getWholeCoursesProgress(){
+      const CoursesData = await courseModel.find().select('title subtitle').populate("totalCompleted").populate("totalInProgress").lean()
+      return CoursesData
+    }
+
+
 
     // COURSE SERVICE
     async createCourse( payload ){
