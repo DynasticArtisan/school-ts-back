@@ -6,6 +6,8 @@ const superMiddleware = require('../middlewares/superMiddleware');
 const authRouter = require('./authRouter');
 const coursesRouter = require('./coursesRouter');
 const exerciseRouter = require('./exerciseRouter');
+const filesRouter = require('./filesRouter');
+const homeworkRouter = require('./homeworkRouter');
 const lessonRouter = require('./lessonRouter');
 const notificationRouter = require('./notificationsRouter');
 const profileRouter = require('./profileRouter');
@@ -26,10 +28,12 @@ apiRouter.use('/courses', coursesRouter);
 
 apiRouter.use('/notifications', notificationRouter);
 
-apiRouter.use('/exercise', exerciseRouter)
+apiRouter.use('/exercise', exerciseRouter);
 
 apiRouter.use('/lesson', lessonRouter);
 
+apiRouter.use('/homework', homeworkRouter);
 
+apiRouter.use('/files', filesRouter)
 
 module.exports = apiRouter;

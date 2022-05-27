@@ -42,6 +42,7 @@ class ExerciseService {
 
 class ExerciseDto {
     constructor(model){
+        this.id = model._id
         this.task = model.task
         this.lesson = model.lesson.title
         this.module = model.module.title

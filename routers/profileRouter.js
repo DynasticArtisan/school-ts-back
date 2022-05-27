@@ -1,11 +1,11 @@
 const express = require('express');
 const profileController = require('../controllers/profileController');
-const fileMiddleware = require('../middlewares/fileMiddleware');
+const avatarMulter = require('../multer/avatarMulter');
 
 const profileRouter = express.Router();
 profileRouter.get('/', profileController.getProfile)
 profileRouter.post('/', profileController.updateProfile) //validate that
-profileRouter.post('/avatar', fileMiddleware.single('avatar'), profileController.uploadAvatar)
+profileRouter.post('/avatar', avatarMulter, profileController.uploadAvatar)
 profileRouter.delete('/avatar', profileController.removeAvatar)
 profileRouter.post('/password', profileController.changePassword) //validate that
 profileRouter.get('/notifications', profileController.getNotifications)

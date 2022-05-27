@@ -1,40 +1,50 @@
 const ApiError = require("../exceptions/ApiError")
 const exerciseModel = require("../models/exerciseModel")
-const lessonModel = require("../models/lessonModel")
+const homeworkModel = require("../models/homeworkModel")
 
 class HomeworkService {
-    // async createHomework(payload){
-    //     const Lesson = await lessonModel.findById(payload.lesson)
-    //     if(!Lesson){
-    //         throw ApiError.BadRequest("Lesson not found")
-    //     }
-    //     const Exercise = await exerciseModel.create({ ...payload, module: Lesson.module });
-    //     return Exercise
-    // }
+    async createHomework(payload){
+        const Exercise = await exerciseModel.findById(payload.exercise)
+        if(!Exercise){
+            throw ApiError.BadRequest("Exercise not found")
+        }
+        const Homework = await homeworkModel.create({ ...payload, status:"wait" });
+        return Homework
+    }
 
-    // async readAllExercise(){
-    //     const Exercises = await exerciseModel.find().populate([
-    //         {
-    //             path: 'lesson',
-    //             select: 'title -_id'
-    //         },
-    //         {
-    //             path: 'module',
-    //             select: 'title -_id'
-    //         }
-    //     ])
-    //     return Exercises.map(model => new ExerciseDto(model))
-    // }
+    async readAllHomeworks(){
+        const Homeworks = await homeworkModel.find()
+        return Homeworks
+    }
 
-    // async updateExercise(exercise, payload){
-    //     const Exercise = await exerciseModel.findByIdAndUpdate(exercise, payload, { new: true });
-    //     return Exercise
-    // }
+    async readAllHomeworksByExercise(exercise){
+        const Homeworks = await homeworkModel.find({ exercise })
+        return Homeworks
+    }
 
-    // async deleteExercise(exercise){
-    //     const Exercise = await exerciseModel.findByIdAndDelete(exercise);
-    //     return Exercise
-    // }
+    async readSingleHomework(homework){
+        const Homework = await homeworkModel.findById(homework).populate('files').lean()
+        if(!Homework){
+            throw ApiError.BadRequest("Домашнее задание не найдено")
+        }
+        return Homework
+    }
+
+    async updateHomework(homework, payload) {
+        const Homework = await homeworkModel.findByIdAndUpdate(homework, payload, { new: true })
+        if(!Homework){
+            throw ApiError.BadRequest("Домашнее задание не найдено")
+        }
+        return Homework
+    }
+
+    async deleteHomework(homework) {
+        const Homework = await homeworkModel.findByIdAndDelete(homework)
+        if(!Homework){
+            throw ApiError.BadRequest("Домашнее задание не найдено")
+        }
+        return Homework
+    }
 
 }
 
