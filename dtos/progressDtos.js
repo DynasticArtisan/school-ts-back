@@ -6,8 +6,8 @@ class SingleCourseProgressDto {
         this.startedAt = model.createdAt
         this.isCompleted = model.isCompleted
         this.completedAt = model.completedAt
-        this.currentLesson = model.lastLesson?.lesson?.title
-        this.currentModel = model.lastLesson?.module?.title
+        this.currentLesson = model.lastLesson.lesson.title
+        this.currentModel = model.lastLesson.module.title
     }
 }
 

@@ -3,6 +3,7 @@ module.exports = class AuthDto {
     name;
     surname;
     role;
+    email;
     isActivated;
     avatar;
     constructor(model){
@@ -12,5 +13,6 @@ module.exports = class AuthDto {
         this.role = model.role;
         this.isActivated = model.isActivated;
         this.avatar = model.avatar;
+        this.email = model.email;
     }
 }
