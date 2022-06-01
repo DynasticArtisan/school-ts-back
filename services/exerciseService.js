@@ -9,7 +9,7 @@ class ExerciseService {
         if(!Lesson){
             throw ApiError.BadRequest("Lesson not found")
         }
-        const Exercise = await exerciseModel.create({ ...payload, module: Lesson.module });
+        const Exercise = await exerciseModel.create({ ...payload, module: Lesson.module, course: Lesson.course });
         return Exercise
     }
 
@@ -27,6 +27,21 @@ class ExerciseService {
         return Exercises.map(model => new ExerciseDto(model))
     }
 
+    async readAllCourseExercise(courseId){
+        const Exercises = await exerciseModel.find({ course: courseId }).populate([
+            {
+                path: 'lesson',
+                select: 'title -_id'
+            },
+            {
+                path: 'module',
+                select: 'title -_id'
+            }
+        ])
+        return Exercises.map(model => new ExerciseDto(model))
+    }
+
+
     async updateExercise(exercise, payload){
         const Exercise = await exerciseModel.findByIdAndUpdate(exercise, payload, { new: true });
         return Exercise
@@ -43,7 +58,6 @@ class ExerciseService {
 class ExerciseDto {
     constructor(model){
         this.id = model._id
-        this.task = model.task
         this.lesson = model.lesson.title
         this.module = model.module.title
     }

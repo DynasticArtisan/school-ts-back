@@ -21,15 +21,5 @@ class FilesController {
 
     }
 
-    async deleteHomeworkFiles(req, res, next){
-        try {
-            const { homework } = req.params;
-            const Files = await fileService.deleteHomeworkFiles(homework)
-            res.json(Files)
-        } catch (e) {
-            next(e)
-        }
-
-    }
 }
 module.exports = new FilesController()

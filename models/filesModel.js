@@ -9,19 +9,13 @@ const FilesSchema = new Schema({
 )
 
 
-// FilesSchema.post('findOneAndDelete', function(doc){
-//     console.log('findOneAndDelete')
-//     fs.unlink('filestore/'+doc.filepath, function(err){
-//         if(err){
-//             console.log(err)
-//         }
-//     })
-// })
-
-FilesSchema.pre('deleteMany', function(doc, next){
-    console.log('Removing doc!');
-    console.log(doc);
-    next()
+FilesSchema.post('findOneAndDelete', function(doc){
+    console.log('findOneAndDelete')
+    fs.unlink('filestore/'+doc.filepath, function(err){
+        if(err){
+            console.log(err)
+        }
+    })
 })
 
 

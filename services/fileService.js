@@ -32,10 +32,5 @@ class FileService {
         return File
     }
 
-    async deleteHomeworkFiles(homework){
-        const Files = await filesModel.deleteMany({ homework });
-        return Files
-    }
-
 }
 module.exports = new FileService()

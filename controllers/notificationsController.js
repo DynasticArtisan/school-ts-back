@@ -3,9 +3,8 @@ const notificationsService = require("../services/notificationsService");
 class NotificationController{
     async createUserNotification(req, res, next){
         try {
-            const { userId } = req.params;
-            const { notification } = req.body;
-            const notificationData = await notificationsService.createNotification(userId, notification)
+            const { user, homework } = req.body;
+            const notificationData = await notificationsService.createHomeworkNotification(user, homework)
             res.json(notificationData)
         } catch (e) {
             next(e)
@@ -33,3 +32,5 @@ class NotificationController{
 
 }
 module.exports = new NotificationController()
+
+

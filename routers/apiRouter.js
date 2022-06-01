@@ -18,7 +18,7 @@ const usersRouter = require('./usersRouter');
 const apiRouter = express.Router();
 apiRouter.use('/auth', authRouter);
 
-apiRouter.use('/me',  profileRouter);
+apiRouter.use('/me', authMiddleware, profileRouter);
 
 apiRouter.use('/users', usersRouter);
 

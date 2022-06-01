@@ -18,13 +18,25 @@ class HomeworkController {
     
     async getAllHomeworks(req, res, next){
         try {
-            const Homeworks = await homeworkService.readAllHomeworks()
+            const Homeworks = await homeworkService.readAllHomeworks(req.query)
             res.json(Homeworks)     
         } catch (e) {
             next(e)
         }
 
     }
+
+    async getAllExerciseHomeworks(req, res, next){
+        try {
+            const { exercise } = req.params;
+            const Homeworks = await homeworkService.readAllHomeworksByExercise(exercise)
+            res.json(Homeworks)     
+        } catch (e) {
+            next(e)
+        }
+    }
+
+
 
     async getSingleHomework(req, res, next){
         try {

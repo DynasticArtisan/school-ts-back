@@ -1,4 +1,5 @@
 const res = require("express/lib/response");
+const { SingleCourseProgressDto, UserCoursesProgressDto } = require("../dtos/progressDtos");
 const ApiError = require("../exceptions/ApiError");
 const courseModel = require("../models/courseModel");
 const lessonModel = require("../models/lessonModel");
@@ -131,13 +132,14 @@ class ProgressService {
         return UserCourses
     }
     async getUserCoursesWithProgress(userId){
-        const UserCourses = await UCProgressModel.find({ user: userId, isAvailable: true }).select(['isCompleted', 'course', '-_id']).populate({
+        const UserCourses = await UCProgressModel.find({ user: userId, isAvailable: true }).select(['isCompleted', 'course', 'user', '-_id']).populate('totalCompleted').populate({
                     path: 'course',
                     model: 'Courses',
                     select: ['title', 'subtitle', 'urlname', 'image', 'totalLessons'],
                     populate: 'totalLessons'
-            }).populate('totalCompleted').lean();
-        return UserCourses;
+            }).lean();
+        const UserCoursesData = UserCourses.map(item => new UserCoursesProgressDto(item))
+        return UserCoursesData;
     }
     async getOneUserCourseProgress(userId, courseId){
         const CourseData = await courseModel.findById(courseId).populate({
@@ -172,7 +174,7 @@ class ProgressService {
 
     // getCourseProgressesWithUsers
     async getUsersProgressesByCourse(courseId){
-        const ProgressData = await UCProgressModel.find({ course: courseId }).select('course createdAt isCompleted format').populate([
+        const Progress = await UCProgressModel.find({ course: courseId }).select('course createdAt isCompleted format').populate([
             {
                 path: "user",
                 select: '-_id name surname'
@@ -196,6 +198,8 @@ class ProgressService {
             }
         ]).lean()
 
+        const ProgressData = Progress.map(item => new SingleCourseProgressDto(item))
+        
         return ProgressData
 
     }

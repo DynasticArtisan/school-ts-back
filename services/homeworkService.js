@@ -12,13 +12,8 @@ class HomeworkService {
         return Homework
     }
 
-    async readAllHomeworks(){
-        const Homeworks = await homeworkModel.find()
-        return Homeworks
-    }
-
-    async readAllHomeworksByExercise(exercise){
-        const Homeworks = await homeworkModel.find({ exercise })
+    async readAllHomeworks(options){
+        const Homeworks = await homeworkModel.find(options)
         return Homeworks
     }
 

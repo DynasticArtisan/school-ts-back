@@ -19,6 +19,17 @@ class ExerciseController {
         }
     }
 
+    async getAllExercise(req, res, next) {
+        try {
+            const { course } = req.params;
+            const ExerciseData = await exerciseService.readAllExercise(course)
+            res.json(ExerciseData)            
+        } catch (e) {
+            next(e)
+        }
+    }
+
+
     async updateExercise(req, res, next) {
         try {
             const { exercise } = req.params;
