@@ -1,9 +1,11 @@
+const authMiddleware = require('../middlewares/authMiddleware')
 const express = require('express');
 const coursesController = require('../controllers/coursesController');
 
 const coursesRouter = express.Router();
 
 coursesRouter.get('/', coursesController.getAllCoursesData)
+coursesRouter.get('/my', authMiddleware, coursesController.getMyCourses)
 coursesRouter.get('/progress', coursesController.getWholeCoursesProgress)
 coursesRouter.get('/progress/:course', coursesController.getUsersProgressesByCourse)
 

@@ -10,6 +10,7 @@ const AuthDto = require('../dtos/authDto');
 const UserTokenDto = require('../dtos/userTokenDto');
 const ApiError = require("../exceptions/ApiError");
 const fileService = require('./fileService');
+const { UserInfoDto } = require('../dtos/userDtos');
 
 const Roles = [ 'teacher', 'curator', 'user' ];
 
@@ -55,11 +56,11 @@ class UserService {
         const user = await userModel.create({ email, password: hashPassword, activateLink, name, surname });
         // await mailService.sendActivationMail(email, `${config.get("APIURL")}/api/auth/activate/${activateLink}`);
         console.log(`${config.get("APIURL")}/api/auth/activate/${activateLink}`)
-        const userDto = new AuthDto(user);
+        const userDataDto = new UserInfoDto(user);
         const userTokenDto = new UserTokenDto(user);
         const tokens = await tokenService.generateTokens({...userTokenDto});
         await tokenService.saveToken(userDto.id, tokens.refreshToken);
-        return { ...tokens, user: userDto }
+        return { ...tokens, user: userDataDto }
     }
     async activate (activateLink) {
         const user = await userModel.findOne({ activateLink });
@@ -78,11 +79,11 @@ class UserService {
         if(!isPassEquals){
             throw ApiError.BadRequest('Некорректный пароль');
         }
-        const userDto = new AuthDto(user);
+        const userDataDto = new UserInfoDto(user);
         const userTokenDto = new UserTokenDto(user);
         const tokens = await tokenService.generateTokens({...userTokenDto});
-        await tokenService.saveToken(userDto.id, tokens.refreshToken);
-        return { ...tokens, user: userDto }
+        await tokenService.saveToken(userDataDto.id, tokens.refreshToken);
+        return { ...tokens, user: userDataDto }
     }
     async logout(refreshToken){
         const token = await tokenService.removeToken(refreshToken);
@@ -136,11 +137,13 @@ class UserService {
             throw ApiError.BadRequest('Невалидный токен');
         }
         const user = await userModel.findById( userData.id );
-        const userDto = new AuthDto(user);
+
+        const userDataDto = new UserInfoDto(user);
         const userTokenDto = new UserTokenDto(user);
+
         const tokens = await tokenService.generateTokens({...userTokenDto});
-        await tokenService.saveToken(userDto.id, tokens.refreshToken);
-        return { ...tokens, user: userDto }
+        await tokenService.saveToken(userDataDto.id, tokens.refreshToken);
+        return { ...tokens, user: userDataDto }
     }
     async changeRole(id, role){
         const roles = [ 'user', 'curator', 'teacher' ]

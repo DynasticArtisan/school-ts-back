@@ -3,6 +3,18 @@ const coursesService = require("../services/coursesService");
 const progressService = require("../services/progressService");
 
 class CoursesController {
+    async getMyCourses(req, res, next){
+        try {
+            const { user } = req;
+            const coursesData = await progressService.getUserCoursesWithProgress(user.id)
+            res.json(coursesData)
+        } catch (e) {
+            next(e)
+        }
+    }
+
+
+
     async getAllCoursesData(req, res, next){
         try {
             const coursesData = await coursesService.getAllCoursesData()

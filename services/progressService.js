@@ -131,6 +131,7 @@ class ProgressService {
         }).lean()
         return UserCourses
     }
+    
     async getUserCoursesWithProgress(userId){
         const UserCourses = await UCProgressModel.find({ user: userId, isAvailable: true }).select(['isCompleted', 'course', 'user', '-_id']).populate('totalCompleted').populate({
                     path: 'course',

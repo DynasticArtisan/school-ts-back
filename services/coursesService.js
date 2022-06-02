@@ -5,6 +5,8 @@ const lessonModel = require("../models/lessonModel")
 const ApiError = require("../exceptions/ApiError")
 
 class CoursesService {
+
+
     async getAllCoursesData(){
         const Courses = await courseModel.find().populate({
           path: 'modules',
