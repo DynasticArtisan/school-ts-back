@@ -1,6 +1,7 @@
 const res = require("express/lib/response");
-const { SingleCourseProgressDto, UserCoursesProgressDto } = require("../dtos/progressDtos");
+const { SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto } = require("../dtos/progressDtos");
 const ApiError = require("../exceptions/ApiError");
+const { populate } = require("../models/courseModel");
 const courseModel = require("../models/courseModel");
 const lessonModel = require("../models/lessonModel");
 const moduleModel = require("../models/moduleModel");
@@ -121,27 +122,98 @@ class ProgressService {
     }
 
 
-    // getUserCourses
+    
     async getUserCourses(userId){
-        const UserCourses = await UCProgressModel.find({ user: userId }).select(['isCompleted', 'course']).populate({
+        const UserProgress = await UCProgressModel.find({ user: userId }).select(['isCompleted', 'course']).populate({
             path: 'course',
             model: 'Courses',
             select: ['title', 'subtitle', 'urlname', 'image', 'totalLessons'],
             populate: 'totalLessons'
         }).lean()
-        return UserCourses
+        return UserProgress
     }
-    
-    async getUserCoursesWithProgress(userId){
+
+    // getUserSingleCourseProgress
+    async getUserCourseModules(userId, courseId){
+        const UserProgress = await UCProgressModel.find({ user: userId, course: courseId }).select('course').populate({
+            path: 'course',
+            select: 'title subtitle description image modules',
+        })
+        return UserProgress
+    }
+
+
+    /////////////////////////////////
+    // getUserCourses
+    async getUserCoursesProgress(userId){
         const UserCourses = await UCProgressModel.find({ user: userId, isAvailable: true }).select(['isCompleted', 'course', 'user', '-_id']).populate('totalCompleted').populate({
                     path: 'course',
                     model: 'Courses',
-                    select: ['title', 'subtitle', 'urlname', 'image', 'totalLessons'],
-                    populate: 'totalLessons'
+                    select: 'title subtitle urlname image totalLessons',
+                    populate: {
+                        path: 'totalLessons'
+                    }
             }).lean();
         const UserCoursesData = UserCourses.map(item => new UserCoursesProgressDto(item))
         return UserCoursesData;
     }
+    async getUserOneCourseProgress(userId, courseId){
+        const UserProgress = await UCProgressModel.findOne({ user: userId, course: courseId, isAvailable: true }).populate({
+            path: 'course',
+            populate: {
+                path: 'modules',
+                populate: {
+                    path: 'progress',
+                    select: 'isCompleted -_id'
+                }
+            },
+        }).lean();
+        if(!UserProgress){
+            throw ApiError.BadRequest('Нет доступа к курсу')
+        }
+        const UserProgressData = new UserSingleCourseProgressDto(UserProgress)
+        return UserProgressData
+    }
+
+    async getUserOneModuleProgress(userId, moduleId){
+        const UserProgress = await UMProgressModel.findOne({ user: userId, module: moduleId, isAvailable: true }).select('-_id module').populate(
+            {
+                path: 'module',
+                model: 'Modules',
+                populate: {
+                        path: 'lessons',
+                        select: '-course',
+                        populate: {
+                            path: 'progress',
+                            select: 'isCompleted -_id'
+                        }
+                    }
+                
+            }).lean();
+        if(!UserProgress){
+            throw ApiError.BadRequest('Нет доступа к модулю')
+        }
+        const UserProgressData = new UserSingleModuleProgressDto(UserProgress)
+        return UserProgressData
+    }
+    ////////////////////////////////
+    async getAdminOneCourseStudents(courseId){
+        const Course = await courseModel.findById(courseId).select('-_id title')
+        if(!Course){
+            throw ApiError.BadRequest("NOT SUCH COURSE")
+        }
+        const Students = await UCProgressModel.find({ course: courseId }).select('-course').populate({
+            path: 'user',
+            select: '-_id name surname'
+        })
+        return { course: Course.title, students: Students }
+    }
+
+
+
+
+
+
     async getOneUserCourseProgress(userId, courseId){
         const CourseData = await courseModel.findById(courseId).populate({
             path: 'modules',

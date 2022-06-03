@@ -5,7 +5,7 @@ const ModuleSchema = new Schema({
     title: { type: String },
     description: { type: String },
     course: { type: Schema.Types.ObjectId, rel: 'Courses' },
-    firstModule: { type: Boolean },
+    firstModule: { type: Boolean, default: false },
     prevModule: { type: Schema.Types.ObjectId, rel: 'Modules' },
 })
 
