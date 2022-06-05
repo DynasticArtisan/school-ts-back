@@ -1,5 +1,5 @@
 const res = require("express/lib/response");
-const { SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto } = require("../dtos/progressDtos");
+const { SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto, CourseStudentDto } = require("../dtos/progressDtos");
 const ApiError = require("../exceptions/ApiError");
 const { populate } = require("../models/courseModel");
 const courseModel = require("../models/courseModel");
@@ -202,11 +202,18 @@ class ProgressService {
         if(!Course){
             throw ApiError.BadRequest("NOT SUCH COURSE")
         }
-        const Students = await UCProgressModel.find({ course: courseId }).select('-course').populate({
-            path: 'user',
-            select: '-_id name surname'
-        })
-        return { course: Course.title, students: Students }
+        const Students = await UCProgressModel.find({ course: courseId }).populate([
+            {
+                path: 'user',
+                select: '-_id name surname'
+            },
+            {
+                path: 'lastLesson',
+                populate: 'lesson module'
+            }
+        ]).lean()
+        const StudentsData = Students.map(progress => new CourseStudentDto(progress))
+        return { course: Course.title, students: StudentsData }
     }
 
 

@@ -21,6 +21,7 @@ class UserCoursesProgressDto {
         this.progressPercent = Math.round(model.totalCompleted * 100 / model.course.totalLessons)
     }
 }
+
 class UserSingleCourseProgressDto {
     constructor(model){
         this.id = model.course._id
@@ -38,7 +39,6 @@ class UserSingleCourseProgressDto {
             isCompleted: module.progress ? module.progress.isCompleted : false,
             isAvailable: module.progress ? true : false
         }))
-
     }
 }
 
@@ -60,7 +60,17 @@ class UserSingleModuleProgressDto {
     }
 }
 
+class CourseStudentDto{
+    constructor(model){
+        this.id = model._id;
+        this.fullname = model.user.surname + ' ' + model.user.name;
+        this.startedAt = model.createdAt;
+        this.finishedAt = model.updatedAt;
+        this.format = model.format;
+        this.lastLesson = model.lastLesson.module.title + ', ' + model.lastLesson.lesson.title;
+    }
+}
 
 module.exports = {
-    SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto
+    SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto, CourseStudentDto
 }
