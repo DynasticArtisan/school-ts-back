@@ -16,11 +16,22 @@ class UserCoursesProgressDto {
         this.id = model.course._id
         this.url = model.course.urlname
         this.title = model.course.title
-        this.description = model.course.subtitle
+        this.subtitle = model.course.subtitle
         this.isCompleted = model.isCompleted
         this.progressPercent = Math.round(model.totalCompleted * 100 / model.course.totalLessons)
     }
 }
+class AdminCoursesProgressDto{
+    constructor(model){
+        this.id = model._id
+        this.url = model.urlname
+        this.title = model.title
+        this.subtitle = model.subtitle
+        this.totalInProgress = model.totalInProgress
+        this.totalCompleted = model.totalCompleted
+    }
+}
+
 
 class UserSingleCourseProgressDto {
     constructor(model){
@@ -72,5 +83,5 @@ class CourseStudentDto{
 }
 
 module.exports = {
-    SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto, CourseStudentDto
+    SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto, CourseStudentDto, AdminCoursesProgressDto
 }

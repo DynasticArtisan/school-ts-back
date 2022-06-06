@@ -1,5 +1,5 @@
 const res = require("express/lib/response");
-const { SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto, CourseStudentDto } = require("../dtos/progressDtos");
+const { SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto, CourseStudentDto, AdminCoursesProgressDto } = require("../dtos/progressDtos");
 const ApiError = require("../exceptions/ApiError");
 const { populate } = require("../models/courseModel");
 const courseModel = require("../models/courseModel");
@@ -157,6 +157,14 @@ class ProgressService {
         const UserCoursesData = UserCourses.map(item => new UserCoursesProgressDto(item))
         return UserCoursesData;
     }
+    async getTeacherCoursesProgress(){
+        const AdminCourses = await courseModel.find().select('title subtitle').populate("totalCompleted").populate("totalInProgress").lean()
+        const AdminCoursesData = AdminCourses.map(item => new AdminCoursesProgressDto(item))
+        return AdminCoursesData;
+    }
+
+
+
     async getUserOneCourseProgress(userId, courseId){
         const UserProgress = await UCProgressModel.findOne({ user: userId, course: courseId, isAvailable: true }).populate({
             path: 'course',
@@ -215,6 +223,10 @@ class ProgressService {
         const StudentsData = Students.map(progress => new CourseStudentDto(progress))
         return { course: Course.title, students: StudentsData }
     }
+
+
+
+
 
 
 

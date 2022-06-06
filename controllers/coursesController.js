@@ -5,12 +5,19 @@ const progressService = require("../services/progressService");
 class CoursesController {
     async getUserCoursesProgress(req, res, next){
         try {
-            const coursesData = await progressService.getUserCoursesProgress(req.user.id)
+            let coursesData;
+            if(req.user.role == "use"){
+                coursesData = await progressService.getUserCoursesProgress(req.user.id)
+            } else {
+                coursesData = await progressService.getTeacherCoursesProgress()
+            }
+           
             res.json(coursesData)
         } catch (e) {
             next(e)
         }
     }
+
     async getAdminOneCourseStudents(req, res, next){
         try {
             const { id } = req.params;
