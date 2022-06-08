@@ -7,7 +7,7 @@ class SingleCourseProgressDto {
         this.isCompleted = model.isCompleted
         this.completedAt = model.completedAt
         this.currentLesson = model.lastLesson.lesson.title
-        this.currentModel = model.lastLesson.module.title
+        this.currentModule = model.lastLesson.module.title
     }
 }
 
@@ -52,6 +52,25 @@ class UserSingleCourseProgressDto {
         }))
     }
 }
+class AdminSingleCourseDto {
+    constructor(model){
+        this.id = model._id
+        this.url = model.urlname
+        this.title = model.title
+        this.subtitle = model.subtitle
+        this.description = model.description
+        this.image = model.image
+        this.modules = model.modules.map(module => ({
+            id: module._id,
+            title: module.title,
+            description: module.description,
+            first: Boolean(module.firstModule),
+            prev: module.prevModule,
+            isAvailable: true,
+            fullAccess: true
+        }))
+    }
+}
 
 class UserSingleModuleProgressDto {
     constructor(model){
@@ -71,6 +90,25 @@ class UserSingleModuleProgressDto {
     }
 }
 
+class AdminSingleModuleDto {
+    constructor(model){
+        this.courseId = model.course
+        this.id = model._id
+        this.title = model.title
+        this.description = model.description
+        this.lessons = model.lessons.map(lesson => ({
+            id: lesson._id,
+            title: lesson.title,
+            description: lesson.description,
+            first: Boolean(lesson.firstModule),
+            prev: lesson.prevModule,
+            fullAccess: true,
+            isAvailable: true
+        }))
+    }
+}
+
+
 class CourseStudentDto{
     constructor(model){
         this.id = model._id;
@@ -83,5 +121,6 @@ class CourseStudentDto{
 }
 
 module.exports = {
-    SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto, CourseStudentDto, AdminCoursesProgressDto
+    SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto, CourseStudentDto, AdminCoursesProgressDto, AdminSingleCourseDto,
+    AdminSingleModuleDto
 }

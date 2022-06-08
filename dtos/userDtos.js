@@ -11,6 +11,36 @@ class UserInfoDto {
     }
 }
 
+class UserListDto {
+    constructor(model){
+        this.id = model._id,
+        this.fullname = model.surname + ' ' + model.name;
+        this.email = model.email;
+        switch (model.role){
+            case "user":
+                this.role = "Пользователь"
+                break;
+            case "admin":
+                this.role = "Администратор"
+                break;
+            case "super":
+                this.role = "Супер администратор"
+                break;
+            case "teacher":
+                this.role = "Преподаватель"
+                break;
+            case "curator":
+                this.role = "Куратор"
+                break;
+            default :
+                break
+        }
+        this.registryAt = model.createdAt;
+    }
+}
+
+
+
 class UserTokenDto {
     constructor(model){
         this.id = model._id;
@@ -20,5 +50,5 @@ class UserTokenDto {
 }
 
 module.exports = {
-    UserInfoDto, UserTokenDto
+    UserInfoDto, UserTokenDto, UserListDto
 }

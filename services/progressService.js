@@ -1,5 +1,5 @@
 const res = require("express/lib/response");
-const { SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto, CourseStudentDto, AdminCoursesProgressDto } = require("../dtos/progressDtos");
+const { SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto, CourseStudentDto, AdminCoursesProgressDto, AdminSingleCourseDto, AdminSingleModuleDto } = require("../dtos/progressDtos");
 const ApiError = require("../exceptions/ApiError");
 const { populate } = require("../models/courseModel");
 const courseModel = require("../models/courseModel");
@@ -163,8 +163,6 @@ class ProgressService {
         return AdminCoursesData;
     }
 
-
-
     async getUserOneCourseProgress(userId, courseId){
         const UserProgress = await UCProgressModel.findOne({ user: userId, course: courseId, isAvailable: true }).populate({
             path: 'course',
@@ -181,6 +179,13 @@ class ProgressService {
         }
         const UserProgressData = new UserSingleCourseProgressDto(UserProgress)
         return UserProgressData
+    }
+    async getAdminOneCourse(userId, courseId){
+        const Course = await courseModel.findById(courseId).populate({
+            path: 'modules'
+        }).lean()
+        const CourseData = new AdminSingleCourseDto(Course)
+        return CourseData
     }
 
     async getUserOneModuleProgress(userId, moduleId){
@@ -203,6 +208,11 @@ class ProgressService {
         }
         const UserProgressData = new UserSingleModuleProgressDto(UserProgress)
         return UserProgressData
+    }
+    async getAdminOneModule(userId, moduleId){
+        const Module = await moduleModel.findById(moduleId).populate('lessons').lean()
+        const ModuleData = new AdminSingleModuleDto(Module)
+        return ModuleData
     }
     ////////////////////////////////
     async getAdminOneCourseStudents(courseId){

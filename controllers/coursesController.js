@@ -6,7 +6,7 @@ class CoursesController {
     async getUserCoursesProgress(req, res, next){
         try {
             let coursesData;
-            if(req.user.role == "use"){
+            if(req.user.role == "user"){
                 coursesData = await progressService.getUserCoursesProgress(req.user.id)
             } else {
                 coursesData = await progressService.getTeacherCoursesProgress()
@@ -17,7 +17,6 @@ class CoursesController {
             next(e)
         }
     }
-
     async getAdminOneCourseStudents(req, res, next){
         try {
             const { id } = req.params;
@@ -30,7 +29,12 @@ class CoursesController {
     async getUserOneCourseProgress(req, res, next){
         try {
             const { id } = req.params;
-            const courseData = await progressService.getUserOneCourseProgress(req.user.id, id);
+            let courseData;
+            if(req.user.role == "user"){
+            courseData = await progressService.getUserOneCourseProgress(req.user.id, id);
+            } else {
+            courseData = await progressService.getAdminOneCourse(req.user.id, id);
+            }
             res.json(courseData)
         } catch (e) {
             next(e)
@@ -39,8 +43,13 @@ class CoursesController {
     async getUserOneModuleProgress(req, res, next){
         try {
             const { id } = req.params;
-            const courseData = await progressService.getUserOneModuleProgress(req.user.id, id);
-            res.json(courseData)
+            let moduleData;
+            if(req.user.role == "user"){
+                moduleData = await progressService.getUserOneModuleProgress(req.user.id, id);
+            } else {
+                moduleData = await progressService.getAdminOneModule(req.user.id, id)
+            }
+            res.json(moduleData)
         } catch (e) {
             next(e)
         }

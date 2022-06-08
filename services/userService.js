@@ -10,7 +10,7 @@ const AuthDto = require('../dtos/authDto');
 const UserTokenDto = require('../dtos/userTokenDto');
 const ApiError = require("../exceptions/ApiError");
 const fileService = require('./fileService');
-const { UserInfoDto } = require('../dtos/userDtos');
+const { UserInfoDto, UserListDto } = require('../dtos/userDtos');
 
 const Roles = [ 'teacher', 'curator', 'user' ];
 
@@ -262,8 +262,9 @@ class UserService {
 
 
     async getUsersList(){
-        const Users = await userModel.find().select('name surname email role createdAt')
-        return Users
+        const Users = await userModel.find({ isActivated: true }).select('name surname email role createdAt')
+        const UsersData = Users.map(user => new UserListDto(user))
+        return UsersData
     }
 
 
