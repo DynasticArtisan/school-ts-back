@@ -86,15 +86,14 @@ class CoursesController {
     // }
 
     // // COURSE CONTROLLER
-
-    // async createCourse(req, res, next){
-    //     try {
-    //         const data = await coursesService.createCourse( req.body )
-    //         res.json(data)
-    //     } catch (e) {
-    //         next(e)
-    //     }
-    // }
+async createCourse(req, res, next){
+    try {
+        const data = await coursesService.createCourse( req.body )
+        res.json(data)
+    } catch (e) {
+        next(e)
+    }
+}
     // async getCourse(req, res, next){
     //     try {
     //         const { courseId } = req.params;

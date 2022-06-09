@@ -3,6 +3,11 @@ const config = require("config");
 const userService = require("../services/userService")
 
 const ApiError = require("../exceptions/ApiError");
+const roles = require("../utils/roles");
+const progressService = require("../services/progressService");
+const coursesService = require("../services/coursesService");
+const { UserCourseDto } = require("../dtos/progressDtos");
+const { getAllCoursesData } = require("../services/coursesService");
 
 
 class UserController {
@@ -23,15 +28,7 @@ class UserController {
             next(e)
         }       
     }
-    async getOneUser(req, res,next){
-        try {
-            const { userId } = req.params;
-            const userData = await userService.getOneUser(userId);
-            res.json(userData);
-        } catch (e) {
-            next(e)
-        }
-    }
+
     async updateUser(req, res, next){
         try {
             const { userId } = req.params;
@@ -139,7 +136,26 @@ class UserController {
             next(e)
         }
     }
-
+    
+    async getOneUser(req, res,next){
+        try {
+            const { userId } = req.params;
+            const { role } = req.user;
+            if( role !== roles.super && role !== roles.admin){
+                next(ApiError.UnauthorizedError)
+            }
+            const userData = await userService.getOneUser(userId);
+            const coursesData = await progressService.getUserCourses(userId);
+            if(role === roles.super){
+                const allCourses = await coursesService.getCoursesList()
+                res.json({ user: userData, courses: coursesData, allCourses: allCourses });
+            } else {
+                res.json({ user: userData, courses: coursesData });
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
 
 
 

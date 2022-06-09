@@ -24,10 +24,10 @@ coursesRouter.get('/module/:id', authMiddleware, coursesController.getUserOneMod
 //coursesRouter.get('/progress/:course', coursesController.getUsersProgressesByCourse)
 
 
-//coursesRouter.post('/course', coursesController.createCourse)
+coursesRouter.post('/course', coursesController.createCourse)
 //coursesRouter.get('/course', coursesController.getCourses)
 //coursesRouter.get('/course/:courseId', coursesController.getCourse)
-coursesRouter.put('/course/:courseId', coursesController.updateCourse)
+//coursesRouter.put('/course/:courseId', coursesController.updateCourse)
 //coursesRouter.delete('/course/:courseId', coursesController.deleteCourse)
 //coursesRouter.delete('/course', coursesController.dropAllCourses)
 //
@@ -35,7 +35,7 @@ coursesRouter.put('/course/:courseId', coursesController.updateCourse)
 //coursesRouter.post('/module', coursesController.createModule)
 //coursesRouter.get('/module', coursesController.getModules)
 //coursesRouter.get('/module/:moduleId', coursesController.getOneModule)
-coursesRouter.put('/module/:moduleId', coursesController.updateModule)
+//coursesRouter.put('/module/:moduleId', coursesController.updateModule)
 //coursesRouter.delete('/module/:moduleId', coursesController.deleteModule)
 //coursesRouter.delete('/module', coursesController.dropAllModules)
 //
@@ -43,7 +43,7 @@ coursesRouter.put('/module/:moduleId', coursesController.updateModule)
 //coursesRouter.post('/lesson', coursesController.createLesson)
 //coursesRouter.get('/lesson', coursesController.getAllLesson)
 //coursesRouter.get('/lesson/:lessonId', coursesController.getOneLesson)
-coursesRouter.put('/lesson/:lessonId', coursesController.updateLesson)
+//coursesRouter.put('/lesson/:lessonId', coursesController.updateLesson)
 //coursesRouter.delete('/lesson/:lessonId', coursesController.deleteLesson)
 //coursesRouter.delete('/lesson', coursesController.dropAllLessons)
 

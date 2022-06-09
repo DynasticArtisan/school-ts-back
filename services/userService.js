@@ -10,7 +10,8 @@ const AuthDto = require('../dtos/authDto');
 const UserTokenDto = require('../dtos/userTokenDto');
 const ApiError = require("../exceptions/ApiError");
 const fileService = require('./fileService');
-const { UserInfoDto, UserListDto } = require('../dtos/userDtos');
+const { UserInfoDto, UserListDto, SingleUserDto } = require('../dtos/userDtos');
+const progressService = require('./progressService');
 
 const Roles = [ 'teacher', 'curator', 'user' ];
 
@@ -23,13 +24,7 @@ class UserService {
         const Users = await userModel.find()
         return Users
     }
-    async getOneUser(userId) {
-        const User = await userModel.findById(userId);
-        if(!User){
-            throw ApiError.BadRequest('Пользователь не найден')
-        }
-        return User
-    }
+
     async updateUser(userId, payload) {
         const User = await userModel.findByIdAndUpdate(userId, payload, { new: true });
         if(!User){
@@ -267,6 +262,13 @@ class UserService {
         return UsersData
     }
 
+    async getOneUser(userId) {
+        const User = await userModel.findById(userId);
+        if(!User){
+            throw ApiError.BadRequest('Пользователь не найден')
+        }
+        return new SingleUserDto(User)
+    }
 
 
 

@@ -38,7 +38,20 @@ class UserListDto {
         this.registryAt = model.createdAt;
     }
 }
-
+class SingleUserDto {
+    constructor(model){
+        this.id = model._id
+        this.name = model.name
+        this.surname = model.surname
+        this.email = model.email
+        this.avatar = model.avatar
+        this.phone = model.info.phone
+        this.city = model.info.city
+        this.birthday = model.info.birthday
+        this.gender = model.info.gender
+        this.status = model.info.status
+    }
+}
 
 
 class UserTokenDto {
@@ -50,5 +63,5 @@ class UserTokenDto {
 }
 
 module.exports = {
-    UserInfoDto, UserTokenDto, UserListDto
+    UserInfoDto, UserTokenDto, UserListDto, SingleUserDto
 }

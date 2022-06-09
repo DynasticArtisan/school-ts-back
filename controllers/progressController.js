@@ -1,5 +1,6 @@
 const progressService = require("../services/progressService");
-
+const ApiError = require("../exceptions/ApiError");
+const roles = require("../utils/roles");
 class ProgressController {
     // Lesson progress
     async createULProgress (req, res, next) {
@@ -175,6 +176,22 @@ class ProgressController {
             next(e)
         }
     }
+
+    async toggleCourseAccess(req,res,next){
+        try {
+            const {role} = req.user;
+            if(role !== roles.super){
+                next(ApiError.UnauthorizedError)
+            }
+            const { id } = req.params;
+            const {isAvailable} = req.body
+            const Progress = await progressService.toggleCourseAccess(id, isAvailable)
+            res.json(Progress)
+        } catch (e) {
+            next(e)
+        }
+    }
+
 
     async completeLesson(req, res, next){
         try {

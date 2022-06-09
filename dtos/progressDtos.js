@@ -120,7 +120,24 @@ class CourseStudentDto{
     }
 }
 
+class UserCourseDto {
+    constructor(model){
+        this.id = model._id
+        this.course = model.course._id
+        this.isAvailable = model.isAvailable
+        this.isCompleted = model.isCompleted
+        this.format = model.format
+        this.title = model.course.title
+        this.subtitle = model.course.subtitle
+        this.image = model.course.image
+        this.mobileImage = model.course.mobileImage
+        this.lastLesson = model.lastLesson.module.title + ' ' + model.lastLesson.lesson.title
+    }
+}
+
+
+
 module.exports = {
     SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto, CourseStudentDto, AdminCoursesProgressDto, AdminSingleCourseDto,
-    AdminSingleModuleDto
+    AdminSingleModuleDto, UserCourseDto
 }

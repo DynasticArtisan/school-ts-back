@@ -6,6 +6,7 @@ const CourseSchema = new Schema({
     subtitle: { type: String },
     description: { type: String },
     image: { type: String },
+    mobileImage: { type: String },
 })
 
 CourseSchema.virtual('modules',{

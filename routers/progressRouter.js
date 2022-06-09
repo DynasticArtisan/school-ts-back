@@ -1,6 +1,6 @@
 const express = require('express');
 const progressController = require('../controllers/progressController');
-
+const authMiddleware = require('../middlewares/authMiddleware');
 const progressRouter = express.Router();
  
 progressRouter.post('/lesson', progressController.createULProgress)
@@ -27,5 +27,7 @@ progressRouter.delete('/course', progressController.deleteAllUCProgress)
 progressRouter.post('/', progressController.unlockCourseToUser)
 // for complete lesson -> homework api
 progressRouter.post('/complete', progressController.completeLesson)
+
+progressRouter.put('/:id/access', authMiddleware, progressController.toggleCourseAccess)
 
 module.exports = progressRouter;

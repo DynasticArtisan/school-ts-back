@@ -7,6 +7,12 @@ const ApiError = require("../exceptions/ApiError")
 class CoursesService {
 
 
+    async getCoursesList(){
+      const Courses = await courseModel.find().select('title')
+      return Courses.map(c => ({id: c._id, title: c.title}))
+    }
+
+
     async getAllCoursesData(){
         const Courses = await courseModel.find().populate({
           path: 'modules',

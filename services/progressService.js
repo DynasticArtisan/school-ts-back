@@ -1,5 +1,5 @@
 const res = require("express/lib/response");
-const { SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto, CourseStudentDto, AdminCoursesProgressDto, AdminSingleCourseDto, AdminSingleModuleDto } = require("../dtos/progressDtos");
+const { SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto, CourseStudentDto, AdminCoursesProgressDto, AdminSingleCourseDto, AdminSingleModuleDto, UserCourseDto } = require("../dtos/progressDtos");
 const ApiError = require("../exceptions/ApiError");
 const { populate } = require("../models/courseModel");
 const courseModel = require("../models/courseModel");
@@ -124,13 +124,22 @@ class ProgressService {
 
     
     async getUserCourses(userId){
-        const UserProgress = await UCProgressModel.find({ user: userId }).select(['isCompleted', 'course']).populate({
-            path: 'course',
-            model: 'Courses',
-            select: ['title', 'subtitle', 'urlname', 'image', 'totalLessons'],
-            populate: 'totalLessons'
+        const UserCourses = await UCProgressModel.find({ user: userId }).select().populate("course").populate({
+            path: "lastLesson",
+            select: "-_id user lesson module",
+            populate: [
+                {
+                    path: "lesson",
+                    select: "-_id title"
+                },
+                {
+                    path: "module",
+                    select: "-_id title"
+                }
+            ]
         }).lean()
-        return UserProgress
+        const UserCoursesData = UserCourses.map(course => new UserCourseDto(course))
+        return UserCoursesData
     }
 
     // getUserSingleCourseProgress
@@ -309,6 +318,17 @@ class ProgressService {
 
 
     // Manage User Access
+    async toggleCourseAccess(id, isAvailable){
+        const Progress = await UCProgressModel.findByIdAndUpdate(id, { isAvailable }, { new: true })
+        if(!Progress){
+            throw ApiError.BadRequest("Прогресс пользователя не найден")
+        }
+        return Progress
+
+    }
+
+
+
     async unlockCourseToUser(courseId, userId){
         const Progress = await UCProgressModel.findOne({ course: courseId, user: userId })
         if(Progress){ 
