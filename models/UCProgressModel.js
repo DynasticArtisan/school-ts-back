@@ -6,6 +6,7 @@ const UCProgressSchema = new Schema({
     isAvailable: { type: Boolean, default: true },
     lastModule: { type: Schema.Types.ObjectId, ref: 'Modules' },
     isCompleted: { type: Boolean, default: false },
+    format: { type: String, default: 'оптимальный' }
 },
 {
     timestamps: true

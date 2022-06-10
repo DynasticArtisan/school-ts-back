@@ -5,11 +5,12 @@ const coursesController = require('../controllers/coursesController');
 const coursesRouter = express.Router();
 
 
+coursesRouter.get('/homework/', authMiddleware, coursesController.getHomeworkPageCourses)
 coursesRouter.get('/', authMiddleware, coursesController.getUserCoursesProgress);
 coursesRouter.get('/:id', authMiddleware, coursesController.getAdminOneCourseStudents);
 coursesRouter.get('/course/:id', authMiddleware, coursesController.getUserOneCourseProgress);
+coursesRouter.get('/:course/exercises', authMiddleware, coursesController.getCourseExercises)
 coursesRouter.get('/module/:id', authMiddleware, coursesController.getUserOneModuleProgress);
-
 
 
 

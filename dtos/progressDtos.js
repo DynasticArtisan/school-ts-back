@@ -116,7 +116,12 @@ class CourseStudentDto{
         this.startedAt = model.createdAt;
         this.finishedAt = model.updatedAt;
         this.format = model.format;
-        this.lastLesson = model.lastLesson.module.title + ', ' + model.lastLesson.lesson.title;
+        if(model.lastLesson){
+            this.lastLesson = model.lastLesson.module.title + ', ' + model.lastLesson.lesson.title;
+        } else {
+            this.lastLesson = "курс не начат"
+        }
+
     }
 }
 
@@ -131,7 +136,12 @@ class UserCourseDto {
         this.subtitle = model.course.subtitle
         this.image = model.course.image
         this.mobileImage = model.course.mobileImage
-        this.lastLesson = model.lastLesson.module.title + ' ' + model.lastLesson.lesson.title
+        if(model.lastLesson){
+            this.lastLesson = model.lastLesson.module.title + ' ' + model.lastLesson.lesson.title
+        } else {
+            this.lastLesson = "Курс не начат"
+        }
+
     }
 }
 

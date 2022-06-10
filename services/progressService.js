@@ -338,12 +338,12 @@ class ProgressService {
         if(!Course){
             throw ApiError.BadRequest('Курс не найден')
         }
-        await UCProgressModel.create({ user: userId, course: courseId })
+        const CourseProgress = await UCProgressModel.create({ user: userId, course: courseId })
         const FirstModule = await moduleModel.findOne({ course: courseId, firstModule: true })
         if(FirstModule){
             await this.unlockModuleToUser(userId, FirstModule)
         }
-        return { message: "Доступ к уроку открыт" }       
+        return CourseProgress
     }
 
     async unlockModuleToUser(userId, Module){

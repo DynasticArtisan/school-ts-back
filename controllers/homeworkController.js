@@ -1,6 +1,8 @@
 const ApiError = require("../exceptions/ApiError")
 const fileService = require("../services/fileService")
-const homeworkService = require("../services/homeworkService")
+const homeworkService = require("../services/homeworkService");
+const coursesService = require("../services/coursesService");
+const roles = require("../utils/roles");
 
 class HomeworkController {
     async createNewHomework(req, res, next){
@@ -82,6 +84,22 @@ class HomeworkController {
             const { homework } = req.params;
             const Homework = await homeworkService.deleteHomework(homework)
             res.json("Домашнее задание удалено")
+        } catch (e) {
+            next(e)
+        }
+    }
+
+
+
+    // homework courses list
+    async getMyCourses(req,res,next){
+        try {
+            const {role} = req.user;
+            if(role === roles.user || role === roles.admin){
+                next(ApiError.UnauthorizedError)
+            }
+            const Courses = await coursesService.getAllCoursesData()
+            res.json(Courses)
         } catch (e) {
             next(e)
         }

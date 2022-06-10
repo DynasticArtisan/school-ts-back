@@ -1,6 +1,8 @@
-const res = require("express/lib/response");
+const roles = require("../utils/roles")
+const ApiError = require("../exceptions/ApiError");
 const coursesService = require("../services/coursesService");
 const progressService = require("../services/progressService");
+const exerciseService = require("../services/exerciseService");
 
 class CoursesController {
     async getUserCoursesProgress(req, res, next){
@@ -54,8 +56,34 @@ class CoursesController {
             next(e)
         }
     }
-
-
+    // courses list for homeworks courses page
+    async getHomeworkPageCourses(req, res, next){
+        try {
+            const {role} = req.user;
+            if(role === roles.user || role === roles.admin){
+                next(ApiError.UnauthorizedError)
+            }
+            const Courses = await coursesService.getAllCoursesData()
+            res.json(Courses)
+        } catch (e) {
+            next(e)
+        }
+    }
+    // single course exercises
+    async getCourseExercises(req, res, next){
+        try {
+            const { role } = req.user;
+            const { course } = req.params;
+            if(role === roles.super){
+                const ExercisesData = await exerciseService.getCourseExercises(course)
+                res.json(ExercisesData)
+            } else {
+                next(ApiError.UnauthorizedError)
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
 
     // async getAllCoursesData(req, res, next){
     //     try {

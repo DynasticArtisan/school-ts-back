@@ -3,28 +3,25 @@ const moduleModel = require("../models/moduleModel")
 const lessonModel = require("../models/lessonModel")
 
 const ApiError = require("../exceptions/ApiError")
+const { AdminCoursesProgressDto } = require("../dtos/progressDtos")
 
 class CoursesService {
-
+    // superadmin -> courses page
+    async getAllCoursesData(){
+      const AllCourses = await courseModel.find().select('title subtitle')
+      const AllCoursesData = AllCourses.map(item => new AdminCoursesProgressDto(item))
+      return AllCoursesData
+    }
+    // superadmin -> homework courses page
+    async getAllCoursesDataWithStatistics(){
+      const AllCourses = await courseModel.find().select('title subtitle').populate("totalCompleted").populate("totalInProgress").lean()
+      return AllCourses.map(item => new AdminCoursesProgressDto(item))
+    }
 
     async getCoursesList(){
       const Courses = await courseModel.find().select('title')
       return Courses.map(c => ({id: c._id, title: c.title}))
     }
-
-
-    async getAllCoursesData(){
-        const Courses = await courseModel.find().populate({
-          path: 'modules',
-          model: moduleModel,
-          populate: {
-            path: 'lessons',
-            model: lessonModel
-          }
-        })
-        return Courses
-    }
-
     async getWholeCoursesProgress(){
       const CoursesData = await courseModel.find().select('title subtitle').populate("totalCompleted").populate("totalInProgress").lean()
       return CoursesData

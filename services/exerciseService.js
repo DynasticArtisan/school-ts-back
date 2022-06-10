@@ -12,7 +12,6 @@ class ExerciseService {
         const Exercise = await exerciseModel.create({ ...payload, module: Lesson.module, course: Lesson.course });
         return Exercise
     }
-
     async readAllExercise(){
         const Exercises = await exerciseModel.find().populate([
             {
@@ -26,7 +25,6 @@ class ExerciseService {
         ])
         return Exercises.map(model => new ExerciseDto(model))
     }
-
     async readAllCourseExercise(courseId){
         const Exercises = await exerciseModel.find({ course: courseId }).populate([
             {
@@ -40,16 +38,29 @@ class ExerciseService {
         ])
         return Exercises.map(model => new ExerciseDto(model))
     }
-
-
     async updateExercise(exercise, payload){
         const Exercise = await exerciseModel.findByIdAndUpdate(exercise, payload, { new: true });
         return Exercise
     }
-
     async deleteExercise(exercise){
         const Exercise = await exerciseModel.findByIdAndDelete(exercise);
         return Exercise
+    }
+
+
+    // get single course exercises
+    async getCourseExercises(course){
+        const Exercises = await exerciseModel.find({ course: course }).populate([
+            {
+                path: 'lesson',
+                select: 'title -_id'
+            },
+            {
+                path: 'module',
+                select: 'title -_id'
+            }
+        ])
+        return Exercises.map(ex => new ExerciseDto(ex))
     }
 
 }
