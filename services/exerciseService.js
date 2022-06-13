@@ -13,30 +13,15 @@ class ExerciseService {
         return Exercise
     }
     async readAllExercise(){
-        const Exercises = await exerciseModel.find().populate([
-            {
-                path: 'lesson',
-                select: 'title -_id'
-            },
-            {
-                path: 'module',
-                select: 'title -_id'
-            }
-        ])
-        return Exercises.map(model => new ExerciseDto(model))
+        const Exercises = await exerciseModel.find()
+        return Exercises
     }
-    async readAllCourseExercise(courseId){
-        const Exercises = await exerciseModel.find({ course: courseId }).populate([
-            {
-                path: 'lesson',
-                select: 'title -_id'
-            },
-            {
-                path: 'module',
-                select: 'title -_id'
-            }
-        ])
-        return Exercises.map(model => new ExerciseDto(model))
+    async readOneExercise(exercise){
+        const Exercise = await exerciseModel.findById(exercise)
+        if(!Exercise){
+            throw ApiError.BadRequest("Задание не найдено")
+        }
+        return Exercise
     }
     async updateExercise(exercise, payload){
         const Exercise = await exerciseModel.findByIdAndUpdate(exercise, payload, { new: true });
@@ -47,8 +32,7 @@ class ExerciseService {
         return Exercise
     }
 
-
-    // get single course exercises
+    // get course exercises
     async getCourseExercises(course){
         const Exercises = await exerciseModel.find({ course: course }).populate([
             {
@@ -62,6 +46,29 @@ class ExerciseService {
         ])
         return Exercises.map(ex => new ExerciseDto(ex))
     }
+    // get exercise
+    async getOneExerciseData(exercise){
+        const Exercise = await exerciseModel.findById(exercise).populate([
+            {
+                path: 'lesson',
+                select: 'title -_id'
+            },
+            {
+                path: 'module',
+                select: 'title -_id'
+            }
+        ])
+        if(!Exercise){
+            throw ApiError.BadRequest("Упражнение не найдено")
+        }
+        const ExerciseData = new ExerciseDto(Exercise)
+        return ExerciseData
+    }
+
+    async getLessonExercise(lesson){
+        const Exercise = await exerciseModel.findOne({ lesson })
+        return Exercise
+    }
 
 }
 
@@ -71,6 +78,7 @@ class ExerciseDto {
         this.id = model._id
         this.lesson = model.lesson.title
         this.module = model.module.title
+        this.course = model.course
     }
 }
 

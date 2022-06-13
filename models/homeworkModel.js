@@ -2,6 +2,7 @@ const { Schema, model } = require('mongoose');
 const fileService = require('../services/fileService');
 
 const HomeworkSchema = new Schema({
+    course: { type: Schema.Types.ObjectId, ref: 'Courses'},
     exercise: { type: Schema.Types.ObjectId, ref: 'Exercise' },
     user: { type: Schema.Types.ObjectId, ref: 'User' },
     status: { type: String },
@@ -16,9 +17,13 @@ HomeworkSchema.virtual("files", {
     localField: "_id"
 })
 
-HomeworkSchema.post('findOneAndDelete', function(doc){
-    fileService.deleteHomeworkFiles(doc._id)
+HomeworkSchema.virtual("lastfile", {
+    ref: "Files",
+    foreignField: "homework",
+    localField: "_id",
+    justOne: true
 })
+
 
 
 

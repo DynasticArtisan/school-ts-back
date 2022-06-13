@@ -14,6 +14,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ credentials: true, origin: config.get("ClientURL") }));
 app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/homeworks', express.static(path.join(__dirname, 'filestore/homeworks/')));
 app.use('/api', apiRouter);
 app.use(errorMiddleware);
 

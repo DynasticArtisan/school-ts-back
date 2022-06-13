@@ -17,7 +17,6 @@ class HomeworkController {
             next(e)
         }
     }
-    
     async getAllHomeworks(req, res, next){
         try {
             const Homeworks = await homeworkService.readAllHomeworks(req.query)
@@ -27,35 +26,34 @@ class HomeworkController {
         }
 
     }
-
-    async getAllExerciseHomeworks(req, res, next){
+    async getOneHomework(req, res, next){
         try {
-            const { exercise } = req.params;
-            const Homeworks = await homeworkService.readAllHomeworksByExercise(exercise)
-            res.json(Homeworks)     
+            const { id } = req.params;
+            const { role, id: user } = req.user;
+            if(role === roles.super){
+                const Homework = await homeworkService.getOneHomework(id)
+                res.json(Homework)
+            } else {
+                next(ApiError.Forbidden())
+            }
         } catch (e) {
             next(e)
         }
     }
-
-
-
-    async getSingleHomework(req, res, next){
-        try {
-            const { homework } = req.params;
-            const Homework = await homeworkService.readSingleHomework(homework)
-            res.json(Homework)
-        } catch (e) {
-            next(e)
-        }
-    }
-
-
     async updateHomework(req, res, next){
         try {
-            const { homework } = req.params;
-            const Homework = await homeworkService.updateHomework(homework, req.body)
+            const { id } = req.params;
+            const Homework = await homeworkService.updateHomework(id, req.body)
             res.json(Homework)
+        } catch (e) {
+            next(e)
+        }
+    }
+    async deleteHomework(req, res, next){
+        try {
+            const { id } = req.params;
+            const Homework = await homeworkService.deleteHomework(id)
+            res.json("Домашнее задание удалено")
         } catch (e) {
             next(e)
         }
@@ -73,33 +71,6 @@ class HomeworkController {
             }
             const Homework = await homeworkService.updateHomework( homework, { status: "wait" } )
             res.json(File)
-        } catch (e) {
-            next(e)
-        }
-    }
-
-
-    async deleteHomework(req, res, next){
-        try {
-            const { homework } = req.params;
-            const Homework = await homeworkService.deleteHomework(homework)
-            res.json("Домашнее задание удалено")
-        } catch (e) {
-            next(e)
-        }
-    }
-
-
-
-    // homework courses list
-    async getMyCourses(req,res,next){
-        try {
-            const {role} = req.user;
-            if(role === roles.user || role === roles.admin){
-                next(ApiError.UnauthorizedError)
-            }
-            const Courses = await coursesService.getAllCoursesData()
-            res.json(Courses)
         } catch (e) {
             next(e)
         }

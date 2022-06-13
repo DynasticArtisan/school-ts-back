@@ -4,11 +4,14 @@ const authMiddleware = require('../middlewares/authMiddleware');
 const superMiddleware = require('../middlewares/superMiddleware');
 
 const authRouter = require('./authRouter');
+
 const coursesRouter = require('./coursesRouter');
+const modulesRouter = require('./modulesRouter');
+const lessonsRouter = require('./lessonsRouter');
+
 const exerciseRouter = require('./exerciseRouter');
 const filesRouter = require('./filesRouter');
 const homeworkRouter = require('./homeworkRouter');
-const lessonRouter = require('./lessonRouter');
 const notificationRouter = require('./notificationsRouter');
 const profileRouter = require('./profileRouter');
 const progressRouter = require('./progressRouter');
@@ -24,13 +27,13 @@ apiRouter.use('/users', usersRouter);
 
 apiRouter.use('/progress', progressRouter);
 
-apiRouter.use('/courses', coursesRouter);
-
-apiRouter.use('/notifications', notificationRouter);
-
+apiRouter.use('/courses', authMiddleware, coursesRouter);
+apiRouter.use('/modules', authMiddleware, modulesRouter);
+apiRouter.use('/lessons', authMiddleware, lessonsRouter);
 apiRouter.use('/exercise', exerciseRouter);
 
-apiRouter.use('/lesson', lessonRouter);
+
+apiRouter.use('/notifications', notificationRouter);
 
 apiRouter.use('/homework', homeworkRouter);
 

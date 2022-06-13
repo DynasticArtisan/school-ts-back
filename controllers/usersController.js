@@ -145,7 +145,8 @@ class UserController {
                 next(ApiError.UnauthorizedError)
             }
             const userData = await userService.getOneUser(userId);
-            const coursesData = await progressService.getUserCourses(userId);
+            const coursesData = []
+            //const coursesData = await progressService.getUserCourses(userId);
             if(role === roles.super){
                 const allCourses = await coursesService.getCoursesList()
                 res.json({ user: userData, courses: coursesData, allCourses: allCourses });

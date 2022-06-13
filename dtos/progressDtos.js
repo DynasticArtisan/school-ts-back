@@ -113,6 +113,7 @@ class CourseStudentDto{
     constructor(model){
         this.id = model._id;
         this.fullname = model.user.surname + ' ' + model.user.name;
+        this.userId = model.user._id;
         this.startedAt = model.createdAt;
         this.finishedAt = model.updatedAt;
         this.format = model.format;

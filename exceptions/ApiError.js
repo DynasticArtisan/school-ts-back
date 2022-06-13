@@ -14,4 +14,8 @@ module.exports = class ApiError extends Error {
     static BadRequest(message, errors=[]) {
         return new ApiError(400, message, errors)
     }
+
+    static Forbidden(){
+        return new ApiError(403, 'Доступ запрещен')
+    }
 }

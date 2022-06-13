@@ -4,17 +4,16 @@ const avatarMulter = require('../multer/avatarMulter');
 
 const profileRouter = express.Router();
 profileRouter.get('/', profileController.getProfile)
-
 profileRouter.post('/', profileController.updateProfile) //validate that
 
 profileRouter.post('/avatar', avatarMulter, profileController.uploadAvatar)
 profileRouter.delete('/avatar', profileController.removeAvatar)
 
 profileRouter.post('/password', profileController.changePassword) //validate that
+
 profileRouter.get('/notifications', profileController.getNotifications)
 profileRouter.post('/notifications', profileController.updateNotificationsSettings) //validate that
 profileRouter.get('/notifications/check', profileController.checkNewNotifications)
-profileRouter.get('/courses/:userId', profileController.getUserCoursesWithProgress)
-profileRouter.get('/courses/:user/:course', profileController.getMySingleCourseProgress)
+
 
 module.exports = profileRouter;
