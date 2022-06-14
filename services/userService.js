@@ -54,7 +54,7 @@ class UserService {
         const userDataDto = new UserInfoDto(user);
         const userTokenDto = new UserTokenDto(user);
         const tokens = await tokenService.generateTokens({...userTokenDto});
-        await tokenService.saveToken(userDto.id, tokens.refreshToken);
+        await tokenService.saveToken(userDataDto.id, tokens.refreshToken);
         return { ...tokens, user: userDataDto }
     }
     async activate (activateLink) {
@@ -261,7 +261,6 @@ class UserService {
         const UsersData = Users.map(user => new UserListDto(user))
         return UsersData
     }
-
     async getOneUser(userId) {
         const User = await userModel.findById(userId);
         if(!User){

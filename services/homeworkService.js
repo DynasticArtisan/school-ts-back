@@ -1,6 +1,7 @@
 const ApiError = require("../exceptions/ApiError")
 const exerciseModel = require("../models/exerciseModel")
 const homeworkModel = require("../models/homeworkModel")
+const statuses = require("../utils/statuses")
 
 class HomeworkService {
     async createHomework(payload){
@@ -8,8 +9,12 @@ class HomeworkService {
         if(!Exercise){
             throw ApiError.BadRequest("Exercise not found")
         }
-        const Homework = await homeworkModel.create({ ...payload, course: Exercise.course, status:"wait" });
-        return Homework
+        const Candidate = await homeworkModel.findOne(payload)
+        if(Candidate){
+            throw ApiError.BadRequest("Homework allready exist")
+        }
+        const Homework = await homeworkModel.create({ ...payload, course: Exercise.course, lesson: Exercise.lesson, status:"wait" });
+        return new HomeworkDto(Homework)
     }
     async readAllHomeworks(options){
         const Homeworks = await homeworkModel.find(options)
@@ -23,11 +28,22 @@ class HomeworkService {
         return Homework
     }
     async updateHomework(homework, payload) {
-        const Homework = await homeworkModel.findByIdAndUpdate(homework, payload, { new: true })
+        const Homework = await homeworkModel.findByIdAndUpdate(homework, payload, { new: true }).populate([
+            {
+                path: "user",
+                select: "name surname"
+            },
+            {
+                path: "files",
+                options: {
+                    sort: "createdAt"
+                }    
+            }
+        ]).lean()
         if(!Homework){
             throw ApiError.BadRequest("Домашнее задание не найдено")
         }
-        return Homework
+        return new HomeworkDto(Homework)
     }
     async deleteHomework(homework) {
         const Homework = await homeworkModel.findByIdAndDelete(homework)
@@ -47,10 +63,13 @@ class HomeworkService {
         const Homework = await homeworkModel.findById(homework).populate([
             {
                 path: "user",
-                select: "name surname -_id"
+                select: "name surname"
             },
             {
-                path: "lastfile"
+                path: "files",
+                options: {
+                    sort: "createdAt"
+                }    
             }
         ]).lean()
         if(!Homework){
@@ -60,26 +79,55 @@ class HomeworkService {
     }
     async getUserHomework(exercise, user){
         const Homework = await homeworkModel.findOne({exercise, user}).populate({
-            path: "files"
+            path: "files",
+            options: {
+                sort: "createdAt"
+            }           
         }).lean()
         if(!Homework){
             return null
         }
-        return Homework
+        //return Homework
         return new HomeworkDto(Homework)
     }
 
-
+    async checkHomework(_id, payload){
+        const Homework = await homeworkModel.findOneAndUpdate({ _id, status: statuses.wait }, payload, {new: true}).populate([
+            {
+                path: "user",
+                select: "name surname"
+            },
+            {
+                path: "files",
+                options: {
+                    sort: "createdAt"
+                }    
+            }
+        ]).lean()
+        if(!Homework){
+            throw ApiError.BadRequest("Задание не найдено")
+        }
+        return new HomeworkDto(Homework)
+    }
 }
 
 class HomeworkDto { 
     constructor(model){
         this.id = model._id
         this.status = model.status
-        this.user = model.user.surname + " " + model.user.name
+        if(model.user._id){
+            this.user = {
+                id: model.user._id,
+                fullname: model.user.surname + " " + model.user.name
+            }
+        } else {
+            this.user = model.user
+        }
         this.files = model.files
-        this.file = model.lastfile
+        this.lesson = model.lesson
         this.exercise = model.exercise
+        this.comment = model.comment
+
     }
 }
 

@@ -31,12 +31,12 @@ apiRouter.use('/courses', authMiddleware, coursesRouter);
 apiRouter.use('/modules', authMiddleware, modulesRouter);
 apiRouter.use('/lessons', authMiddleware, lessonsRouter);
 apiRouter.use('/exercise', exerciseRouter);
+apiRouter.use('/homework', homeworkRouter);
+apiRouter.use('/files', filesRouter)
 
 
 apiRouter.use('/notifications', notificationRouter);
 
-apiRouter.use('/homework', homeworkRouter);
 
-apiRouter.use('/files', filesRouter)
 
 module.exports = apiRouter;

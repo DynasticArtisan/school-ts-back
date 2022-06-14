@@ -1,3 +1,4 @@
+const { UserCourseDto } = require("../dtos/progressDtos");
 const ApiError = require("../exceptions/ApiError");
 const courseModel = require("../models/courseModel");
 const lessonModel = require("../models/lessonModel");
@@ -12,7 +13,8 @@ class ProgressService {
     async unlockCourseToUser(courseId, userId){
         const Progress = await UCProgressModel.findOne({ course: courseId, user: userId })
         if(Progress){ 
-            throw ApiError.BadRequest("Курс уже доступен пользователю")
+            //throw ApiError.BadRequest("Курс уже доступен пользователю")
+            return { message: "Курс уже доступен пользователю" } 
         }
         const Course = await courseModel.findById(courseId)
         if(!Course){
@@ -23,13 +25,14 @@ class ProgressService {
         if(FirstModule){
             await this.unlockModuleToUser(userId, FirstModule)
         }
-        return CourseProgress
+        return new UserCourseDto({ ...CourseProgress, course: Course })
     }
 
     async unlockModuleToUser(userId, Module){
         const Progress = await UMProgressModel.findOne({ module: Module._id, user: userId })
         if(Progress){
-            throw ApiError.BadRequest("Модуль уже доступен пользователю")
+            return { message: "Модуль уже доступен пользователю" }
+            //throw ApiError.BadRequest("Модуль уже доступен пользователю")
         }
         await UMProgressModel.create({ course: Module.course, module: Module._id, user: userId })
         const FirstLesson = await lessonModel.findOne({ module: Module._id, firstLesson: true })
@@ -42,7 +45,8 @@ class ProgressService {
     async unlockLessonToUser(userId, Lesson){
         const Progress = await ULProgressModel.findOne({ lesson: Lesson._id, user: userId })
         if(Progress){
-            throw ApiError.BadRequest("Урок уже доступен пользователю")
+            return { message: "Урок уже доступен пользователю" }
+            //throw ApiError.BadRequest("Урок уже доступен пользователю")
         }
         await ULProgressModel.create({ course: Lesson.course, module: Lesson.module, lesson: Lesson._id, user: userId })
         return { message: "Доступ к уроку открыт" }

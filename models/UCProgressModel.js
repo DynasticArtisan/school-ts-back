@@ -24,7 +24,7 @@ UCProgressSchema.virtual('lastLesson',{
     ref: "UsersLessonProgress",
     localField: "course",
     foreignField: "course",
-    match: progress => ({ user: progress.user }),
+    match: progress => ({ user: progress.user, isCompleted: true }),
     justOne: true
 })
 

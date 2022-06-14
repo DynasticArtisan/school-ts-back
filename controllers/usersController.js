@@ -8,6 +8,7 @@ const progressService = require("../services/progressService");
 const coursesService = require("../services/coursesService");
 const { UserCourseDto } = require("../dtos/progressDtos");
 const { getAllCoursesData } = require("../services/coursesService");
+const courseProgressService = require("../services/courseProgressService");
 
 
 class UserController {
@@ -145,8 +146,7 @@ class UserController {
                 next(ApiError.UnauthorizedError)
             }
             const userData = await userService.getOneUser(userId);
-            const coursesData = []
-            //const coursesData = await progressService.getUserCourses(userId);
+            const coursesData = await courseProgressService.getAllowedCourses(userId);
             if(role === roles.super){
                 const allCourses = await coursesService.getCoursesList()
                 res.json({ user: userData, courses: coursesData, allCourses: allCourses });

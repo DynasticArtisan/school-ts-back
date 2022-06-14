@@ -35,13 +35,20 @@ class LessonProgressService {
         const Progresses = await lessonProgressModel.deleteMany()
         return Progresses
     }
-
     async getUserLessonProgress( lesson, user ){
         const Lesson = await lessonProgressModel.findOne({ lesson, user, isAvailable: true }).select('isCompleted -_id')
         if(!Lesson){
             throw ApiError.Forbidden()
         }
         return Lesson
+    }
+
+    async completeLesson(lesson, user){
+        const Progress = await lessonProgressModel.findOneAndUpdate({ lesson, user },{ isCompleted: true }, {new: true})
+        if(!Progress){
+            throw ApiError.BadRequest("Прогресс не найден")
+        }
+        return Progress
     }
 }
 

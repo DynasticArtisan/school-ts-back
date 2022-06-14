@@ -3,16 +3,25 @@ const fileService = require("../services/fileService")
 const homeworkService = require("../services/homeworkService");
 const coursesService = require("../services/coursesService");
 const roles = require("../utils/roles");
+const statuses = require("../utils/statuses");
+const lessonProgressService = require("../services/lessonProgressService");
+const progressService = require("../services/progressService");
 
 class HomeworkController {
     async createNewHomework(req, res, next){
         try {
-            if(!req.file){
-                throw ApiError.BadRequest("Ошибка в записи файла")
+            const { role, id:user } = req.user;
+            const { exercise } = req.body;
+            if(role === roles.user){
+                if(!req.file){
+                    throw ApiError.BadRequest("Ошибка в записи файла")
+                }
+                const Homework = await homeworkService.createHomework({ exercise, user });
+                const File = await fileService.createHomeworkFile({ homework: Homework.id, filename: req.file.originalname, filepath: 'homeworks/'+req.file.filename });
+                res.json({...Homework, files: [File]})
+            } else {
+                next(ApiError.Forbidden())
             }
-            const Homework = await homeworkService.createHomework(req.body);
-            const File = await fileService.createHomeworkFile({ homework: Homework._id, filename: req.file.originalname, filepath: 'homeworks/'+req.file.filename });
-            res.json(Homework._id)
         } catch (e) {
             next(e)
         }
@@ -61,20 +70,46 @@ class HomeworkController {
 
     async uploadNewFile(req, res, next){
         try {
-            const { homework } = req.params;
-            if(!req.file){
-                throw ApiError.BadRequest("Ошибка в записи файла")
+            const {id} = req.params;
+            const { role, id: user} = req.user;
+            if(role === roles.user){
+                if(!req.file){
+                    throw ApiError.BadRequest("Ошибка в записи файла")
+                }
+                const File = await fileService.createHomeworkFile({ homework:id, filename: req.file.originalname, filepath: 'homeworks/'+req.file.filename });
+                if(!File){
+                    throw ApiError.BadRequest("Ошибка в записи файла")
+                }
+                const Homework = await homeworkService.updateHomework( id, { status: "wait" } )
+                res.json(Homework)
+            } else {
+                next(ApiError.Forbidden())
             }
-            const File = await fileService.createHomeworkFile({ homework, filename: req.file.originalname, filepath: 'homeworks/'+req.file.filename });
-            if(!File){
-                throw ApiError.BadRequest("Ошибка в записи файла")
-            }
-            const Homework = await homeworkService.updateHomework( homework, { status: "wait" } )
-            res.json(File)
         } catch (e) {
             next(e)
         }
     }
+
+    async checkHomework(req, res, next){
+        try {
+            const {id} = req.params;
+            const { role, id: user} = req.user;
+            const { comment, status } = req.body;
+            if(role === roles.super){
+                const Homework = await homeworkService.checkHomework(id, { comment, status, checkBy: user })
+                if(Homework.status === statuses.completed){
+                    const Progress = await progressService.completeLesson(Homework.lesson, Homework.user.id )
+                }
+                res.json(Homework)
+            } else {
+                next(ApiError.Forbidden())
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
+
+
 
 }
 module.exports = new HomeworkController()

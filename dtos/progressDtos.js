@@ -122,6 +122,9 @@ class CourseStudentDto{
         } else {
             this.lastLesson = "курс не начат"
         }
+        if(model.isAvailable){
+            this.isAvailable = model.isAvailable
+        }
 
     }
 }

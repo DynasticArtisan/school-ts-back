@@ -1,4 +1,4 @@
-const { AdminCoursesProgressDto, UserCoursesProgressDto, CourseStudentDto, UserSingleCourseProgressDto } = require("../dtos/progressDtos");
+const { AdminCoursesProgressDto, UserCoursesProgressDto, CourseStudentDto, UserSingleCourseProgressDto, UserCourseDto } = require("../dtos/progressDtos");
 const ApiError = require("../exceptions/ApiError");
 const courseModel = require("../models/courseModel");
 const courseProgressModel = require("../models/UCProgressModel");
@@ -84,6 +84,18 @@ class CourseProgressService {
         }
         const UserProgressData = new UserSingleCourseProgressDto(UserProgress)
         return UserProgressData
+    }
+    async getAllowedCourses(user){
+        const Progress = await courseProgressModel.find({ user }).populate([
+            {
+                path: 'lastLesson',
+                populate: 'lesson module'
+            }, 
+            {
+                path: "course"
+            }
+        ]).lean()
+        return Progress.map(progress => new UserCourseDto(progress))
     }
     async setCourseAccess(id, isAvailable){
         const Progress = await courseProgressModel.findByIdAndUpdate(id, { isAvailable }, { new: true })

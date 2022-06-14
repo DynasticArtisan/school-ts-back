@@ -3,10 +3,13 @@ const fileService = require('../services/fileService');
 
 const HomeworkSchema = new Schema({
     course: { type: Schema.Types.ObjectId, ref: 'Courses'},
+    lesson: { type: Schema.Types.ObjectId, ref: 'Lessons'},
     exercise: { type: Schema.Types.ObjectId, ref: 'Exercise' },
     user: { type: Schema.Types.ObjectId, ref: 'User' },
     status: { type: String },
-    Comment: { type: String }
+    comment: { type: String },
+    checkBy: { type: Schema.Types.ObjectId, ref: 'User' }
+
 },{
     timestamps: true
 })
