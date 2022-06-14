@@ -33,7 +33,7 @@ class UserController {
             if(!req.file){
                 return next(ApiError.BadRequest("Ошибка записи файла"));
             }
-            const userData = await userService.uploadUserAvatar(id, filename);
+            const userData = await userService.uploadUserAvatar(id, 'avatars/'+filename);
             res.json(userData)
         } catch (e) {
             next(e)

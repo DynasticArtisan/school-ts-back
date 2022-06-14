@@ -31,6 +31,10 @@ class FileService {
         }
         return File
     }
+    async deleteAllFiles(){
+        const Files = await filesModel.deleteMany()
+        return Files
+    }
 
 }
 module.exports = new FileService()

@@ -2,6 +2,8 @@ const progressService = require("../services/progressService");
 const ApiError = require("../exceptions/ApiError");
 const roles = require("../utils/roles");
 const courseProgressService = require("../services/courseProgressService");
+const lessonProgressService = require("../services/lessonProgressService");
+const moduleProgressService = require("../services/moduleProgressService");
 class ProgressController {
     async unlockCourseToUser(req, res, next){
         try {
@@ -30,6 +32,16 @@ class ProgressController {
                 next(ApiError.Forbidden())
             }
 
+        } catch (e) {
+            next(e)
+        }
+    }
+    async deleteAll (req, res, next){
+        try {
+            await lessonProgressService.deleteAllProgresses()
+            await moduleProgressService.deleteAllProgresses()
+            await courseProgressService.deleteAllProgresses()
+            res.json("Nice!")
         } catch (e) {
             next(e)
         }

@@ -6,5 +6,6 @@ const progressRouter = express.Router();
 
 progressRouter.post('/', authMiddleware,  progressController.unlockCourseToUser)
 progressRouter.put('/:id/access', authMiddleware, progressController.setCourseAccess)
+progressRouter.delete('/', progressController.deleteAll)
 
 module.exports = progressRouter;

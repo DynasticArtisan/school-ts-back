@@ -25,7 +25,10 @@ class ProgressService {
         if(FirstModule){
             await this.unlockModuleToUser(userId, FirstModule)
         }
-        return new UserCourseDto({ ...CourseProgress, course: Course })
+        //return new UserCourseDto({ ...CourseProgress, course: Course })
+       const dto = new UserCourseDto(CourseProgress);
+       
+        return { ...dto, course: Course._id, title: Course.title, subtitle: Course.subtitle }
     }
 
     async unlockModuleToUser(userId, Module){

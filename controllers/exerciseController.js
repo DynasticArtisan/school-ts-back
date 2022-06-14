@@ -47,6 +47,14 @@ class ExerciseController {
             next(e)
         }
     }
+    async deleteAllExercises(req, res, next){
+        try {
+            const exercises = await exerciseService.deleteAllExercise()
+            res.json(exercises)
+        } catch (e) {
+            next(e)
+        }
+    }
 
     async getOneExerciseHomeworks(req, res, next) {
         try {

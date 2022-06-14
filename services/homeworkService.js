@@ -52,7 +52,10 @@ class HomeworkService {
         }
         return Homework
     }
-
+    async deleteAllHomeworks(){
+        const Homeworks = await homeworkModel.deleteMany()
+        return Homeworks
+    }
 
     async getAllExerciseHomeworks(exercise){
         const Homeworks = await homeworkModel.find({ exercise }).populate('user').lean()

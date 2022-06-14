@@ -31,6 +31,10 @@ class ExerciseService {
         const Exercise = await exerciseModel.findByIdAndDelete(exercise);
         return Exercise
     }
+    async deleteAllExercise(){
+        const Exercise = await exerciseModel.deleteMany();
+        return Exercise
+    }
 
     // get course exercises
     async getCourseExercises(course){

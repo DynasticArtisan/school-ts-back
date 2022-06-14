@@ -67,6 +67,14 @@ class HomeworkController {
             next(e)
         }
     }
+    async deleteAllHomeworks(req, res, next){
+        try {
+            const homeworks = await homeworkService.deleteAllHomeworks()
+            res.json(homeworks)
+        } catch (e) {
+            next(e)
+        }
+    }
 
     async uploadNewFile(req, res, next){
         try {

@@ -6,7 +6,7 @@ const usersRouter = express.Router();
 
 usersRouter.post('/', usersController.createUser)
 // usersRouter.get('/', usersController.getAllUsers)
-usersRouter.get('/', authMiddleware, usersController.getUsersList)
+usersRouter.get('/',  usersController.getUsersList)
 usersRouter.get('/:userId', authMiddleware, usersController.getOneUser)
 
 usersRouter.put('/:userId', usersController.updateUser)

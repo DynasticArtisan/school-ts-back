@@ -9,5 +9,6 @@ exerciseRouter.get('/:id', exerciseController.getOneExercise)
 exerciseRouter.get('/:id/homeworks', authMiddleware, exerciseController.getOneExerciseHomeworks)
 exerciseRouter.put('/:id', exerciseController.updateExercise)
 exerciseRouter.delete('/:id', exerciseController.deleteExercise)
+exerciseRouter.delete('/', exerciseController.deleteAllExercises)
 
 module.exports = exerciseRouter;

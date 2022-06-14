@@ -20,6 +20,14 @@ class FilesController {
         }
 
     }
+    async deleteAll(req, res, next){
+        try {
+            const files = await fileService.deleteAllFiles()
+            res.json(files)
+        } catch (e) {
+            next(e)
+        }
+    }
 
 }
 module.exports = new FilesController()

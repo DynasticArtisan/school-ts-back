@@ -7,6 +7,7 @@ const homeworkRouter = express.Router();
 homeworkRouter.get('/', homeworkController.getAllHomeworks)
 homeworkRouter.put('/:id', homeworkController.updateHomework)
 homeworkRouter.delete('/:id', homeworkController.deleteHomework)
+homeworkRouter.delete('/', homeworkController.deleteAllHomeworks)
 
 
 homeworkRouter.get('/:id', authMiddleware, homeworkController.getOneHomework)
