@@ -36,7 +36,7 @@ class CoursesService {
       return AllCoursesData
     }
     async getTotalProgresses(){
-      const Courses = await courseModel.find().select('title subtitle').populate("totalCompleted").populate("totalInProgress").lean()
+      const Courses = await courseModel.find().select('title subtitle description').populate("totalCompleted").populate("totalInProgress").lean()
       const CoursesData = Courses.map(item => new AdminCoursesProgressDto(item))
       return CoursesData;
     }

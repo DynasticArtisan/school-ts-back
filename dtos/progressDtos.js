@@ -1,3 +1,5 @@
+const exerciseModel = require("../models/exerciseModel")
+
 class SingleCourseProgressDto {
     constructor(model){
         this.id = model._id
@@ -27,6 +29,7 @@ class AdminCoursesProgressDto{
         this.url = model.urlname
         this.title = model.title
         this.subtitle = model.subtitle
+        this.description = model.description
         this.totalInProgress = model.totalInProgress
         this.totalCompleted = model.totalCompleted
     }
@@ -100,10 +103,12 @@ class AdminSingleModuleDto {
             id: lesson._id,
             title: lesson.title,
             description: lesson.description,
+            content: lesson.content,
             first: Boolean(lesson.firstModule),
             prev: lesson.prevModule,
             fullAccess: true,
-            isAvailable: true
+            isAvailable: true,
+            homework: lesson.exercise?.task
         }))
     }
 }

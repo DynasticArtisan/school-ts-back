@@ -1,10 +1,11 @@
 const { Schema, model } = require('mongoose');
 
 const LessonSchema = new Schema({
-    title: { type: String },
-    description: { type: String },
-    module: { type: Schema.Types.ObjectId, rel: 'Modules' },
-    course: { type: Schema.Types.ObjectId, rel: 'Courses' },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    content: { type: String, required: true },
+    module: { type: Schema.Types.ObjectId, rel: 'Modules', required: true },
+    course: { type: Schema.Types.ObjectId, rel: 'Courses', required: true },
     firstLesson: { type: Boolean },
     prevLesson: { type: Schema.Types.ObjectId, rel: 'Lessons' },
 })

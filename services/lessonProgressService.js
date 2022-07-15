@@ -26,7 +26,7 @@ class LessonProgressService {
     }
     async deleteProgress(progressID){
         const Progress = await lessonProgressModel.findByIdAndDelete(progressID)
-        if(!UCProgress){
+        if(!Progress){
             throw ApiError.BadRequest('Прогресс не найден')
         }
         return Progress
@@ -48,7 +48,7 @@ class LessonProgressService {
         if(!Progress){
             throw ApiError.BadRequest("Прогресс не найден")
         }
-        return Progress
+        return LessonProgressDto(Progress)
     }
 }
 
@@ -60,6 +60,7 @@ class LessonProgressDto {
       this.id = model.lesson._id;
       this.title = model.lesson.title;
       this.description = model.lesson.description
+      this.content = model.lesson.content
       this.module = model.lesson.module
       if(model.lesson.prevLesson){
         this.prev = model.lesson.prevLesson

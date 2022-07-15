@@ -1,5 +1,5 @@
 const ApiError = require("../exceptions/ApiError")
-const { findByIdAndDelete, findByIdAndUpdate } = require("../models/exerciseModel")
+const { findByIdAndDelete, findByIdAndUpdate, findOneAndDelete } = require("../models/exerciseModel")
 const exerciseModel = require("../models/exerciseModel")
 const lessonModel = require("../models/lessonModel")
 
@@ -12,6 +12,18 @@ class ExerciseService {
         const Exercise = await exerciseModel.create({ ...payload, module: Lesson.module, course: Lesson.course });
         return Exercise
     }
+
+    async updateExercise(lesson, payload){
+        const Exercise = await exerciseModel.findOneAndUpdate({ lesson }, payload, { new: true });
+        if(!Exercise){
+            throw ApiError.BadRequest("Задание не найдено")
+        }
+        return Exercise
+    }
+    async deleteLessonExercise(lesson){
+        await exerciseModel.findOneAndDelete({ lesson })
+    }
+
     async readAllExercise(){
         const Exercises = await exerciseModel.find()
         return Exercises
@@ -21,10 +33,6 @@ class ExerciseService {
         if(!Exercise){
             throw ApiError.BadRequest("Задание не найдено")
         }
-        return Exercise
-    }
-    async updateExercise(exercise, payload){
-        const Exercise = await exerciseModel.findByIdAndUpdate(exercise, payload, { new: true });
         return Exercise
     }
     async deleteExercise(exercise){

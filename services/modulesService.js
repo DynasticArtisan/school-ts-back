@@ -47,8 +47,12 @@ class ModulesService {
     return Modules
   }
 
+  // Для страницы модуля
   async getOneModuleData(moduleId){
-      const Module = await moduleModel.findById(moduleId).populate('lessons').lean()
+      const Module = await moduleModel.findById(moduleId).populate({
+        path: 'lessons',
+        populate: "exercise"
+      }).lean()
       const ModuleData = new AdminSingleModuleDto(Module)
       return ModuleData
   }
