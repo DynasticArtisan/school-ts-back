@@ -2,14 +2,13 @@ const { Schema, model } = require('mongoose');
 const fileService = require('../services/fileService');
 
 const HomeworkSchema = new Schema({
+    exercise: { type: Schema.Types.ObjectId, ref: 'Exercise' },
     course: { type: Schema.Types.ObjectId, ref: 'Courses'},
     lesson: { type: Schema.Types.ObjectId, ref: 'Lessons'},
-    exercise: { type: Schema.Types.ObjectId, ref: 'Exercise' },
     user: { type: Schema.Types.ObjectId, ref: 'User' },
-    status: { type: String },
+    status: { type: String, default: 'wait' },
     comment: { type: String },
     checkBy: { type: Schema.Types.ObjectId, ref: 'User' }
-
 },{
     timestamps: true
 })
@@ -32,4 +31,4 @@ HomeworkSchema.virtual("lastfile", {
 
 
 
-module.exports = model('Homework', HomeworkSchema)
+module.exports = model('Homeworks', HomeworkSchema)

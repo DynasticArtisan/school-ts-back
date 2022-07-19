@@ -15,6 +15,14 @@ const { UserInfoDto, UserListDto, SingleUserDto } = require('../dtos/userDtos');
 const Roles = [ 'teacher', 'curator', 'user' ];
 
 class UserService {
+    async getUser(id){
+        const User = await userModel.findById(id)
+        if(!User){
+            throw new ApiError.BadRequest("Пользователь не найден")
+        }
+    }
+
+
     async createUser(payload) {
         const User = await userModel.create(payload);
         return User

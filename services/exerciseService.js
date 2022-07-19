@@ -1,50 +1,12 @@
 const ApiError = require("../exceptions/ApiError")
-const { findByIdAndDelete, findByIdAndUpdate, findOneAndDelete } = require("../models/exerciseModel")
 const exerciseModel = require("../models/exerciseModel")
-const lessonModel = require("../models/lessonModel")
+const ExerciseDto = require("../dtos/ExerciseDto")
 
 class ExerciseService {
     async createExercise(payload){
-        const Lesson = await lessonModel.findById(payload.lesson)
-        if(!Lesson){
-            throw ApiError.BadRequest("Lesson not found")
-        }
-        const Exercise = await exerciseModel.create({ ...payload, module: Lesson.module, course: Lesson.course });
-        return Exercise
+        const Exercise = await exerciseModel.create(payload);
+        return new ExerciseDto(Exercise)
     }
-
-    async updateExercise(lesson, payload){
-        const Exercise = await exerciseModel.findOneAndUpdate({ lesson }, payload, { new: true });
-        if(!Exercise){
-            throw ApiError.BadRequest("Задание не найдено")
-        }
-        return Exercise
-    }
-    async deleteLessonExercise(lesson){
-        await exerciseModel.findOneAndDelete({ lesson })
-    }
-
-    async readAllExercise(){
-        const Exercises = await exerciseModel.find()
-        return Exercises
-    }
-    async readOneExercise(exercise){
-        const Exercise = await exerciseModel.findById(exercise)
-        if(!Exercise){
-            throw ApiError.BadRequest("Задание не найдено")
-        }
-        return Exercise
-    }
-    async deleteExercise(exercise){
-        const Exercise = await exerciseModel.findByIdAndDelete(exercise);
-        return Exercise
-    }
-    async deleteAllExercise(){
-        const Exercise = await exerciseModel.deleteMany();
-        return Exercise
-    }
-
-    // get course exercises
     async getCourseExercises(course){
         const Exercises = await exerciseModel.find({ course: course }).populate([
             {
@@ -56,11 +18,10 @@ class ExerciseService {
                 select: 'title -_id'
             }
         ])
-        return Exercises.map(ex => new ExerciseDto(ex))
+        return Exercises.map(exercise => new ExerciseDto(exercise))
     }
-    // get exercise
-    async getOneExerciseData(exercise){
-        const Exercise = await exerciseModel.findById(exercise).populate([
+    async getLessonExercise(lesson){
+        const Exercise = await exerciseModel.findOne({ lesson }).populate([
             {
                 path: 'lesson',
                 select: 'title -_id'
@@ -71,28 +32,59 @@ class ExerciseService {
             }
         ])
         if(!Exercise){
-            throw ApiError.BadRequest("Упражнение не найдено")
+            throw ApiError.BadRequest("Задание не найдено")
         }
-        const ExerciseData = new ExerciseDto(Exercise)
-        return ExerciseData
+        return new ExerciseDto(Exercise)
     }
-
-    async getLessonExercise(lesson){
-        const Exercise = await exerciseModel.findOne({ lesson })
+    async updateExercise(lesson, payload){
+        const Exercise = await exerciseModel.findOneAndUpdate({ lesson }, payload, { new: true });
+        if(!Exercise){
+            throw ApiError.BadRequest("Задание не найдено")
+        }
         return Exercise
     }
-
-}
-
-
-class ExerciseDto {
-    constructor(model){
-        this.id = model._id
-        this.lesson = model.lesson.title
-        this.module = model.module.title
-        this.course = model.course
+    async deleteLessonExercise(lesson){
+        await exerciseModel.findOneAndDelete({ lesson })
     }
+
+
+
+
+
+
+    // async readAllExercise(){
+    //     const Exercises = await exerciseModel.find()
+    //     return Exercises
+    // }
+    // async readOneExercise(exercise){
+    //     const Exercise = await exerciseModel.findById(exercise)
+    //     if(!Exercise){
+    //         throw ApiError.BadRequest("Задание не найдено")
+    //     }
+    //     return Exercise
+    // }
+    // async deleteExercise(exercise){
+    //     const Exercise = await exerciseModel.findByIdAndDelete(exercise);
+    //     return Exercise
+    // }
+    // async deleteAllExercise(){
+    //     const Exercise = await exerciseModel.deleteMany();
+    //     return Exercise
+    // }
+
+
+    // get exercise
+
+
+    // async getLessonExercise(lesson){
+    //     const Exercise = await exerciseModel.findOne({ lesson })
+    //     return Exercise
+    // }
+
 }
+
+
+
 
 
 module.exports = new ExerciseService()

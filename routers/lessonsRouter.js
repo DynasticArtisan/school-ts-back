@@ -4,7 +4,9 @@ const lessonsController = require('../controllers/lessonsController');
 const lessonsRouter = express.Router();
 lessonsRouter.post('/',  lessonsController.createLesson)
 lessonsRouter.get('/:id', lessonsController.getLesson)
+lessonsRouter.get('/:id/homeworks', lessonsController.getLessonHomeworks)
 lessonsRouter.put('/:id', lessonsController.updateLesson)
+
 // Для прохождения урока
 lessonsRouter.put('/:id/complete', lessonsController.completeLesson)
 

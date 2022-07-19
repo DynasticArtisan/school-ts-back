@@ -1,37 +1,34 @@
-const express = require('express');
-
 const authMiddleware = require('../middlewares/authMiddleware');
 const authRouter = require('./authRouter');
 const coursesRouter = require('./coursesRouter');
 const modulesRouter = require('./modulesRouter');
 const lessonsRouter = require('./lessonsRouter');
-
-const exerciseRouter = require('./exerciseRouter');
-const filesRouter = require('./filesRouter');
 const homeworkRouter = require('./homeworkRouter');
-const notificationRouter = require('./notificationsRouter');
-const profileRouter = require('./profileRouter');
+
 
 
 const usersRouter = require('./usersRouter');
+const filesRouter = require('./filesRouter');
+const profileRouter = require('./profileRouter');
+const express = require('express');
 
 const apiRouter = express.Router();
 apiRouter.use('/auth', authRouter);
-
-apiRouter.use('/me', authMiddleware, profileRouter);
-
-apiRouter.use('/users', usersRouter);
-
 apiRouter.use('/courses', authMiddleware, coursesRouter);
 apiRouter.use('/modules', authMiddleware, modulesRouter);
 apiRouter.use('/lessons', authMiddleware, lessonsRouter);
+apiRouter.use('/homework', authMiddleware, homeworkRouter);
 
-apiRouter.use('/exercise', exerciseRouter);
-apiRouter.use('/homework', homeworkRouter);
+
+
+
+
+
+apiRouter.use('/me', authMiddleware, profileRouter);
+apiRouter.use('/users', usersRouter);
 apiRouter.use('/files', filesRouter)
 
 
-apiRouter.use('/notifications', notificationRouter);
 
 
 

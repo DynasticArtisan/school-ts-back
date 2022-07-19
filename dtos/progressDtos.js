@@ -108,31 +108,11 @@ class AdminSingleModuleDto {
             prev: lesson.prevModule,
             fullAccess: true,
             isAvailable: true,
-            homework: lesson.exercise?.task
+            homework: lesson.exercise.task
         }))
     }
 }
 
-
-class CourseStudentDto{
-    constructor(model){
-        this.id = model._id;
-        this.fullname = model.user.surname + ' ' + model.user.name;
-        this.userId = model.user._id;
-        this.startedAt = model.createdAt;
-        this.finishedAt = model.updatedAt;
-        this.format = model.format;
-        if(model.lastLesson){
-            this.lastLesson = model.lastLesson.module.title + ', ' + model.lastLesson.lesson.title;
-        } else {
-            this.lastLesson = "курс не начат"
-        }
-        if(model.isAvailable){
-            this.isAvailable = model.isAvailable
-        }
-
-    }
-}
 
 class UserCourseDto {
     constructor(model){

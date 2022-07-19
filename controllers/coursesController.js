@@ -6,6 +6,7 @@ const exerciseService = require("../services/exerciseService");
 const courseProgressService = require("../services/courseProgressService");
 const modulesService = require("../services/modulesService");
 const lessonsService = require("../services/lessonsService");
+const userService = require("../services/userService");
 
 class CoursesController {
     async createCourse(req, res, next){
@@ -32,6 +33,7 @@ class CoursesController {
             const { role } = req.user;
             const { user, format } = req.body;
             if(role === roles.super){
+                await userService.getUser(user)
                 await coursesService.getCourse(course)
                 const Progress = await courseProgressService.createProgress({ user, course, format })
                 res.json(Progress)
@@ -42,20 +44,19 @@ class CoursesController {
             next(e)
         }
     }
-
     async getProgressCourses(req, res, next){
         try {
-            const { role, id } = req.user;
+            const { role, id: user } = req.user;
             if(role === roles.user){
-                //const coursesData = await courseProgressService.getSingleUserProgresses(id)
-                const coursesData = await coursesService.getUserCourses(id)
-                res.json(coursesData)
-            }
-            else if( role === roles.super){
-                const coursesData = await coursesService.getProgressCourses()
-                res.json(coursesData)
-            } 
-            else {
+                const Courses = await coursesService.getUserProgressCourses(user)
+                res.json(Courses)
+            } else if (role === roles.teacher || role === roles.curator){
+                const Courses = await coursesService.getMasterProgressCourses(user)
+                res.json(Courses)
+            } else if ( role === roles.super){
+                const Courses = await coursesService.getProgressCourses()
+                res.json(Courses)
+            } else {
                 next(ApiError.Forbidden())
             }
         } catch (e) {
@@ -64,10 +65,13 @@ class CoursesController {
     }
     async getHomeworkCourses(req, res, next){
         try {
-            const { role, id } = req.user;
+            const { role, id: user } = req.user;
             if(role === roles.super){
-                const coursesData = await coursesService.getHomeworkCourses()
-                res.json(coursesData)
+                const Courses = await coursesService.getCourses()
+                res.json(Courses)
+            } else if (role === roles.teacher || role === roles.curator){
+                const Courses = await coursesService.getMasterHomeworksCourses()
+                res.json(Courses)
             } else {
                 next(ApiError.Forbidden())
             }
@@ -75,7 +79,7 @@ class CoursesController {
             next(e)
         }
     }
-
+    
 
     async getCourseModules(req, res, next){
         try {
@@ -85,9 +89,14 @@ class CoursesController {
                 const Progress = await courseProgressService.getProgress({ user, course })
                 const Course = await coursesService.getCourseModulesProgress(course, user)
                 res.json({ ...Course, progress: Progress })
+            } else if (role === roles.teacher || role === roles.curator){
+                // ///////////////////////////////////////////////////////
+                //////////////////////////////////// ПРОВЕРИТЬ
+                const Course = await coursesService.getCourseModules(course);
+                res.json(Course)
             } else if(role === roles.super) {
-                const courseData = await coursesService.getCourseModules(course);
-                res.json(courseData)
+                const Course = await coursesService.getCourseModules(course);
+                res.json(Course)
             } else {
                 next(ApiError.Forbidden())
             }
@@ -98,10 +107,11 @@ class CoursesController {
     async getCourseStudents(req, res, next){
         try {
             const { id } = req.params;
-            const { role, id:user } = req.user;
+            const { role, id: user } = req.user;
             if(role === roles.super){
+                const Course = await coursesService.getCourse(id)
                 const Students = await coursesProgressService.getCourseProgresses(id)
-                res.json(Students)
+                res.json({ ...Course, students: Students })
             } else {
                 next(ApiError.Forbidden())
             }

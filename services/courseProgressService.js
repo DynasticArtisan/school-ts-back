@@ -23,6 +23,19 @@ class CourseProgressService {
         await moduleProgressService.createProgress({ user, course, module: FirstModule.id }) 
         return { ...Course, ...new CourseProgressDto(Progress)}
     }
+    async getCourseProgresses(course){
+        const Progresses = await courseProgressModel.find({ course }).populate([
+            {
+                path: 'user',
+                select: 'name surname'
+            },
+            {
+                path: 'lastLesson',
+                populate: 'lesson module'
+            }
+        ]).lean()
+        return Progresses.map(progress => new CourseProgressDto(progress))
+    }
 
     async getProgress({ user, course }){
         const Progress = await courseProgressModel.findOne({ user, course })
@@ -31,7 +44,6 @@ class CourseProgressService {
         }
         return new CourseProgressDto(Progress)
     }
-
     async updateProgress(progress, payload){
         const Progress = await courseProgressModel.findByIdAndUpdate(progress, payload, { new: true })
         if(!Progress){
@@ -39,7 +51,6 @@ class CourseProgressService {
         }
         return new CourseProgressDto(Progress)
     }
-
     async completeProgress({ course, user }){
         const Progress = await courseProgressModel.findOneAndUpdate({ course, user }, { isCompleted: true }, { new: true })
         if(!Progress){
@@ -90,24 +101,7 @@ class CourseProgressService {
         const UserCoursesData = UserCourses.map(item => new UserCoursesProgressDto(item))
         return UserCoursesData;
     }
-    async getCourseProgresses(course){
-        const Course = await courseModel.findById(course).select('-_id title')
-        if(!Course){
-            throw ApiError.BadRequest("NOT SUCH COURSE")
-        }
-        const Students = await courseProgressModel.find({ course }).populate([
-            {
-                path: 'user',
-                select: ' name surname'
-            },
-            {
-                path: 'lastLesson',
-                populate: 'lesson module'
-            }
-        ]).lean()
-        const StudentsData = Students.map(progress => new CourseStudentDto(progress))
-        return { course: Course.title, students: StudentsData }
-    }
+
     async getCourseModulesProgress(userId, courseId){
         const UserProgress = await courseProgressModel.findOne({ user: userId, course: courseId, isAvailable: true }).populate({
             path: 'course',

@@ -4,8 +4,9 @@ const authMiddleware = require('../middlewares/authMiddleware');
 
 const usersRouter = express.Router();
 
-usersRouter.post('/', usersController.createUser)
+//usersRouter.post('/', usersController.createUser)
 // usersRouter.get('/', usersController.getAllUsers)
+
 usersRouter.get('/',  usersController.getUsersList)
 usersRouter.get('/:userId', authMiddleware, usersController.getOneUser)
 

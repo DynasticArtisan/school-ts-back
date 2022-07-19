@@ -1,36 +1,49 @@
-const CourseDto = require("../dtos/CourseDto")
-const courseModel = require("../models/courseModel")
-
 const ApiError = require("../exceptions/ApiError")
-const { AdminCoursesProgressDto, AdminSingleCourseDto } = require("../dtos/progressDtos")
+const courseModel = require("../models/courseModel")
+const CourseDto = require("../dtos/CourseDto")
 
 class CoursesService {
     async createCourse( course ){
       const Course = await courseModel.create(course)
       return new CourseDto(Course)
     }
-
-    async getUserCourses(user){
-      const Courses = await courseModel.find().populate({
-        path: "progress",
-        populate: [
-          {
-            path: "completedLessonsCount",
-            match: { user }
-          },
-          {
-            path: "totalLessonsCount"
-          }
-        ]
-      })
+    async getCourses(){
+      const Courses = await courseModel.find()
       return Courses.map(course => new CourseDto(course))
     }
     async getProgressCourses(){
       const Courses = await courseModel.find().populate("totalCompleted").populate("totalInProgress").lean()
       return Courses.map(course => new CourseDto(course))
     }
-    async getHomeworkCourses(){
-      const Courses = await courseModel.find()
+    async getUserProgressCourses(user){
+      const Courses = await courseModel.find().populate({
+        path: "progress",
+        match: { user },
+        populate: [ "completedLessonsCount", "totalLessonsCount"]
+      })
+      return Courses.filter(course => course.progress).map(course => new CourseDto(course))
+    }
+    async getMasterProgressCourses(user){
+      const Courses = await courseModel.find().populate("totalCompleted").populate("totalInProgress").populate({
+        path: "mastering",
+        match: { user }
+      }).lean()
+      return Courses.filter(course => course.mastering).map(course => new CourseDto(course))
+    }
+    async getMasterHomeworksCourses(user){
+      const Courses = await courseModel.find().populate({
+        path:"mastering",
+        match: { user },
+        populate: "verifiedHomeworksCount"
+      })
+      return Courses.filter(course => course.mastering).map(course => new CourseDto(course))
+    }
+    async getUserCourses(user){
+      const Courses = await courseModel.find().populate({
+        path: "progress",
+        match: { user },
+        populate: "lastLesson"
+      })
       return Courses.map(course => new CourseDto(course))
     }
 
