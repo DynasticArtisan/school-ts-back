@@ -1,11 +1,61 @@
 const ApiError = require("../exceptions/ApiError");
+const LessonProgressDto2 = require("../dtos/LessonProgressDto");
+
 const lessonProgressModel = require("../models/ULProgressModel");
+const moduleProgressService = require("./moduleProgressService");
 
 class LessonProgressService {
-    async createProgress(payload) {
-        const Progress = await lessonProgressModel.create(payload);
-        return Progress
+    async createProgress({ user, lesson, module, course }) {
+        const PrevProgress = await lessonProgressModel.findOne({ user, lesson })
+        if(PrevProgress){
+            throw ApiError.BadRequest("Урок уже доступен пользователю")
+        }
+        const Progress = await lessonProgressModel.create({ user, lesson, module, course });
+        return new LessonProgressDto2(Progress)
     }
+    async updateProgress(progress, payload){
+        const Progress = await lessonProgressModel.findOneAndUpdate(progress, payload, { new: true })
+        if(!Progress){
+            throw ApiError.BadRequest('Прогресс пользователя не найден')
+        }
+        return new LessonProgressDto2(Progress)
+    }
+
+    async getProgress(lesson, user){
+        const Progress = await lessonProgressModel.findOne({ user, lesson })
+        if(!Progress){
+            throw new ApiError.BadRequest("Прогресс пользователя не найден")
+        }
+        return new LessonProgressDto2(Progress)
+    }
+
+    async completeProgress({ user, lesson }){
+        const Progress = await lessonProgressModel.findOneAndUpdate({ user, lesson }, { isCompleted: true }, { new: true }).populate({
+            path: 'lesson',
+            populate: 'nextLesson'
+        }).lean();
+        if(!Progress){
+            throw ApiError.BadRequest('Прогресс пользователя не найден')
+        }
+        try {
+            if(Progress.lesson.nextLesson){
+                await this.createProgress({ user, lesson: Progress.lesson.nextLesson, module: Progress.lesson.module, course: Progress.lesson.course })
+            } else {
+                await moduleProgressService.completeProgress({ user, module: Progress.lesson.module })
+            }
+        } catch (error) {
+            
+        } finally {
+            return new LessonProgressDto2(Progress)
+        }
+    }
+
+
+
+
+
+
+    
     async getAllProgresses(){
         const Progresses = await lessonProgressModel.find()
         return Progresses
@@ -17,13 +67,7 @@ class LessonProgressService {
         }
         return Progress
     }
-    async updateProgress(progressID, payload){
-        const Progress = await lessonProgressModel.findByIdAndUpdate(progressID, payload, { new: true })
-        if(!UCProgress){
-            throw ApiError.BadRequest('Прогресс не найден')
-        }
-        return Progress
-    }
+
     async deleteProgress(progressID){
         const Progress = await lessonProgressModel.findByIdAndDelete(progressID)
         if(!Progress){
@@ -41,14 +85,6 @@ class LessonProgressService {
             throw ApiError.Forbidden()
         }
         return Lesson
-    }
-
-    async completeLesson(lesson, user){
-        const Progress = await lessonProgressModel.findOneAndUpdate({ lesson, user },{ isCompleted: true }, {new: true})
-        if(!Progress){
-            throw ApiError.BadRequest("Прогресс не найден")
-        }
-        return LessonProgressDto(Progress)
     }
 }
 

@@ -1,61 +1,97 @@
-const { AdminSingleModuleDto } = require("../dtos/progressDtos")
-const courseModel = require("../models/courseModel")
+const ApiError = require("../exceptions/ApiError")
+const ModuleDto = require("../dtos/ModuleDto")
+
 const moduleModel = require("../models/moduleModel")
 
 class ModulesService {
-  async createModule(payload){
-    const Course = await courseModel.findById(payload.course)
-    if(!Course){
-      throw ApiError.BadRequest('Курс не найден')
-    }
-    if(payload.prevModule){
-      const PrevModule = await moduleModel.findById(payload.prevModule)
+  async createModule(module){
+    if(module.prevModule){
+      const PrevModule = await moduleModel.findById(module.prevModule)
       if(!PrevModule){
         throw ApiError.BadRequest('Предыдущий модуль не найден')
       }
+    } else {
+      const PrevModule = moduleModel.find({ course: module.course }).populate("nextModule").lean().find((module) => !module?.nextModule)
+      if(PrevModule){
+        module.prevModule = PrevModule._id
+      } else {
+        module.firstModule = true
+      }
     }
-    const Module = await moduleModel.create(payload)
-    return Module
+    const Module = await moduleModel.create(module)
+    if(!Module){
+      throw ApiError.BadRequest("При создании модуля произошла ошибка")
+    }
+    return new ModuleDto(Module)
   }
-  async getAllModules(){
-    const Modules = await moduleModel.find();
-    return Modules
+
+  async getModule(id){
+    const Module = await moduleModel.findById(id)
+    if(!Module){
+      throw ApiError.BadRequest("Модуль не найден")
+    }
+    return new ModuleDto(Module)
   }
-  async getOneModule(moduleId){
-    const Module = await moduleModel.findById(moduleId);
+
+  async getFirstModule(course){
+    const Module = await moduleModel.findOne({ course, firstModule:true })
+    if(!Module){
+      throw ApiError.BadRequest("Модуль не найден")
+    }
+    return new ModuleDto(Module)
+  }
+
+  async getModuleLessons(id){
+    const Module = await moduleModel.findById(id).populate({
+      path: 'lessons',
+      populate: "exercise"
+    }).lean()
+    if(!Module){
+      throw ApiError.BadRequest('Модуль не найден')
+    }
+    return new ModuleDto(Module)
+  }
+
+  async getModuleLessonsProgress(id, user){
+    const Module = await moduleModel.findById(id).populate({
+      path: 'lessons',
+      populate: {
+        path: 'progress',
+        math: { user }
+      }
+    })
+    if(!Module) {
+      throw ApiError.BadRequest('Модуль не найден')
+    }
+    return new ModuleDto(Module)
+  }
+
+  async updateModule(id, module){
+    const Module = await moduleModel.findByIdAndUpdate(id, module, {new: true})
     if(!Module){
       throw ApiError.BadRequest('Модуль не найден')
     }
     return Module
   }
-  async updateModule(moduleId, payload){
-    const Module = await moduleModel.findByIdAndUpdate(moduleId, payload, {new: true})
+
+  async deleteModule(id){
+    const Module = await moduleModel.findById(id);
     if(!Module){
       throw ApiError.BadRequest('Модуль не найден')
     }
-    return Module
+    await moduleModel.findOneAndUpdate({ prevModule: Module._id }, { prevModule: Module.prevModule, firstModule: Module.firstModule })
+    await moduleModel.findByIdAndDelete(Module._id)
   }
-  async deleteModule(moduleId){
-    const Module = await moduleModel.findByIdAndDelete(moduleId);
-    if(!Module){
-      throw ApiError.BadRequest('Модуль не найден')
-    }
-    return Module
+  async deleteCourseModules(course){
+    await moduleModel.deleteMany({ course })
   }
+
   async dropAllModules(){
     const Modules = await moduleModel.deleteMany()
     return Modules
   }
 
-  // Для страницы модуля
-  async getOneModuleData(moduleId){
-      const Module = await moduleModel.findById(moduleId).populate({
-        path: 'lessons',
-        populate: "exercise"
-      }).lean()
-      const ModuleData = new AdminSingleModuleDto(Module)
-      return ModuleData
-  }
+
 
 }
 module.exports = new ModulesService()

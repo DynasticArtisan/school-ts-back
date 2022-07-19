@@ -5,7 +5,6 @@ const coursesService = require("../services/coursesService");
 const roles = require("../utils/roles");
 const statuses = require("../utils/statuses");
 const lessonProgressService = require("../services/lessonProgressService");
-const progressService = require("../services/progressService");
 
 class HomeworkController {
     async createNewHomework(req, res, next){
@@ -106,7 +105,7 @@ class HomeworkController {
             if(role === roles.super){
                 const Homework = await homeworkService.checkHomework(id, { comment, status, checkBy: user })
                 if(Homework.status === statuses.completed){
-                    const Progress = await progressService.completeLesson(Homework.lesson, Homework.user.id )
+                    const Progress = await lessonProgressService.completeProgress({ user: Homework.user.id, lesson: Homework.lesson })
                 }
                 res.json(Homework)
             } else {

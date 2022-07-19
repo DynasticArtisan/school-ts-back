@@ -1,26 +1,32 @@
 const { Schema, model } = require('mongoose');
 
-const UCProgressSchema = new Schema({
-    user: { type: Schema.Types.ObjectId, ref: 'User' },
-    course: { type: Schema.Types.ObjectId, ref: 'Courses' },
+const CourseProgressSchema = new Schema({
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    course: { type: Schema.Types.ObjectId, ref: 'Courses', required: true },
+    format: { type: String, default: 'оптимальный' },
     isAvailable: { type: Boolean, default: true },
-    lastModule: { type: Schema.Types.ObjectId, ref: 'Modules' },
     isCompleted: { type: Boolean, default: false },
-    format: { type: String, default: 'оптимальный' }
 },
 {
     timestamps: true
 })
 
-UCProgressSchema.virtual('totalCompleted',{
+
+CourseProgressSchema.virtual('completedLessonsCount',{
     ref: "UsersLessonProgress",
     localField: "course",
     foreignField: "course",
     match: progress => ({ user: progress.user, isCompleted: true }),
     count: true
 })
+CourseProgressSchema.virtual('totalLessonsCount',{
+    ref: "Lessons",
+    localField: "course",
+    foreignField: "course",
+    count: true
+})
 
-UCProgressSchema.virtual('lastLesson',{
+CourseProgressSchema.virtual('lastLesson',{
     ref: "UsersLessonProgress",
     localField: "course",
     foreignField: "course",
@@ -29,4 +35,4 @@ UCProgressSchema.virtual('lastLesson',{
 })
 
 
-module.exports = model('UsersCourseProgress', UCProgressSchema)
+module.exports = model('UsersCourseProgress', CourseProgressSchema)

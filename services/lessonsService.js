@@ -1,97 +1,89 @@
 const ApiError = require("../exceptions/ApiError")
+const LessonDto = require("../dtos/LessonDto")
 const lessonModel = require("../models/lessonModel")
-const moduleModel = require("../models/moduleModel")
 
 class LessonsService {
-    async createLesson( payload ){
-        const Module = await moduleModel.findById(payload.module)
-        if(!Module){
-          throw ApiError.BadRequest('Модуль не найден')
-        }
-        payload.course = Module.course
-        if(payload.prevLesson){
-          const PrevLesson = await lessonModel.findById(payload.prevLesson)
+    async createLesson( lesson ){
+        if(lesson.prevLesson){
+          const PrevLesson = await lessonModel.findById(lesson.prevLesson)
           if(!PrevLesson){
             throw ApiError.BadRequest('Предыдущий урок не найден')
           }
-        } else {
-          const AllLessons = await lessonModel.find({ module: payload.module }).populate("nextLesson").lean()
-          const PrevLesson = AllLessons.find((lesson) => !lesson.nextLesson );
+        } 
+        else {
+          const ModuleLessons = await lessonModel.find({ module: lesson.module }).populate("nextLesson").lean()
+          const PrevLesson = ModuleLessons.find((lesson) => !lesson?.nextLesson );
           if(PrevLesson){
-            payload.prevLesson = PrevLesson._id
+            lesson.prevLesson = PrevLesson._id
           } else {
-            payload.firstLesson = true
+            lesson.firstLesson = true
           }
         }
-        const Lesson = await lessonModel.create(payload)
-        return Lesson
+        const Lesson = await lessonModel.create(lesson)
+        return new LessonDto(Lesson)
     }
-
-    async updateLesson(lessonId, payload){
-      const Lesson = await lessonModel.findByIdAndUpdate(lessonId, payload, {new: true});
+      
+    async updateLesson(id, lesson){
+      const Lesson = await lessonModel.findByIdAndUpdate(id, lesson, {new: true});
       if(!Lesson){
         throw ApiError.BadRequest('Урок не найден')
       }
-      return Lesson
+      return new LessonDto(Lesson)
     }
-
-    async deleteLesson(lessonId){
-      const Lesson = await lessonModel.findById(lessonId)
+    
+    async getLesson(id){
+      const Lesson = await lessonModel.findById(id).populate('nextLesson exercise').lean();
       if(!Lesson){
         throw ApiError.BadRequest('Урок не найден')
       }
-      const NextLesson = await lessonModel.findOneAndUpdate({ prevLesson: Lesson._id }, { prevLesson: Lesson.prevLesson, firstLesson: Lesson.firstLesson })
-      await lessonModel.findByIdAndDelete(Lesson._id)
+      return new LessonDto(Lesson)
     }
-
-
-
-    async getAllLessons(){
-      const Lessons = await lessonModel.find();
-      return Lessons
-    }
-    async getOneLesson(lessonId){
-      const Lesson = await lessonModel.findById(lessonId);
-      if(!Lesson){
-        throw ApiError.BadRequest('Урок не найден')
-      }
-      return Lesson
-    }
-    async dropAllLessons(){
-      const Lessons = await lessonModel.deleteMany()
-      return Lessons
-    }
-
-    async getOneLessonData(lesson){
-      const Lesson = await lessonModel.findById(lesson).populate('nextLesson exercise').lean();
+    async getLessonProgress(id, user){
+      const Lesson = await lessonModel.findById(id).populate('nextLesson').populate([
+        {
+          path: 'progress',
+          match: { user }
+        },
+        {
+          path: 'exercise',
+          populate: {
+            path: 'homework',
+            match: { user }
+          }
+        }
+      ]).lean();
       if(!Lesson){
         throw ApiError.BadRequest('Урок не найден')
       }
       return new LessonDto(Lesson)
     }
 
+    async getFirstLesson(module){
+      const Lesson = await lessonModel.findOne({ module, firstLesson: true })
+      if(!Lesson){
+        throw ApiError.BadRequest("Урок не найден")
+      }
+      return new LessonDto(Lesson)
+    }
+    async deleteLesson(id){
+      const Lesson = await lessonModel.findById(id)
+      if(!Lesson){
+        throw ApiError.BadRequest('Урок не найден')
+      }
+      await lessonModel.findOneAndUpdate({ prevLesson: Lesson._id }, { prevLesson: Lesson.prevLesson, firstLesson: Lesson.firstLesson })
+      await lessonModel.findByIdAndDelete(Lesson._id)
+    }
+    async deleteModuleLessons(module){
+      await lessonModel.deleteMany({ module })
+    }
+    async deleteCourseLessons(course){
+      await lessonModel.deleteMany({ course })
+    }
+
+    async dropAllLessons(){
+      const Lessons = await lessonModel.deleteMany()
+      return Lessons
+    }
 }
-
-
-class LessonDto {
-  constructor(model){
-    this.id = model._id;
-    this.title = model.title;
-    this.description = model.description
-    this.content = model.content
-    this.module = model.module
-    if(model.prevLesson){
-      this.prev = model.prevLesson
-    }
-    if(model.nextLesson){
-      this.next = model.nextLesson._id
-    }
-    if(model.exercise){
-      this.exercise = model.exercise
-    }
-  }
-}
-
-
 
 module.exports = new LessonsService()

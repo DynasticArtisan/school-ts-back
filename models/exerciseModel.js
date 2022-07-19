@@ -5,7 +5,13 @@ const ExerciseSchema = new Schema({
     module: { type: Schema.Types.ObjectId, ref: 'Modules' },
     course: { type: Schema.Types.ObjectId, ref: 'Courses' },
     task: { type: String }
+})
 
+ExerciseSchema.virtual('homework', {
+    ref: "Homework",
+    foreignField: "exercise",
+    localField: "_id",
+    justOne: true
 })
 
 module.exports = model('Exercise', ExerciseSchema)

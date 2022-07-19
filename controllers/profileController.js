@@ -1,8 +1,6 @@
 const ApiError = require("../exceptions/ApiError");
 const userService = require("../services/userService")
 const notificationsService = require("../services/notificationsService");
-const coursesService = require("../services/coursesService");
-const progressService = require("../services/progressService");
 
 class UserController {
     async getProfile(req, res,next){

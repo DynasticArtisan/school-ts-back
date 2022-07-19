@@ -4,10 +4,9 @@ const userService = require("../services/userService")
 
 const ApiError = require("../exceptions/ApiError");
 const roles = require("../utils/roles");
-const progressService = require("../services/progressService");
 const coursesService = require("../services/coursesService");
-const { UserCourseDto } = require("../dtos/progressDtos");
-const { getAllCoursesData } = require("../services/coursesService");
+
+
 const courseProgressService = require("../services/courseProgressService");
 
 

@@ -1,13 +1,58 @@
+const CourseProgressDto = require("../dtos/CourseProgressDto");
 const { AdminCoursesProgressDto, UserCoursesProgressDto, CourseStudentDto, UserSingleCourseProgressDto, UserCourseDto } = require("../dtos/progressDtos");
 const ApiError = require("../exceptions/ApiError");
-const courseModel = require("../models/courseModel");
+
+
 const courseProgressModel = require("../models/UCProgressModel");
+const moduleProgressService = require("./moduleProgressService");
+
+const courseModel = require("../models/courseModel");
+const coursesService = require("./coursesService");
+const modulesService = require("./modulesService");
+
 
 class CourseProgressService {
-    async createProgress(payload) {
-        const Progress = await courseProgressModel.create(payload);
-        return Progress
+    async createProgress({ user, course, format }) {
+        const Course = await coursesService.getCourse(course)
+        const PrevProgress = await courseProgressModel.findOne({ user, course })
+        if(PrevProgress){
+            throw ApiError.BadRequest("Курс уже доступен пользователю")
+        }
+        const Progress = await courseProgressModel.create({ user, course, format });
+        const FirstModule = await modulesService.getFirstModule(course)
+        await moduleProgressService.createProgress({ user, course, module: FirstModule.id }) 
+        return { ...Course, ...new CourseProgressDto(Progress)}
     }
+
+    async getProgress({ user, course }){
+        const Progress = await courseProgressModel.findOne({ user, course })
+        if(!Progress){
+            throw ApiError.BadRequest('Прогресс пользователя не найден')
+        }
+        return new CourseProgressDto(Progress)
+    }
+
+    async updateProgress(progress, payload){
+        const Progress = await courseProgressModel.findByIdAndUpdate(progress, payload, { new: true })
+        if(!Progress){
+            throw ApiError.BadRequest('Прогресс пользователя не найден')
+        }
+        return new CourseProgressDto(Progress)
+    }
+
+    async completeProgress({ course, user }){
+        const Progress = await courseProgressModel.findOneAndUpdate({ course, user }, { isCompleted: true }, { new: true })
+        if(!Progress){
+            throw ApiError.BadRequest('Прогресс пользователя не найден')
+        }
+        return new CourseProgressDto(Progress)
+    }
+
+
+
+
+    
+
     async getAllProgresses(){
         const Progresses = await courseProgressModel.find()
         return Progresses
@@ -19,13 +64,7 @@ class CourseProgressService {
         }
         return Progress
     }
-    async updateProgress(progressID, payload){
-        const Progress = await courseProgressModel.findByIdAndUpdate(progressID, payload, { new: true })
-        if(!UCProgress){
-            throw ApiError.BadRequest('Прогресс не найден')
-        }
-        return Progress
-    }
+
     async deleteProgress(progressID){
         const Progress = await courseProgressModel.findByIdAndDelete(progressID)
         if(!UCProgress){
@@ -33,6 +72,7 @@ class CourseProgressService {
         }
         return Progress
     }
+
     async deleteAllProgresses(){
         const Progresses = await courseProgressModel.deleteMany()
         return Progresses
@@ -97,14 +137,7 @@ class CourseProgressService {
         ]).lean()
         return Progress.map(progress => new UserCourseDto(progress))
     }
-    async setCourseAccess(id, isAvailable){
-        const Progress = await courseProgressModel.findByIdAndUpdate(id, { isAvailable }, { new: true })
-        if(!Progress){
-            throw ApiError.BadRequest("Прогресс пользователя не найден")
-        }
-        return Progress
 
-    }
 
 }
 module.exports = new CourseProgressService()

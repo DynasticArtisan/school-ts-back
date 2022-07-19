@@ -1,3 +1,5 @@
 
 /node_modules
-/filestore
+/filestore/images/*
+/filestore/homeworks/*
+/filestore/avatars/*

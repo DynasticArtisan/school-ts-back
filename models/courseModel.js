@@ -1,12 +1,11 @@
 const { Schema, model } = require('mongoose');
 
 const CourseSchema = new Schema({
-    urlname: { type: String },
-    title: { type: String },
-    subtitle: { type: String },
-    description: { type: String },
+    title: { type: String, required: true },
+    subtitle: { type: String, required: true },
+    description: { type: String, required: true },
     image: { type: String },
-    mobileImage: { type: String },
+    icon: { type: String }
 })
 
 CourseSchema.virtual('modules',{
@@ -15,11 +14,11 @@ CourseSchema.virtual('modules',{
     foreignField: "course",
 })
 
-CourseSchema.virtual('totalLessons',{
-    ref: "Lessons",
+CourseSchema.virtual('progress', {
+    ref: "UsersCourseProgress",
     localField: "_id",
     foreignField: "course",
-    count: true
+    justOne: true
 })
 
 CourseSchema.virtual('totalCompleted',{

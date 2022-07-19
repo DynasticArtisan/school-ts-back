@@ -11,7 +11,6 @@ const UserTokenDto = require('../dtos/userTokenDto');
 const ApiError = require("../exceptions/ApiError");
 const fileService = require('./fileService');
 const { UserInfoDto, UserListDto, SingleUserDto } = require('../dtos/userDtos');
-const progressService = require('./progressService');
 
 const Roles = [ 'teacher', 'curator', 'user' ];
 
