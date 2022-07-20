@@ -5,7 +5,6 @@ const statuses = require("../utils/statuses");
 const fileService = require("../services/fileService")
 const lessonProgressService = require("../services/lessonProgressService");
 const homeworkService = require("../services/homeworkService");
-const exerciseService = require("../services/exerciseService");
 
 class HomeworkController {
     async createNewHomework(req, res, next){
@@ -16,9 +15,8 @@ class HomeworkController {
                 if(!req.file){
                     throw ApiError.BadRequest("Ошибка в записи файла")
                 }
-                await lessonProgressService.getProgress(lesson, user)
-                const Exercise = await exerciseService.getLessonExercise(lesson)
-                const Homework = await homeworkService.createHomework({ user, lesson, course: Exercise.course, exercise: Exercise.id });
+                const Progress = await lessonProgressService.getProgress(lesson, user)
+                const Homework = await homeworkService.createHomework({ user, lesson, course: Progress.course });
                 const File = await fileService.createHomeworkFile({ homework: Homework.id, filename: req.file.originalname, filepath: 'homeworks/'+req.file.filename });
                 res.json({...Homework, files: [File]})
             } else {

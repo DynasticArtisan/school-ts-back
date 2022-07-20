@@ -5,15 +5,11 @@ const ApiError = require("../exceptions/ApiError");
 
 const courseProgressModel = require("../models/UCProgressModel");
 const moduleProgressService = require("./moduleProgressService");
-
-const courseModel = require("../models/courseModel");
-const coursesService = require("./coursesService");
 const modulesService = require("./modulesService");
 
 
 class CourseProgressService {
     async createProgress({ user, course, format }) {
-        const Course = await coursesService.getCourse(course)
         const PrevProgress = await courseProgressModel.findOne({ user, course })
         if(PrevProgress){
             throw ApiError.BadRequest("Курс уже доступен пользователю")
@@ -21,7 +17,7 @@ class CourseProgressService {
         const Progress = await courseProgressModel.create({ user, course, format });
         const FirstModule = await modulesService.getFirstModule(course)
         await moduleProgressService.createProgress({ user, course, module: FirstModule.id }) 
-        return { ...Course, ...new CourseProgressDto(Progress)}
+        return new CourseProgressDto(Progress)
     }
     async getCourseProgresses(course){
         const Progresses = await courseProgressModel.find({ course }).populate([

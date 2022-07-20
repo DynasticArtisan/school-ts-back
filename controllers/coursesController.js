@@ -2,8 +2,9 @@ const roles = require("../utils/roles")
 const ApiError = require("../exceptions/ApiError");
 
 const coursesService = require("../services/coursesService");
-const exerciseService = require("../services/exerciseService");
 const courseProgressService = require("../services/courseProgressService");
+const courseMastersService = require("../services/courseMastersService");
+
 const modulesService = require("../services/modulesService");
 const lessonsService = require("../services/lessonsService");
 const userService = require("../services/userService");
@@ -44,6 +45,24 @@ class CoursesController {
             next(e)
         }
     }
+    async createCourseMaster(req, res, next){
+        try {
+            const { id: course } = req.params;
+            const { role } = req.user;
+            const { user } = req.body;
+            if(role === roles.super){
+                await userService.getUser(user)
+                await coursesService.getCourse(course)
+                const Master = await CourseMastersService.createMaster({ user, course })
+                res.json(Progress)
+            } else {
+                next(ApiError.Forbidden())
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
+    
     async getProgressCourses(req, res, next){
         try {
             const { role, id: user } = req.user;
@@ -125,7 +144,7 @@ class CoursesController {
             const { id } = req.params;
             if(role === roles.super){
                 const Course = await coursesService.getCourse(id)
-                const Exercises = await exerciseService.getCourseExercises(id)
+                const Exercises = await lessonsService.getCourseExercises(id)
                 res.json({ ...Course, exercises: Exercises })
             } else {
                 next(ApiError.UnauthorizedError)

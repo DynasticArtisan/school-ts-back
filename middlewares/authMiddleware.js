@@ -11,12 +11,15 @@ module.exports = async function( req, res, next ) {
             return res.status(403).json('Доступ запрещен')
         }
         const userData = await tokenService.validateAccessToken(accessToken)
-        if(!userData || !userData.isActivated){
+        if(!userData){
             return res.status(401).json('Доступ запрещен') 
+        }
+        if(!userData.isActivated){
+            return res.status(403).json('Доступ запрещен')
         }
         req.user = userData
         next()
     } catch (e) {
-        return res.status(401).json('Доступ запрещен')
+        return res.status(403).json('Доступ запрещен')
     }
 }

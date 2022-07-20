@@ -1,163 +1,97 @@
-const config = require("config");
-
-const userService = require("../services/userService")
-
 const ApiError = require("../exceptions/ApiError");
 const roles = require("../utils/roles");
+
+const userService = require("../services/userService")
 const coursesService = require("../services/coursesService");
 
-
-const courseProgressService = require("../services/courseProgressService");
-
-
 class UserController {
-    // user controller
-    async createUser(req, res, next) {
+    async getUsers(req, res, next){
         try {
-            const User = await userService.createUser(req.body)
+            const { role } = req.user;
+            if(role === roles.super || role === roles.admin){
+                const Users = await userService.getUsers()
+                res.json(Users)
+            } else {
+                next(ApiError.Forbidden())
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async getUser(req, res,next){
+        try {
+            const { id } = req.params;
+            const { role } = req.user;
+            if(role === roles.super || role === roles.admin){
+                const User = await userService.getUser(id)
+                const Courses = await coursesService.getUserCourses(id)
+                res.json({ ...User, courses: Courses })
+            } else {
+                next(ApiError.Forbidden())
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
+    async updateProfile(req, res, next){
+        try {
+            const { id } = req.user;
+            const { name, surname, ...settings } = req.body;
+            const User = userService.updateUser(id, { name, surname, settings })
             res.json(User)
         } catch (e) {
             next(e)
         }
     }
-    async getAllUsers(req, res, next){
+    async updatePassword(req, res, next){
         try {
-            const usersData = await userService.getAllUsers();
-            res.json(usersData)
-        } catch (e) {
-            next(e)
-        }       
-    }
-
-    async updateUser(req, res, next){
-        try {
-            const { userId } = req.params;
-            const userData = await userService.updateUser(userId)
-            res.json(userData);
+            const { id } = req.user;
+            const { password, newPassword } = req.body;
+            const User = userService.replacePassword(id, password, newPassword )
+            res.json(User)
         } catch (e) {
             next(e)
         }
     }
+    async changeRole(req, res, next){
+        try {
+            const { id } = req.params;
+            const { role } = req.user;
+            if(role === roles.super){
+                const newRole = req.body.role;
+                if(!roles.values().includes(newRole)){
+                    next(ApiError.BadRequest("Некорректная роль"))
+                }
+                const User = await userService.updateUser(id, { role: newRole })
+                res.json(User)
+            } else {
+                next(ApiError.Forbidden())
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
+
     async deleteUser(req, res, next){
         try {
-            const { userId } = req.params;
-            const userData = await userService.deleteUser(userId)
-            res.json("Пользователь был удален");
-        } catch (e) {
-            next(e)
-        }
-    }
-
-
-
-
-    async updateUserInfo(req, res, next){
-        try {
-            const userId = req.user.id;
-            const data = req.body;
-            if(req.file){
-                data.avatar = `${config.get("APIURL")}/images/${req.file.filename}`;
-            }
-            const userData = await userService.updateUserInfo(userId, data);
-            res.json(userData);
-        } catch (e) {
-            next(e)
-        }
-    }
-
-    async changePassword(req, res, next){
-        try {
-            const { password, newPassword, confirmNewPassword } = req.body;
-            if(newPassword != confirmNewPassword){
-                return next( ApiError.BadRequest('Пароли не совпадают') );
-            }
-            const userData = await userService.changePassword(req.user.id, password, newPassword);
-            res.json(userData);
-        } catch (e) {
-            next(e)
-        }
-    }
-    
-
-    async updateNotoficationSettings(req, res, next){
-        try {
-            const { courseNotif, lessonsNotif, actionsNotif } = req.body;
-            const userData = await userService.updateNotificationSettings( req.user.id, courseNotif, lessonsNotif, actionsNotif )
-            res.json(userData)
-        } catch (e) {
-            next(e)
-        }
-    }
-
-    async uploadUserAvatar(req, res, next){
-        try {
-            if(!req.file){
-                return next(ApiError.BadRequest("Ошибка записи файла"));
-            }
-            const userData = await userService.uploadUserAvatar(req.user.id, 'avatars/'+req.file.filename);
-            res.json(userData)
-        } catch (e) {
-            next(e)
-        }
-    }
-    async removeUserAvatar(req, res, next){
-        try {
-            const userData = await userService.removeUserAvatar(req.user.id);
-            res.json(userData)
-        } catch (e) {
-            next(e)
-        }
-    }
-
-
-
-
-    async updateUserRole(req, res, next){
-        try {
-            const { role } = req.body;
-            const { userId } = req.params;
-            // if(req.user.role !== 'super'){
-            //     return next(ApiError.UnauthorizedError())
-            // }
-            const userData = await userService.updateUser(userId, { role })
-            res.json(userData)
-        } catch (e) {
-            next(e)
-        }
-
-    }
-
-
-    async getUsersList(req, res, next){
-        try {
-            const UsersList = await userService.getUsersList()
-            res.json(UsersList)
-        } catch (e) {
-            next(e)
-        }
-    }
-    
-    async getOneUser(req, res,next){
-        try {
-            const { userId } = req.params;
+            const { id } = req.params;
             const { role } = req.user;
-            if( role !== roles.super && role !== roles.admin){
-                next(ApiError.UnauthorizedError)
-            }
-            const userData = await userService.getOneUser(userId);
-            const coursesData = await courseProgressService.getAllowedCourses(userId);
             if(role === roles.super){
-                const allCourses = await coursesService.getCoursesList()
-                res.json({ user: userData, courses: coursesData, allCourses: allCourses });
+                await userService.deleteUser(id)
+                // удалить прогресс
+                // удалить уведомления
+                // удалить токены
+                // удалить домашние задания
+                // удалить файлы
+                res.json("Пользователь был удален");
             } else {
-                res.json({ user: userData, courses: coursesData });
+                next(ApiError.Forbidden())
             }
         } catch (e) {
             next(e)
         }
     }
-
-
 
 }
 module.exports = new UserController()

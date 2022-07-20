@@ -3,7 +3,6 @@ const roles = require("../utils/roles")
 
 const lessonsService = require("../services/lessonsService")
 const lessonProgressService = require("../services/lessonProgressService")
-const exerciseService = require("../services/exerciseService")
 const modulesService = require("../services/modulesService")
 const homeworkService = require("../services/homeworkService")
 
@@ -15,19 +14,6 @@ class LessonsController {
             if(role === roles.super){
                 const Module = await modulesService.getModule(lessonPayload.module)
                 const Lesson = await lessonsService.createLesson({ ...lessonPayload, course: Module.course })
-                if(lessonPayload.withHomework){
-                    try {
-                        const Exercise = await exerciseService.createExercise({
-                            lesson: Lesson.id,
-                            module: Lesson.module,
-                            course: Lesson.course,
-                            task: lessonPayload.homework
-                        })
-                        return res.json({...Lesson, exercise: Exercise.task })
-                    } catch (error) {
-                        return res.json({ ...Lesson, error: {message: "При создании домашнего задания произошла ошибка!", error }})
-                    }
-                }
                 res.json(Lesson)
             } else {
                 next(ApiError.Forbidden())
@@ -71,40 +57,19 @@ class LessonsController {
                 next(e)
             }
     }
-
     async updateLesson(req, res, next){
         try {
-                const {role} = req.user;
-                const { id } = req.params;
-                if(role === roles.super){
-                    const lessonData = await lessonsService.updateLesson(id, req.body)
-                    if(req.body.withHomework){
-                        try {
-                            await exerciseService.updateExercise( lessonData._id, 
-                                {
-                                    module: lessonData.module,
-                                    course: lessonData.course,
-                                    task: req.body.homework
-                                }
-                            )
-                        } catch (e) {
-                            await exerciseService.createExercise({
-                                lesson: lessonData._id,
-                                module: lessonData.module,
-                                course: lessonData.course,
-                                task: req.body.homework
-                            })
-                        }
-                    } else {
-                        await exerciseService.deleteLessonExercise(lessonData._id)
-                    }
-                    res.json(lessonData)
-                } else {
-                    next(ApiError.Forbidden())
-                }
-            } catch (e) {
-                next(e)
+            const {role} = req.user;
+            const { id } = req.params;
+            if(role === roles.super){
+                const Lesson = await lessonsService.updateLesson(id, req.body)
+                res.json(Lesson)
+            } else {
+                next(ApiError.Forbidden())
             }
+        } catch (e) {
+            next(e)
+        }
     }
     async completeLesson(req, res, next){
         try {
@@ -127,7 +92,6 @@ class LessonsController {
                 const { id } = req.params;
                 if(role === roles.super){
                     await lessonsService.deleteLesson(id)
-                    await exerciseService.deleteLessonExercise(id)
                     res.json({message:"Запись об уроке удалена"})
                 } else {
                     next(ApiError.Forbidden())

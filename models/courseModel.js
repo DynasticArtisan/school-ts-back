@@ -28,6 +28,7 @@ CourseSchema.virtual('mastering', {
     justOne: true
 })
 
+
 CourseSchema.virtual('totalCompleted',{
     ref: "UsersCourseProgress",
     localField: "_id",
@@ -37,7 +38,6 @@ CourseSchema.virtual('totalCompleted',{
     },
     count: true
 })
-
 CourseSchema.virtual('totalInProgress',{
     ref: "UsersCourseProgress",
     localField: "_id",

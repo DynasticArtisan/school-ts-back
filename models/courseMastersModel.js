@@ -9,7 +9,7 @@ const CourseMasterSchema = new Schema({
     timestamps: true
 })
 
-CourseProgressSchema.virtual('verifiedHomeworksCount',{
+CourseMasterSchema.virtual('verifiedHomeworksCount',{
     ref: "HomeworkVerifies",
     localField: "_id",
     foreignField: "verifiedBy",

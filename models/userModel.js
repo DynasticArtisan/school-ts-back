@@ -6,9 +6,19 @@ const UserSchema = new Schema({
     email : {type: String, unique: true, required: true},
     password : {type: String, required: true},
     isActivated : {type: Boolean, default: false},
-    activateLink : {type: String},
     role: { type: String, required:true, default: 'user' },
-    newNotifications: { type: Boolean },
+    settings: {
+        birthday: { type: String },
+        phone: { type: String },
+        city: { type: String },
+        gender: { type: String },
+        status: { type: String },
+        avatar: { type: Number, min: 1, max: 12 },    
+    },
+    
+
+    // остальное убрать
+
     avatar: { type: String },
     info: {
         birthday: { type: String },
@@ -24,13 +34,10 @@ const UserSchema = new Schema({
             actionsNotif: { type: Boolean, required: true, default: true },
         }
     },
-
+    newNotifications: { type: Boolean },
+    activateLink : {type: String},
 },{
     timestamps: true
-})
-
-UserSchema.virtual('fullname', {
-
 })
 
 

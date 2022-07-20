@@ -4,7 +4,8 @@ const LessonSchema = new Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     content: { type: String, required: true },
-    withHomework: { type: Boolean, default: false },
+    withExercise: { type: Boolean, default: false },
+    exercise: { type: String },
     module: { type: Schema.Types.ObjectId, rel: 'Modules', required: true },
     course: { type: Schema.Types.ObjectId, rel: 'Courses', required: true },
     firstLesson: { type: Boolean, default: false },
@@ -16,18 +17,16 @@ LessonSchema.virtual('nextLesson', {
     foreignField: 'prevLesson',
     justOne: true
 })
-
-LessonSchema.virtual('exercise', {
-    ref: 'Exercise',
-    localField: '_id',
-    foreignField: 'lesson',
-    justOne: true
-})
-
 LessonSchema.virtual('progress', {
     ref: 'UsersLessonProgress',
     localField: '_id',
     foreignField: 'lesson',
+    justOne: true
+})
+LessonSchema.virtual('homework', {
+    ref: "Homework",
+    foreignField: "lesson",
+    localField: "_id",
     justOne: true
 })
 

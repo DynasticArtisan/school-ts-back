@@ -137,6 +137,6 @@ class UserCourseDto {
 
 
 module.exports = {
-    SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto, CourseStudentDto, AdminCoursesProgressDto, AdminSingleCourseDto,
+    SingleCourseProgressDto, UserCoursesProgressDto, UserSingleCourseProgressDto, UserSingleModuleProgressDto,  AdminCoursesProgressDto, AdminSingleCourseDto,
     AdminSingleModuleDto, UserCourseDto
 }
