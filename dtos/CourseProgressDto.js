@@ -10,7 +10,8 @@ class CourseProgressDto {
         if(model.totalLessonsCount){
             this.totalLessonsCount = model.totalLessonsCount
         }
-        if(model.lastLesson?.module?.title && model.lastLesson?.lesson?.title){
+        // optional chaining!!!
+        if(model.lastLesson.module.title && model.lastLesson.lesson.title){
             this.lastLesson = model.lastLesson.module.title + ', ' + model.lastLesson.lesson.title;
         }
         if(model.user.name && model.user.surname){

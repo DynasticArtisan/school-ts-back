@@ -10,8 +10,5 @@ module.exports = class UserDto {
             this.settings = model.settings
         }
         this.registryAt = model.createdAt;
-
-        this.info = model.info;
-        this.avatar = model.avatar;
     }
 }

@@ -12,8 +12,8 @@ class LessonsService {
         } 
         else {
           const ModuleLessons = await lessonModel.find({ module: lesson.module }).populate("nextLesson").lean()
-          const PrevLesson = ModuleLessons.find((lesson) => !lesson?.nextLesson );
-          if(PrevLesson){
+          if(ModuleLessons.length){
+            const PrevLesson = ModuleLessons.find((lesson) => !lesson.nextLesson );
             lesson.prevLesson = PrevLesson._id
           } else {
             lesson.firstLesson = true

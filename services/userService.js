@@ -90,7 +90,7 @@ class UserService {
         if(!User){
             throw ApiError.BadRequest('Пользователь не найден')
         }
-        return User
+        return new UserDto(User)
     }
     async replacePassword(id, password, newPassword){
         const User = await userModel.findById(id);

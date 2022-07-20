@@ -33,13 +33,13 @@ class AuthController {
     async login(req, res, next){
         try {
             const { email, password, remember } = req.body;
-            const UserData = await userService.login(email, password);
+            const User = await userService.login(email, password);
             if(remember){
                 res.cookie('refreshToken', User.refreshToken, { maxAge: 30*24*60*60*1000, httpOnly: true });
             } else {
                 res.cookie('refreshToken', User.refreshToken, { httpOnly: true });
             }
-            return res.json(UserData);
+            return res.json(User);
         } catch (e) {
             next(e);
         }
@@ -93,7 +93,7 @@ class AuthController {
             if(!resetToken){
                 next(ApiError.Forbidden());
             }
-            const userData = await userService.passwordReset(id, resetToken, newPassword);
+            const userData = await userService.resetPassword(id, resetToken, newPassword);
             res.clearCookie('resetToken');
             res.json(userData);
         } catch (e) {
