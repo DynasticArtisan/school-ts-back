@@ -33,6 +33,9 @@ class LessonDto {
       if(model.progress){
         this.progress = new LessonProgressDto(model.progress)
       }
+      // if(model.firstLesson){
+      //   this.firstLesson = model.firstLesson
+      // }
     }
   }
   module.exports = LessonDto

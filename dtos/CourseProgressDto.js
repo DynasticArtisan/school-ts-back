@@ -10,9 +10,8 @@ class CourseProgressDto {
         if(model.totalLessonsCount){
             this.totalLessonsCount = model.totalLessonsCount
         }
-        // optional chaining!!!
-        if(model.lastLesson.module.title && model.lastLesson.lesson.title){
-            this.lastLesson = model.lastLesson.module.title + ', ' + model.lastLesson.lesson.title;
+        if(model.lastLesson){
+            this.lastLesson = new LastLessonDto(model.lastLesson)
         }
         if(model.user.name && model.user.surname){
             this.fullname = model.user.name + ' ' + model.user.surname
@@ -23,6 +22,14 @@ class CourseProgressDto {
         if(model.updatedAt){
             this.updatedAt = model.updatedAt;
         }
+    }
+}
+
+class LastLessonDto {
+    constructor(model){
+        this.id = model._id
+        this.lesson = model.lesson?.title
+        this.module = model.module?.title
     }
 }
 module.exports = CourseProgressDto
