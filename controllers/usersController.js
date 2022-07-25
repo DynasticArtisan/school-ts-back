@@ -3,6 +3,7 @@ const roles = require("../utils/roles");
 
 const userService = require("../services/userService")
 const coursesService = require("../services/coursesService");
+const courseProgressService = require("../services/courseProgressService");
 
 class UserController {
     async getUsers(req, res, next){
@@ -18,12 +19,28 @@ class UserController {
             next(e)
         }
     }
-
     async getUser(req, res,next){
         try {
             const { id } = req.params;
             const { role } = req.user;
             if(role === roles.super || role === roles.admin){
+                const User = await userService.getUser(id)
+                const Courses = await coursesService.getUserCourses(id)
+                res.json({ ...User, courses: Courses })
+            } else {
+                next(ApiError.Forbidden())
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
+    async getStudent(req, res, next){
+        try {
+            const { id } = req.params;
+            const { course } = req.query;
+            const { role } = req.user;
+            if(role === roles.super){
+                await courseProgressService.getProgress({ user: id, course })
                 const User = await userService.getUser(id)
                 const Courses = await coursesService.getUserCourses(id)
                 res.json({ ...User, courses: Courses })

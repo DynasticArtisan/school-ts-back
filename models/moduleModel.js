@@ -8,6 +8,13 @@ const ModuleSchema = new Schema({
     prevModule: { type: Schema.Types.ObjectId, rel: 'Modules' },
 })
 
+ModuleSchema.virtual('nextModule', {
+    ref: 'Modules',
+    localField: '_id',
+    foreignField: 'prevModule',
+    justOne: true
+})
+
 ModuleSchema.virtual('lessons', {
     ref: 'Lessons',
     localField: '_id',

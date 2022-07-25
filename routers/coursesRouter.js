@@ -12,6 +12,8 @@ coursesRouter.put('/:id/access', coursesController.updateCourseAccess);
 
 coursesRouter.get('/:id/modules', coursesController.getCourseModules);
 coursesRouter.get('/:id/students', coursesController.getCourseStudents);
+
+
 coursesRouter.get('/:id/exercises', coursesController.getCourseExercises);
 coursesRouter.put('/:id', courseMulter, coursesController.updateCourse)
 coursesRouter.delete('/:id', coursesController.deleteCourse)

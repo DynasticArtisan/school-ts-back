@@ -81,7 +81,7 @@ class UserService {
     async getUser(id){
         const User = await userModel.findById(id)
         if(!User){
-            throw new ApiError.BadRequest("Пользователь не найден")
+            throw ApiError.BadRequest("Пользователь не найден")
         }
         return new UserDto(User)
     }

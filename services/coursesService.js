@@ -42,7 +42,10 @@ class CoursesService {
       const Courses = await courseModel.find().populate({
         path: "progress",
         match: { user },
-        populate: "lastLesson"
+        populate: {
+          path: "lastLesson",
+          populate: 'lesson module'
+        }
       })
       return Courses.map(course => new CourseDto(course))
     }

@@ -14,7 +14,7 @@ class CourseProgressService {
         if(PrevProgress){
             throw ApiError.BadRequest("Курс уже доступен пользователю")
         }
-        const Progress = await courseProgressModel.create({ user, course, format });
+        const Progress = await courseProgressModel.create({ user, course, format, endAt: new Date(new Date().setFullYear(new Date().getFullYear() + 1)) });
         const FirstModule = await modulesService.getFirstModule(course)
         await moduleProgressService.createProgress({ user, course, module: FirstModule.id }) 
         return new CourseProgressDto(Progress)
@@ -40,8 +40,15 @@ class CourseProgressService {
         }
         return new CourseProgressDto(Progress)
     }
-    async updateProgress(progress, payload){
-        const Progress = await courseProgressModel.findByIdAndUpdate(progress, payload, { new: true })
+    async getProgressById(id){
+        const Progress = await courseProgressModel.findById(id)
+        if(!Progress){
+            throw ApiError.BadRequest('Прогресс пользователя не найден')
+        }
+        return new CourseProgressDto(Progress)
+    }
+    async updateProgress({ course, user }, payload){
+        const Progress = await courseProgressModel.findOneAndUpdate({ course, user }, payload, { new: true })
         if(!Progress){
             throw ApiError.BadRequest('Прогресс пользователя не найден')
         }

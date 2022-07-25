@@ -24,7 +24,7 @@ LessonSchema.virtual('progress', {
     justOne: true
 })
 LessonSchema.virtual('homework', {
-    ref: "Homework",
+    ref: "Homeworks",
     foreignField: "lesson",
     localField: "_id",
     justOne: true

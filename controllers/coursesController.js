@@ -129,7 +129,7 @@ class CoursesController {
             const { role, id: user } = req.user;
             if(role === roles.super){
                 const Course = await coursesService.getCourse(id)
-                const Students = await coursesProgressService.getCourseProgresses(id)
+                const Students = await courseProgressService.getCourseProgresses(id)
                 res.json({ ...Course, students: Students })
             } else {
                 next(ApiError.Forbidden())
@@ -138,6 +138,7 @@ class CoursesController {
             next(e)
         }
     }
+
     async getCourseExercises(req, res, next){
         try {
             const { role, id:user } = req.user;
@@ -181,8 +182,7 @@ class CoursesController {
         try {
             const { id: course } = req.params;
             const { role } = req.user;
-            const { user } = req.body;
-            const { isAvailable } = req.body
+            const { user, isAvailable } = req.body;
             if(role === roles.super){
                 const Progress = await courseProgressService.updateProgress({ user, course}, { isAvailable })
                 res.json(Progress)

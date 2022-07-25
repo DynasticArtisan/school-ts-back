@@ -6,6 +6,7 @@ const CourseProgressSchema = new Schema({
     format: { type: String, default: 'оптимальный' },
     isAvailable: { type: Boolean, default: true },
     isCompleted: { type: Boolean, default: false },
+    endAt: { type: Date }
 },
 {
     timestamps: true

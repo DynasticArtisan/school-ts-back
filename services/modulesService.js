@@ -11,8 +11,9 @@ class ModulesService {
         throw ApiError.BadRequest('Предыдущий модуль не найден')
       }
     } else {
-      const CourseModules = moduleModel.find({ course: module.course }).populate("nextModule").lean()
-      if(CourseModules.length){
+      const CourseModules = await moduleModel.find({ course: module.course }).populate("nextModule").lean()
+      console.log(CourseModules)
+      if(CourseModules.length > 0){
         const PrevModule = CourseModules.find((module) => !module.nextModule)
         module.prevModule = PrevModule._id
       } else {

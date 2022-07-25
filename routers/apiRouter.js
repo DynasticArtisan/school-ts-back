@@ -8,6 +8,9 @@ const lessonsRouter = require('./lessonsRouter');
 const homeworkRouter = require('./homeworkRouter');
 
 const express = require('express');
+const UCProgressModel = require('../models/UCProgressModel');
+const UMProgressModel = require('../models/UMProgressModel');
+const ULProgressModel = require('../models/ULProgressModel');
 
 const apiRouter = express.Router();
 apiRouter.use('/auth', authRouter);
@@ -16,5 +19,18 @@ apiRouter.use('/courses', authMiddleware, coursesRouter);
 apiRouter.use('/modules', authMiddleware, modulesRouter);
 apiRouter.use('/lessons', authMiddleware, lessonsRouter);
 apiRouter.use('/homework', authMiddleware, homeworkRouter);
+
+
+
+apiRouter.delete("/temp", async function(req, res, next){
+    await UCProgressModel.deleteMany()
+    await UMProgressModel.deleteMany()
+    await ULProgressModel.deleteMany()
+    res.json("DELETED")
+})
+
+
+
+
 
 module.exports = apiRouter;

@@ -43,7 +43,8 @@ CourseSchema.virtual('totalInProgress',{
     localField: "_id",
     foreignField: "course",
     match: {
-        isCompleted: false
+        isCompleted: false,
+        isAvailable: true
     },
     count: true
 })
