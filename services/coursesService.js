@@ -49,6 +49,13 @@ class CoursesService {
       })
       return Courses.map(course => new CourseDto(course))
     }
+    async getMasterCourses(user){
+      const Courses = await courseModel.find().populate({
+        path: "mastering",
+        match: { user }
+      })
+      return Courses.map(course => new CourseDto(course) )
+    }
 
     async getCourse(id){
       const Course = await courseModel.findById(id)

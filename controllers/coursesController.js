@@ -8,6 +8,7 @@ const courseMastersService = require("../services/courseMastersService");
 const modulesService = require("../services/modulesService");
 const lessonsService = require("../services/lessonsService");
 const userService = require("../services/userService");
+const formats = require("../utils/formats");
 
 class CoursesController {
     async createCourse(req, res, next){
@@ -34,10 +35,18 @@ class CoursesController {
             const { role } = req.user;
             const { user, format } = req.body;
             if(role === roles.super){
-                await userService.getUser(user)
-                await coursesService.getCourse(course)
-                const Progress = await courseProgressService.createProgress({ user, course, format })
-                res.json(Progress)
+                const User = await userService.getUser(user)
+                if(User.role === roles.user && Object.values(formats)){
+                    const Course = await coursesService.getCourse(course)
+                    const Progress = await courseProgressService.createProgress({ user, course, format })
+                    res.json({...Course, progress: Progress})
+                } else if(User.role === roles.teacher || User.role === roles.curator){
+                    const Course = await coursesService.getCourse(course)
+                    const Master = await courseMastersService.createMaster({ user, course })
+                    res.json({...Course, mastering: Master})
+                } else {
+                    next(ApiError.BadRequest("Неподходящая роль у пользователя"))
+                }
             } else {
                 next(ApiError.Forbidden())
             }
@@ -89,7 +98,7 @@ class CoursesController {
                 const Courses = await coursesService.getCourses()
                 res.json(Courses)
             } else if (role === roles.teacher || role === roles.curator){
-                const Courses = await coursesService.getMasterHomeworksCourses()
+                const Courses = await coursesService.getMasterHomeworksCourses(user)
                 res.json(Courses)
             } else {
                 next(ApiError.Forbidden())
@@ -147,6 +156,11 @@ class CoursesController {
                 const Course = await coursesService.getCourse(id)
                 const Exercises = await lessonsService.getCourseExercises(id)
                 res.json({ ...Course, exercises: Exercises })
+            } else if(role === roles.teacher || role === roles.curator) {
+                await courseMastersService.getMaster({ user, course: id })
+                const Course = await coursesService.getCourse(id)
+                const Exercises = await lessonsService.getCourseExercises(id)
+                res.json({ ...Course, exercises: Exercises })
             } else {
                 next(ApiError.UnauthorizedError)
             }
@@ -182,10 +196,19 @@ class CoursesController {
         try {
             const { id: course } = req.params;
             const { role } = req.user;
-            const { user, isAvailable } = req.body;
+            const { user, progress, mastering } = req.body;
             if(role === roles.super){
-                const Progress = await courseProgressService.updateProgress({ user, course}, { isAvailable })
-                res.json(Progress)
+                if(progress){
+                    const Progress = await courseProgressService.updateProgress({ user, course}, progress)
+                    res.json({ progress: Progress })
+                }
+                else if(mastering){
+                    const Master = await courseMastersService.updateMaster({ user, course }, mastering)
+                    res.json({ mastering: Master })
+                } else {
+                    next(ApiError.BadRequest("Некоррекный запрос"))
+                }
+            
             } else {
                 next(ApiError.Forbidden())
             }

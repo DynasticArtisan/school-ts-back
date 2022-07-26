@@ -30,7 +30,10 @@ class LessonsService {
       return new LessonDto(Lesson)
     }
     async getLesson(id){
-      const Lesson = await lessonModel.findById(id).populate('nextLesson').lean();
+      const Lesson = await lessonModel.findById(id).populate('nextLesson').populate({
+        path: 'module',
+        model: "Modules"
+      }).lean();
       if(!Lesson){
         throw ApiError.BadRequest('Урок не найден')
       }
@@ -44,7 +47,8 @@ class LessonsService {
         },
         {
           path: 'homework',
-          match: { user }
+          match: { user },
+          populate: "files"
         }
       ]).lean();
       if(!Lesson){
@@ -53,7 +57,10 @@ class LessonsService {
       return new LessonDto(Lesson)
     }
     async getCourseExercises(course){
-        const Lessons = await lessonModel.find({ course, withExercise: true })
+        const Lessons = await lessonModel.find({ course, withExercise: true }).populate({
+          path: 'module',
+          model: "Modules"
+        })
         return Lessons.map(lesson => new LessonDto(lesson))
     }
     async getFirstLesson(module){

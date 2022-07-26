@@ -25,8 +25,14 @@ class UserController {
             const { role } = req.user;
             if(role === roles.super || role === roles.admin){
                 const User = await userService.getUser(id)
-                const Courses = await coursesService.getUserCourses(id)
-                res.json({ ...User, courses: Courses })
+                if(User.role === roles.user){
+                    const Courses = await coursesService.getUserCourses(id)
+                    res.json({ ...User, courses: Courses })
+                } else if(User.role === roles.teacher || User.role === roles.curator){
+                    const Courses = await coursesService.getMasterCourses(id)
+                    res.json({ ...User, courses: Courses })
+                }
+                res.json(User)
             } else {
                 next(ApiError.Forbidden())
             }
@@ -77,7 +83,7 @@ class UserController {
             const { role } = req.user;
             if(role === roles.super){
                 const newRole = req.body.role;
-                if(!roles.values().includes(newRole)){
+                if(!Object.values(roles).includes(newRole)){
                     next(ApiError.BadRequest("Некорректная роль"))
                 }
                 const User = await userService.updateUser(id, { role: newRole })

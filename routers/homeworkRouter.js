@@ -9,11 +9,8 @@ homeworkRouter.post('/', homeworkMulter, homeworkController.createNewHomework)
 homeworkRouter.get('/:id', homeworkController.getHomework)
 homeworkRouter.put('/:id', homeworkMulter, homeworkController.updateHomework)
 
-
-
-
-
-homeworkRouter.put('/:id/check', authMiddleware, homeworkController.checkHomework)
+homeworkRouter.put('/:id/accept', authMiddleware, homeworkController.acceptHomework)
+homeworkRouter.put('/:id/reject', authMiddleware, homeworkController.rejectHomework)
 
 
 

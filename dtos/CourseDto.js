@@ -1,3 +1,4 @@
+const CourseMasterDto = require("./CourseMasterDto");
 const CourseProgressDto = require("./CourseProgressDto");
 const ModuleDto = require("./ModuleDto");
 
@@ -33,6 +34,9 @@ class CourseDto {
         }
         if(model.progress){
             this.progress = new CourseProgressDto(model.progress)
+        }
+        if(model.mastering){
+            this.mastering = new CourseMasterDto(model.mastering)
         }
     }
 }

@@ -24,7 +24,7 @@ class LessonProgressService {
     async getProgress(lesson, user){
         const Progress = await lessonProgressModel.findOne({ user, lesson })
         if(!Progress){
-            throw new ApiError.BadRequest("Прогресс пользователя не найден")
+            throw ApiError.BadRequest("Прогресс пользователя не найден")
         }
         return new LessonProgressDto2(Progress)
     }

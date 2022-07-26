@@ -2,7 +2,7 @@ const path = require("path");
 const multer = require("multer");
 const roles = require("../utils/roles");
 
-types = ['image/png', 'image/jpeg', 'image/jpg']
+types = ['image/png', 'image/jpeg', 'image/jpg', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
 
 storage = multer.diskStorage ({
     destination(req, file, cb){
@@ -14,6 +14,7 @@ storage = multer.diskStorage ({
 })
 
 fileFilter = (req, file, cb) => {
+    console.log(file.mimetype)
     if(types.includes(file.mimetype) && req.user.role === roles.user){
         cb(null, true)
     } else {
