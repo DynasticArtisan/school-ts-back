@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const ULProgressSchema = new Schema({
+const LessonProgressSchema = new Schema({
     user: { type: Schema.Types.ObjectId, ref: 'User' , required: true },
     course: { type: Schema.Types.ObjectId, ref: 'Courses' },
     lesson: { type: Schema.Types.ObjectId, ref: 'Lessons', required: true },
@@ -11,4 +11,12 @@ const ULProgressSchema = new Schema({
     timestamps: true
 })
 
-module.exports = model('UsersLessonProgress', ULProgressSchema)
+LessonProgressSchema.virtual('homework', {
+    ref: "Homeworks",
+    foreignField: "lesson",
+    localField: "lesson",
+    match: progress => ({ user: progress.user }),
+    justOne: true
+})
+
+module.exports = model('UsersLessonProgress', LessonProgressSchema)

@@ -1,5 +1,4 @@
 const { Schema, model } = require('mongoose');
-const fs = require('fs')
 
 const FilesSchema = new Schema({
     homework: { type: Schema.Types.ObjectId, ref: 'Homeworks' },
@@ -8,15 +7,4 @@ const FilesSchema = new Schema({
 }, { timestamps: true }
 )
 
-
-FilesSchema.post('findOneAndDelete', function(doc){
-    console.log('findOneAndDelete')
-    fs.unlink('filestore/'+doc.filepath, function(err){
-        if(err){
-            console.log(err)
-        }
-    })
-})
-
-
-module.exports = model('Files', FilesSchema)
+module.exports = model('HomeworkFiles', FilesSchema)

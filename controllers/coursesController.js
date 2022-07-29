@@ -8,7 +8,6 @@ const courseMastersService = require("../services/courseMastersService");
 const modulesService = require("../services/modulesService");
 const lessonsService = require("../services/lessonsService");
 const userService = require("../services/userService");
-const formats = require("../utils/formats");
 
 class CoursesController {
     async createCourse(req, res, next){
@@ -36,7 +35,7 @@ class CoursesController {
             const { user, format } = req.body;
             if(role === roles.super){
                 const User = await userService.getUser(user)
-                if(User.role === roles.user && Object.values(formats)){
+                if(User.role === roles.user){
                     const Course = await coursesService.getCourse(course)
                     const Progress = await courseProgressService.createProgress({ user, course, format })
                     res.json({...Course, progress: Progress})
@@ -118,8 +117,7 @@ class CoursesController {
                 const Course = await coursesService.getCourseModulesProgress(course, user)
                 res.json({ ...Course, progress: Progress })
             } else if (role === roles.teacher || role === roles.curator){
-                // ///////////////////////////////////////////////////////
-                //////////////////////////////////// ПРОВЕРИТЬ
+                const Master = await courseMastersService.getMaster({ user, course })
                 const Course = await coursesService.getCourseModules(course);
                 res.json(Course)
             } else if(role === roles.super) {
@@ -140,6 +138,11 @@ class CoursesController {
                 const Course = await coursesService.getCourse(id)
                 const Students = await courseProgressService.getCourseProgresses(id)
                 res.json({ ...Course, students: Students })
+            } else if(role === roles.teacher){
+                await courseMastersService.getMaster({ user, course:id })
+                const Course = await coursesService.getCourse(id)
+                const Students = await courseProgressService.getCourseProgresses(id)
+                res.json({ ...Course, students: Students.filter(progress => progress.isAvailable) })
             } else {
                 next(ApiError.Forbidden())
             }
@@ -147,7 +150,6 @@ class CoursesController {
             next(e)
         }
     }
-
     async getCourseExercises(req, res, next){
         try {
             const { role, id:user } = req.user;

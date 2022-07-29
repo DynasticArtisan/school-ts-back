@@ -4,16 +4,12 @@ class CourseProgressDto {
         this.format = model.format
         this.isAvailable = model.isAvailable
         this.isCompleted = model.isCompleted
-        if(model.completedLessonsCount){
-            this.completedLessonsCount = model.completedLessonsCount
-        }
-        if(model.totalLessonsCount){
-            this.totalLessonsCount = model.totalLessonsCount
+        if(model.completedLessonsCount && model.totalLessonsCount){
+            this.percent = Math.ceil(model.completedLessonsCount * 100 / model.totalLessonsCount)
         }
         if(model.lastLesson){
             this.lastLesson = ToLastLesson(model.lastLesson)
         }
-
         if(model.user?.name){
             this.user = {
                 id: model.user._id,

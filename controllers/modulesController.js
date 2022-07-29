@@ -3,7 +3,8 @@ const lessonsService = require("../services/lessonsService");
 const moduleProgressService = require("../services/moduleProgressService")
 const modulesService = require("../services/modulesService")
 const coursesService = require("../services/coursesService")
-const roles = require("../utils/roles")
+const roles = require("../utils/roles");
+const courseMastersService = require("../services/courseMastersService");
 
 class ModulesController {
     async createModule(req, res, next){
@@ -30,6 +31,10 @@ class ModulesController {
                 const Progress = await moduleProgressService.getProgress({ user, module: id })
                 const Module = await modulesService.getModuleLessonsProgress(id, user)
                 res.json({ ...Module, progress: Progress })
+            } else if(role === roles.teacher || role === roles.curator){
+                const Module = await modulesService.getModuleLessons(id)
+                const Master = await courseMastersService.getMaster({ user, course: Module.course})
+                res.json(Module)
             } else if(role === roles.super){
                 const Module = await modulesService.getModuleLessons(id)
                 res.json(Module)

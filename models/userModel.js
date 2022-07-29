@@ -15,26 +15,6 @@ const UserSchema = new Schema({
         status: { type: String },
         avatar: { type: Number, min: 1, max: 12 },    
     },
-    
-
-    // остальное убрать
-
-    // avatar: { type: String },
-    // info: {
-    //     birthday: { type: String },
-    //     phone: { type: String },
-    //     city: { type: String },
-    //     gender: { type: String },
-    //     status: { type: String },
-    // },
-    // settings: {
-    //     notifications: {
-    //         courseNotif: { type: Boolean, required: true, default: true },
-    //         lessonsNotif: { type: Boolean, required: true, default: true },
-    //         actionsNotif: { type: Boolean, required: true, default: true },
-    //     }
-    // },
-    // newNotifications: { type: Boolean },
     activateLink : {type: String},
 },{
     timestamps: true

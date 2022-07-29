@@ -22,7 +22,10 @@ class LessonProgressService {
     }
 
     async getProgress(lesson, user){
-        const Progress = await lessonProgressModel.findOne({ user, lesson })
+        const Progress = await lessonProgressModel.findOne({ user, lesson }).populate({
+            path: 'homework',
+            populate: 'files'
+        }).lean()
         if(!Progress){
             throw ApiError.BadRequest("Прогресс пользователя не найден")
         }
@@ -62,7 +65,7 @@ class LessonProgressService {
     }
     async getOneProgress(progressID){
         const Progress = await lessonProgressModel.findById(progressID)
-        if(!UCProgress){
+        if(!Progress){
             throw ApiError.BadRequest('Прогресс не найден')
         }
         return Progress
@@ -87,27 +90,6 @@ class LessonProgressService {
         return Lesson
     }
 }
-
-
-
-
-class LessonProgressDto {
-    constructor(model){
-      this.id = model.lesson._id;
-      this.title = model.lesson.title;
-      this.description = model.lesson.description
-      this.content = model.lesson.content
-      this.module = model.lesson.module
-      if(model.lesson.prevLesson){
-        this.prev = model.lesson.prevLesson
-      }
-      if(model.lesson.nextLesson){
-        this.next = model.lesson.nextLesson._id
-      }
-      this.isCompleted = model.isCompleted
-    }
-  }
-
 
 
 module.exports = new LessonProgressService()

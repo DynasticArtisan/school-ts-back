@@ -4,11 +4,7 @@ const LessonProgressDto = require("./LessonProgressDto");
 class LessonDto {
     constructor(model){
       this.id = model._id;
-      if(model.module.title){
-        this.module = model.module.title
-      } else if(model.module){
-        this.module = model.module
-      }
+      this.module = model.module
       if(model.course){
         this.course = model.course
       }    

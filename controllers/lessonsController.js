@@ -5,6 +5,7 @@ const lessonsService = require("../services/lessonsService")
 const lessonProgressService = require("../services/lessonProgressService")
 const modulesService = require("../services/modulesService")
 const homeworkService = require("../services/homeworkService")
+const courseMastersService = require("../services/courseMastersService")
 
 class LessonsController {
     async createLesson(req, res, next){
@@ -29,10 +30,13 @@ class LessonsController {
             const {role, id: user} = req.user;
             if(role === roles.user){
                 const Progress = await lessonProgressService.getProgress(id, user)
-                const Lesson = await lessonsService.getLessonProgress(id, user)
+                const Lesson = await lessonsService.getLesson(id)
                 res.json({ ...Lesson, progress: Progress })         
-            }
-            else if(role === roles.super){
+            } else if(role === roles.teacher || role === roles.curator){
+                const Lesson = await lessonsService.getLesson(id)
+                const Master = await courseMastersService.getMaster({ user, course: Lesson.course })
+                res.json(Lesson)
+            } else if(role === roles.super){
                 const Lesson = await lessonsService.getLesson(id)
                 res.json(Lesson)
             } else {
@@ -48,6 +52,11 @@ class LessonsController {
                 const {role, id: user} = req.user;
                 if(role === roles.super){
                     const Lesson = await lessonsService.getLesson(id)
+                    const Homeworks = await homeworkService.getLessonHomeworks(id)
+                    res.json({ ...Lesson, homeworks: Homeworks })
+                } else if(role === roles.teacher || role === roles.curator){
+                    const Lesson = await lessonsService.getLesson(id)
+                    await courseMastersService.getMaster({ user, course: Lesson.course })
                     const Homeworks = await homeworkService.getLessonHomeworks(id)
                     res.json({ ...Lesson, homeworks: Homeworks })
                 } else {

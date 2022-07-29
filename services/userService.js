@@ -40,12 +40,8 @@ class UserService {
         const activateLink = uuid.v4();
         const User = await userModel.create({ activateLink, name, surname, email, password: hashPassword })
         console.log(`${config.get("APIURL")}/api/auth/activate/${activateLink}`)
-        //await mailService.sendActivationMail(email, `${config.get("APIURL")}/api/auth/activate/${activateLink}`);
+        await mailService.sendActivationMail(email, `${config.get("APIURL")}/api/auth/activate/${activateLink}`, name);
         return new UserDto(User)
-        //const TokenDto = new UserTokenDto(User)
-        //const tokens = await tokenService.generateTokens({...TokenDto})
-        //await tokenService.saveToken(User.id, tokens.refreshToken);
-        //return { ...tokens, user: TokenDto }
     }
     async login(email, password){
         const User = await userModel.findOne({ email });

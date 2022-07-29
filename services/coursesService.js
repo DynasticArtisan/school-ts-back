@@ -34,7 +34,10 @@ class CoursesService {
       const Courses = await courseModel.find().populate({
         path:"mastering",
         match: { user },
-        populate: "verifiedHomeworksCount"
+        populate: {
+          path: "verifiedHomeworksCount",
+          match: { user }
+        } 
       })
       return Courses.filter(course => course.mastering).map(course => new CourseDto(course))
     }

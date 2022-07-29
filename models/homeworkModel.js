@@ -10,7 +10,7 @@ const HomeworkSchema = new Schema({
     timestamps: true
 })
 HomeworkSchema.virtual("files", {
-    ref: "Files",
+    ref: "HomeworkFiles",
     foreignField: "homework",
     localField: "_id"
 })

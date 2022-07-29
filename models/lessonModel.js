@@ -23,11 +23,6 @@ LessonSchema.virtual('progress', {
     foreignField: 'lesson',
     justOne: true
 })
-LessonSchema.virtual('homework', {
-    ref: "Homeworks",
-    foreignField: "lesson",
-    localField: "_id",
-    justOne: true
-})
+
 
 module.exports = model('Lessons', LessonSchema)

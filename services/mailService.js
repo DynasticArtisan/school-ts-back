@@ -1,5 +1,6 @@
 const config = require('config');
 const nodemailer = require('nodemailer');
+const getRegistrationMail = require('../mails/registration');
 
 class MailService {
     constructor(){
@@ -9,21 +10,18 @@ class MailService {
             secure: false,
             auth:{
                 user: config.get('smtpUser'),
-                pass: config.get('smtpPassword')
+                pass: config.get('googlePass')
             }
         })
     }
 
-    async sendActivationMail(to, link){
+    async sendActivationMail(to, link, name){
         await this.transporter.sendMail({
             from: config.get('smtpUser'),
             to,
             subject: `Активация аккаунта на ${config.get("APIURL")}`,
             text:'',
-            html:`<div>
-                        <h1>Для активации аккаунта перейдите по ссылке</h1>
-                        <a href="${link}">${link}</a>
-                    </div>`
+            html: getRegistrationMail({ name, link })
         })
     }
     async sendResetPasswordLink(to, link){

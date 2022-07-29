@@ -6,8 +6,9 @@ const homeworkController = require("../controllers/homeworkController");
 const homeworkRouter = express.Router();
 
 homeworkRouter.post('/', homeworkMulter, homeworkController.createNewHomework)
+homeworkRouter.put('/', homeworkMulter, homeworkController.updateHomework)
+
 homeworkRouter.get('/:id', homeworkController.getHomework)
-homeworkRouter.put('/:id', homeworkMulter, homeworkController.updateHomework)
 
 homeworkRouter.put('/:id/accept', authMiddleware, homeworkController.acceptHomework)
 homeworkRouter.put('/:id/reject', authMiddleware, homeworkController.rejectHomework)

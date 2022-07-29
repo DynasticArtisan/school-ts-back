@@ -12,7 +12,8 @@ const UCProgressModel = require('../models/UCProgressModel');
 const UMProgressModel = require('../models/UMProgressModel');
 const ULProgressModel = require('../models/ULProgressModel');
 const homeworkModel = require('../models/homeworkModel');
-const filesModel = require('../models/filesModel');
+const homeworkVerifiesModel = require('../models/homeworkVerifiesModel');
+const homeworkFilesModel = require('../models/homeworkFilesModel');
 
 const apiRouter = express.Router();
 apiRouter.use('/auth', authRouter);
@@ -33,7 +34,8 @@ apiRouter.delete("/temp", async function(req, res, next){
 
 apiRouter.delete("/deletehomeworks", async function(req, res, next){
     await homeworkModel.deleteMany()
-    await filesModel.deleteMany()
+    await homeworkFilesModel.deleteMany()
+    await homeworkVerifiesModel.deleteMany()
     res.json("DELETED")
 })
 

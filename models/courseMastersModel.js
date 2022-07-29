@@ -10,9 +10,9 @@ const CourseMasterSchema = new Schema({
 })
 
 CourseMasterSchema.virtual('verifiedHomeworksCount',{
-    ref: "Homeworks",
-    localField: "_id",
-    foreignField: "verifiedBy",
+    ref: "HomeworkVerifies",
+    localField: "course",
+    foreignField: "course",
     count: true
 })
 

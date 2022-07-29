@@ -12,7 +12,6 @@ class ModulesService {
       }
     } else {
       const CourseModules = await moduleModel.find({ course: module.course }).populate("nextModule").lean()
-      console.log(CourseModules)
       if(CourseModules.length > 0){
         const PrevModule = CourseModules.find((module) => !module.nextModule)
         module.prevModule = PrevModule._id

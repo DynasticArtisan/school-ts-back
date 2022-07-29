@@ -23,7 +23,7 @@ class AuthController {
     async registration(req, res, next){
         try {
             const { name, surname, email, password } = req.body;
-            const User = await userService.registration( name, surname, email, password );
+            const User = await userService.registration({ name, surname, email, password });
             // res.cookie('refreshToken', UserData.refreshToken, { maxAge: 30*24*60*60*1000, httpOnly: true });
             return res.json(User);
         } catch (e) {
