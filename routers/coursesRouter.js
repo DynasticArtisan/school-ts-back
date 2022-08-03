@@ -7,8 +7,11 @@ coursesRouter.post('/', courseMulter, coursesController.createCourse);
 coursesRouter.get('/progress', coursesController.getProgressCourses);
 coursesRouter.get('/homework', coursesController.getHomeworkCourses);
 
-coursesRouter.post('/:id/access', coursesController.createCourseProgress);
-coursesRouter.put('/:id/access', coursesController.updateCourseAccess);
+coursesRouter.post('/:id/progress', coursesController.createCourseProgress);
+coursesRouter.post('/:id/master', coursesController.createCourseMaster);
+
+coursesRouter.put('/progress/:id/access', coursesController.updateProgressAccess);
+coursesRouter.put('/master/:id/access', coursesController.updateMasterAccess);
 
 coursesRouter.get('/:id/modules', coursesController.getCourseModules);
 coursesRouter.get('/:id/students', coursesController.getCourseStudents);

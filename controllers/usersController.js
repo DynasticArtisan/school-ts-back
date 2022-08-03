@@ -8,10 +8,12 @@ const courseProgressService = require("../services/courseProgressService");
 class UserController {
     async getUsers(req, res, next){
         try {
-            const { role } = req.user;
+            const { role, id } = req.user;
             if(role === roles.super || role === roles.admin){
                 const Users = await userService.getUsers()
-                res.json(Users)
+                console.log(Users)
+                console.log(id)
+                res.json(Users.filter(user => user.id != id))
             } else {
                 next(ApiError.Forbidden())
             }
@@ -27,12 +29,12 @@ class UserController {
                 const User = await userService.getUser(id)
                 if(User.role === roles.user){
                     const Courses = await coursesService.getUserCourses(id)
-                    res.json({ ...User, courses: Courses })
+                    res.json({ user: User, courses: Courses })
                 } else if(User.role === roles.teacher || User.role === roles.curator){
                     const Courses = await coursesService.getMasterCourses(id)
-                    res.json({ ...User, courses: Courses })
+                    res.json({ user: User, courses: Courses })
                 }
-                res.json(User)
+                res.json({user: User, courses: []})
             } else {
                 next(ApiError.Forbidden())
             }

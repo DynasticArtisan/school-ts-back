@@ -80,6 +80,47 @@ class LessonsController {
             next(e)
         }
     }
+
+    async createHomework(req, res, next){
+        try {
+            const { id: lesson } = req.params;
+            const { role, id: user } = req.user;
+            const file = req.file;
+            if(role === roles.user){
+                if(!file){
+                    throw ApiError.BadRequest("Ошибка в записи файла")
+                }
+                const Progress = await lessonProgressService.getProgress(lesson, user)
+                const Homework = await homeworkService.createHomework({ user, lesson, course: Progress.course }, { filename: file.originalname, filepath: 'homeworks/'+ file.filename });
+                res.json(Homework)
+            } else {
+                next(ApiError.Forbidden())
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
+
+    async updateHomework(req, res, next){
+        try {
+            const { id:lesson } = req.params;
+            const { role, id: user} = req.user;
+            const file = req.file;
+            if(role === roles.user){
+                if(!file){
+                    throw ApiError.BadRequest("Ошибка в записи файла")
+                }
+                const Homework = await homeworkService.updateHomework({ lesson, user, status: statuses.failed }, { status: statuses.wait }, {filename: file.originalname, filepath: 'homeworks/'+ file.filename })
+                res.json(Homework)
+            } else {
+                next(ApiError.Forbidden())
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
+
+
     async completeLesson(req, res, next){
         try {
             const { id: lesson } = req.params;

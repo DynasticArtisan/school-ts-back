@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const roles = require('../utils/roles');
 
 const UserSchema = new Schema({
     name: { type: String, required: true },
@@ -6,7 +7,7 @@ const UserSchema = new Schema({
     email : {type: String, unique: true, required: true},
     password : {type: String, required: true},
     isActivated : {type: Boolean, default: false},
-    role: { type: String, required:true, default: 'user' },
+    role: { type: String, required:true, default: roles.user },
     settings: {
         birthday: { type: String },
         phone: { type: String },

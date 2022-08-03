@@ -35,17 +35,12 @@ class CoursesController {
             const { user, format } = req.body;
             if(role === roles.super){
                 const User = await userService.getUser(user)
-                if(User.role === roles.user){
-                    const Course = await coursesService.getCourse(course)
-                    const Progress = await courseProgressService.createProgress({ user, course, format })
-                    res.json({...Course, progress: Progress})
-                } else if(User.role === roles.teacher || User.role === roles.curator){
-                    const Course = await coursesService.getCourse(course)
-                    const Master = await courseMastersService.createMaster({ user, course })
-                    res.json({...Course, mastering: Master})
-                } else {
-                    next(ApiError.BadRequest("Неподходящая роль у пользователя"))
+                if(User.role !== roles.user){
+                    next(ApiError.BadRequest("Этот пользователь не может проходить курсы"))
                 }
+                await coursesService.getCourse(course)
+                const Progress = await courseProgressService.createProgress({ user, course, format })
+                res.json(Progress)
             } else {
                 next(ApiError.Forbidden())
             }
@@ -59,10 +54,13 @@ class CoursesController {
             const { role } = req.user;
             const { user } = req.body;
             if(role === roles.super){
-                await userService.getUser(user)
+                const User = await userService.getUser(user)
+                if(User.role !== roles.teacher && User.role !== roles.curator){
+                    next(ApiError.BadRequest("Пользователь не является преподавателем или куратором"))
+                }
                 await coursesService.getCourse(course)
-                const Master = await CourseMastersService.createMaster({ user, course })
-                res.json(Progress)
+                const Master = await courseMastersService.createMaster({ user, course })
+                res.json(Master)
             } else {
                 next(ApiError.Forbidden())
             }
@@ -194,11 +192,11 @@ class CoursesController {
             next(e)
         }
     }
-    async updateCourseAccess(req, res, next){
+    async updateCourseProgressAccess(req, res, next){
         try {
-            const { id: course } = req.params;
+            const { id } = req.params;
             const { role } = req.user;
-            const { user, progress, mastering } = req.body;
+            const { isAvailable } = req.body;
             if(role === roles.super){
                 if(progress){
                     const Progress = await courseProgressService.updateProgress({ user, course}, progress)
@@ -218,7 +216,36 @@ class CoursesController {
             next(e)
         }
     }
-
+    async updateProgressAccess(req, res, next){
+        try {
+            const { id } = req.params;
+            const { role } = req.user;
+            const { isAvailable } = req.body;
+            if(role === roles.super){
+                const Progress = await courseProgressService.updateProgress(id, { isAvailable })
+                res.json(Progress)          
+            } else {
+                next(ApiError.Forbidden())
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
+    async updateMasterAccess(req, res, next){
+        try {
+            const { id } = req.params;
+            const { role } = req.user;
+            const { isAvailable } = req.body;
+            if(role === roles.super){
+                const Progress = await courseMastersService.updateMaster(id, { isAvailable })
+                res.json(Progress)          
+            } else {
+                next(ApiError.Forbidden())
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
 
 
     async deleteCourse(req,res,next){
@@ -237,7 +264,7 @@ class CoursesController {
             next(e)
         }
     }
-    async dropAllCourses(req,res,next){
+    async dropAllCourses(req, res, next){
         try {
             const data = await coursesService.dropAllCourses()
             res.json(data)

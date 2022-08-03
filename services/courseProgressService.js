@@ -46,13 +46,14 @@ class CourseProgressService {
         return new CourseProgressDto(Progress)
     }
 
-    async updateProgress({ course, user }, payload){
-        const Progress = await courseProgressModel.findOneAndUpdate({ course, user }, payload, { new: true })
+    async updateProgress(id, payload){
+        const Progress = await courseProgressModel.findByIdAndUpdate(id, payload, { new: true })
         if(!Progress){
             throw ApiError.BadRequest('Прогресс пользователя не найден')
         }
         return new CourseProgressDto(Progress)
     }
+    
     async completeProgress({ course, user }){
         const Progress = await courseProgressModel.findOneAndUpdate({ course, user }, { isCompleted: true }, { new: true })
         if(!Progress){
