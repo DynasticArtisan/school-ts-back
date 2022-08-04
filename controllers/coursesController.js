@@ -264,14 +264,6 @@ class CoursesController {
             next(e)
         }
     }
-    async dropAllCourses(req, res, next){
-        try {
-            const data = await coursesService.dropAllCourses()
-            res.json(data)
-        } catch (e) {
-            next(e)
-        }
-    }
 }
 
 module.exports = new CoursesController()

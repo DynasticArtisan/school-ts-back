@@ -16,9 +16,11 @@ class ModuleProgressService {
         }
         const Progress = await moduleProgressModel.create({ user, module, course })
         const FirstLesson = await lessonsService.getFirstLesson(module)
-        await lessonProgressService.createProgress({ user, lesson: FirstLesson.id, module, course })
+        // ПОЧЕМУ НЕ РАБОТАЕТ ?!
+        //await lessonProgressService.createProgress({ user, lesson: FirstLesson.id, module, course })
         return new ModuleProgressDto(Progress)
     }
+
     async getProgress({ user, module }){
         const Progress = await moduleProgressModel.findOne({ user, module })
         if(!Progress){
@@ -46,6 +48,12 @@ class ModuleProgressService {
             return new ModuleProgressDto(Progress)
         }
     }
+
+
+    async deleteUserProgresses(user){
+        await moduleProgressModel.deleteMany({ user })
+    }
+
 
 }
 module.exports = new ModuleProgressService()

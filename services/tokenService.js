@@ -53,6 +53,9 @@ class TokenService {
         const tokenData = tokenModel.findOne({ refreshToken });
         return tokenData;        
     }
+    async deleteUserToken(user){
+        return await tokenModel.deleteMany({ user })
+    }
 }
 
 module.exports = new TokenService()

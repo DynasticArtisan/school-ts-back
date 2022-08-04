@@ -1,5 +1,5 @@
 const ApiError = require("../exceptions/ApiError");
-const LessonProgressDto2 = require("../dtos/LessonProgressDto");
+const LessonProgressDto = require("../dtos/LessonProgressDto");
 
 const lessonProgressModel = require("../models/ULProgressModel");
 const moduleProgressService = require("./moduleProgressService");
@@ -11,14 +11,15 @@ class LessonProgressService {
             throw ApiError.BadRequest("Урок уже доступен пользователю")
         }
         const Progress = await lessonProgressModel.create({ user, lesson, module, course });
-        return new LessonProgressDto2(Progress)
+        return new LessonProgressDto(Progress)
     }
+
     async updateProgress(progress, payload){
         const Progress = await lessonProgressModel.findOneAndUpdate(progress, payload, { new: true })
         if(!Progress){
             throw ApiError.BadRequest('Прогресс пользователя не найден')
         }
-        return new LessonProgressDto2(Progress)
+        return new LessonProgressDto(Progress)
     }
 
     async getProgress(lesson, user){
@@ -29,7 +30,7 @@ class LessonProgressService {
         if(!Progress){
             throw ApiError.BadRequest("Прогресс пользователя не найден")
         }
-        return new LessonProgressDto2(Progress)
+        return new LessonProgressDto(Progress)
     }
 
     async completeProgress({ user, lesson }){
@@ -49,12 +50,14 @@ class LessonProgressService {
         } catch (error) {
             
         } finally {
-            return new LessonProgressDto2(Progress)
+            return new LessonProgressDto(Progress)
         }
     }
 
 
-
+    async deleteUserProgresses(user){
+        await lessonProgressModel.deleteMany({ user })
+    }
 
 
 

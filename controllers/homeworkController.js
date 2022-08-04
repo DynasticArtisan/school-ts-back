@@ -7,45 +7,6 @@ const homeworkService = require("../services/homeworkService");
 const courseMastersService = require("../services/courseMastersService");
 
 class HomeworkController {
-    async createNewHomework(req, res, next){
-        try {
-            const { role, id: user } = req.user;
-            const { lesson } = req.body;
-            const file = req.file;
-            if(role === roles.user){
-                if(!file){
-                    throw ApiError.BadRequest("Ошибка в записи файла")
-                }
-                const Progress = await lessonProgressService.getProgress(lesson, user)
-                const Homework = await homeworkService.createHomework({ user, lesson, course: Progress.course }, { filename: file.originalname, filepath: 'homeworks/'+ file.filename });
-                res.json(Homework)
-            } else {
-                next(ApiError.Forbidden())
-            }
-        } catch (e) {
-            next(e)
-        }
-    }
-
-    async updateHomework(req, res, next){
-        try {
-            const { role, id: user} = req.user;
-            const { lesson } = req.body;
-            const file = req.file;
-            if(role === roles.user){
-                if(!file){
-                    throw ApiError.BadRequest("Ошибка в записи файла")
-                }
-                const Homework = await homeworkService.updateHomework({ lesson, user, status: statuses.failed }, { status: statuses.wait }, {filename: file.originalname, filepath: 'homeworks/'+ file.filename })
-                res.json(Homework)
-            } else {
-                next(ApiError.Forbidden())
-            }
-        } catch (e) {
-            next(e)
-        }
-    }
-
     async getHomework(req, res, next){
         try {
             const { id } = req.params;

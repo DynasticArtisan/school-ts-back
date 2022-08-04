@@ -11,7 +11,7 @@ class HomeworkService {
             throw ApiError.BadRequest("Домашнее задание уже было создано")
         }
         const Homework = await homeworkModel.create(payload);
-        const File = await homeworkFilesModel.create({...file, homework: Homework._id});
+        const File = await homeworkFilesModel.create({...file, homework: Homework._id, user: Homework.user});
         Homework.files = [File]
         return new HomeworkDto(Homework)
     }
@@ -58,6 +58,12 @@ class HomeworkService {
             throw ApiError.BadRequest("Домашнее задание не найдено")
         }
         return new HomeworkDto(Homework)
+    }
+
+    async deleteUserHomeworks(user){
+        await homeworkModel.deleteMany({ user })
+        await homeworkFilesModel.deleteMany({ user })
+        await homeworkVerifiesModel.deleteMany({ user })
     }
 
 }

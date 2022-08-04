@@ -74,16 +74,5 @@ class ModulesController {
             next(e)
         }
     }
-    
-
-    async dropAllModules(req,res,next){
-        try {
-            const data = await modulesService.dropAllModules()
-            res.json(data)
-        } catch (e) {
-            next(e)
-        }
-    }
-
 }
 module.exports = new ModulesController()

@@ -2,6 +2,7 @@ const CourseProgressDto = require("../dtos/CourseProgressDto");
 const ApiError = require("../exceptions/ApiError");
 
 const courseProgressModel = require("../models/UCProgressModel");
+const lessonProgressService = require("./lessonProgressService");
 const moduleProgressService = require("./moduleProgressService");
 const modulesService = require("./modulesService");
 
@@ -62,6 +63,9 @@ class CourseProgressService {
         return new CourseProgressDto(Progress)
     }
 
+    async deleteUserProgresses(user){
+        await courseProgressModel.deleteMany({ user })
+    }
 
 
 }

@@ -23,7 +23,22 @@ class LessonsController {
             next(e)
         }
     }
-    
+    async updateLesson(req, res, next){
+        try {
+            const {role} = req.user;
+            const { id } = req.params;
+            if(role === roles.super){
+                const Lesson = await lessonsService.updateLesson(id, req.body)
+                res.json(Lesson)
+            } else {
+                next(ApiError.Forbidden())
+            }
+        } catch (e) {
+            next(e)
+        }
+    }
+
+
     async getLesson(req, res, next){
         try {
             const {id} = req.params;
@@ -66,20 +81,7 @@ class LessonsController {
                 next(e)
             }
     }
-    async updateLesson(req, res, next){
-        try {
-            const {role} = req.user;
-            const { id } = req.params;
-            if(role === roles.super){
-                const Lesson = await lessonsService.updateLesson(id, req.body)
-                res.json(Lesson)
-            } else {
-                next(ApiError.Forbidden())
-            }
-        } catch (e) {
-            next(e)
-        }
-    }
+
 
     async createHomework(req, res, next){
         try {
@@ -100,7 +102,6 @@ class LessonsController {
             next(e)
         }
     }
-
     async updateHomework(req, res, next){
         try {
             const { id:lesson } = req.params;
@@ -119,8 +120,6 @@ class LessonsController {
             next(e)
         }
     }
-
-
     async completeLesson(req, res, next){
         try {
             const { id: lesson } = req.params;
@@ -150,15 +149,5 @@ class LessonsController {
             next(e)
         }
     }
-    async dropAllLessons(req,res,next){
-        try {
-            const data = await lessonsService.dropAllLessons()
-            res.json(data)
-        } catch (e) {
-            next(e)
-        }
-    }
-
-
 }
 module.exports = new LessonsController()

@@ -2,6 +2,7 @@ const ApiError = require("../exceptions/ApiError");
 const CourseMasterDto = require("../dtos/CourseMasterDto");
 const courseMastersModel = require("../models/courseMastersModel");
 
+
 class CourseMastersService {
     async createMaster({ user, course }){
         const PrevMaster = await courseMastersModel.findOne({ user, course })
@@ -12,8 +13,8 @@ class CourseMastersService {
         return new CourseMasterDto(Master)
 
     }
-    async updateMaster({ user, course }, payload){
-        const Master = await courseMastersModel.findOneAndUpdate({ course, user }, payload, { new: true })
+    async updateMaster(id, payload){
+        const Master = await courseMastersModel.findByIdAndUpdate(id, payload, { new: true })
         if(!Master){
             throw ApiError.BadRequest('Доступ к курсу не найден')
         }
@@ -26,5 +27,10 @@ class CourseMastersService {
         }
         return new CourseMasterDto(Master)
     }
+
+    async deleteUserMasterings(user){
+        await courseMastersModel.deleteMany({ user })
+    }
+
 }
 module.exports = new CourseMastersService()

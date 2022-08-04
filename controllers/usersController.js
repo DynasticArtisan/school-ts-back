@@ -4,6 +4,11 @@ const roles = require("../utils/roles");
 const userService = require("../services/userService")
 const coursesService = require("../services/coursesService");
 const courseProgressService = require("../services/courseProgressService");
+const tokenService = require("../services/tokenService");
+const homeworkService = require("../services/homeworkService");
+const courseMastersService = require("../services/courseMastersService");
+const moduleProgressService = require("../services/moduleProgressService");
+const lessonProgressService = require("../services/lessonProgressService");
 
 class UserController {
     async getUsers(req, res, next){
@@ -11,8 +16,6 @@ class UserController {
             const { role, id } = req.user;
             if(role === roles.super || role === roles.admin){
                 const Users = await userService.getUsers()
-                console.log(Users)
-                console.log(id)
                 res.json(Users.filter(user => user.id != id))
             } else {
                 next(ApiError.Forbidden())
@@ -44,14 +47,13 @@ class UserController {
     }
     async getStudent(req, res, next){
         try {
-            const { id } = req.params;
-            const { course } = req.query;
+            const { id, course } = req.params;
             const { role } = req.user;
             if(role === roles.super){
                 await courseProgressService.getProgress({ user: id, course })
                 const User = await userService.getUser(id)
                 const Courses = await coursesService.getUserCourses(id)
-                res.json({ ...User, courses: Courses })
+                res.json({ user: User, courses: Courses })
             } else {
                 next(ApiError.Forbidden())
             }
@@ -97,18 +99,23 @@ class UserController {
             next(e)
         }
     }
-
     async deleteUser(req, res, next){
         try {
             const { id } = req.params;
             const { role } = req.user;
             if(role === roles.super){
                 await userService.deleteUser(id)
-                // удалить прогресс
+                await tokenService.deleteUserToken(id)
+                await courseProgressService.deleteUserProgresses(id)
+                await moduleProgressService.deleteUserProgresses(id)
+                await lessonProgressService.deleteUserProgresses(id)
+                await courseMastersService.deleteUserMasterings(id)
+                await homeworkService.deleteUserHomeworks(id)
+                // удалить прогресс + 
                 // удалить уведомления
-                // удалить токены
-                // удалить домашние задания
-                // удалить файлы
+                // удалить токены +
+                // удалить домашние задания +
+                // удалить файлы +
                 res.json("Пользователь был удален");
             } else {
                 next(ApiError.Forbidden())
