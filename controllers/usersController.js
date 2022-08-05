@@ -7,8 +7,6 @@ const courseProgressService = require("../services/courseProgressService");
 const tokenService = require("../services/tokenService");
 const homeworkService = require("../services/homeworkService");
 const courseMastersService = require("../services/courseMastersService");
-const moduleProgressService = require("../services/moduleProgressService");
-const lessonProgressService = require("../services/lessonProgressService");
 
 class UserController {
     async getUsers(req, res, next){
@@ -50,7 +48,7 @@ class UserController {
             const { id, course } = req.params;
             const { role } = req.user;
             if(role === roles.super){
-                await courseProgressService.getProgress({ user: id, course })
+                await courseProgressService.getCourseProgress({ user: id, course })
                 const User = await userService.getUser(id)
                 const Courses = await coursesService.getUserCourses(id)
                 res.json({ user: User, courses: Courses })
@@ -106,9 +104,8 @@ class UserController {
             if(role === roles.super){
                 await userService.deleteUser(id)
                 await tokenService.deleteUserToken(id)
-                await courseProgressService.deleteUserProgresses(id)
-                await moduleProgressService.deleteUserProgresses(id)
-                await lessonProgressService.deleteUserProgresses(id)
+                await courseProgressService.deleteUserProgress(id)
+
                 await courseMastersService.deleteUserMasterings(id)
                 await homeworkService.deleteUserHomeworks(id)
                 // удалить прогресс + 

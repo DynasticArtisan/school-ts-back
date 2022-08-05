@@ -19,6 +19,9 @@ class ModuleDto {
       if(model.progress){
         this.progress = new ModuleProgressDto(model.progress)
       }
+      if(model.prevModule){
+        this.prevModule = model.prevModule
+      }
       this.first = model.firstModule
     }
   }

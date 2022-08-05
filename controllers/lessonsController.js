@@ -2,10 +2,10 @@ const ApiError = require("../exceptions/ApiError")
 const roles = require("../utils/roles")
 
 const lessonsService = require("../services/lessonsService")
-const lessonProgressService = require("../services/lessonProgressService")
 const modulesService = require("../services/modulesService")
 const homeworkService = require("../services/homeworkService")
 const courseMastersService = require("../services/courseMastersService")
+const courseProgressService = require("../services/courseProgressService")
 
 class LessonsController {
     async createLesson(req, res, next){
@@ -44,12 +44,21 @@ class LessonsController {
             const {id} = req.params;
             const {role, id: user} = req.user;
             if(role === roles.user){
-                const Progress = await lessonProgressService.getProgress(id, user)
                 const Lesson = await lessonsService.getLesson(id)
+                const CourseProgress = await courseProgressService.getCourseProgress({ user, course: Lesson.course })
+                if(!CourseProgress.isAvailable){
+                    next(ApiError.Forbidden())
+                }
+                const Progress = await courseProgressService.createLessonProgress({ user, lesson: id, module: Lesson.module, course: Lesson.course, prevLesson: Lesson.prev })
+                // УРОК ПРОХОДИТСЯ АВТОМАТИЧЕСКИ
+                await courseProgressService.completeLessonProgress({ user, lesson: id })
                 res.json({ ...Lesson, progress: Progress })         
             } else if(role === roles.teacher || role === roles.curator){
                 const Lesson = await lessonsService.getLesson(id)
                 const Master = await courseMastersService.getMaster({ user, course: Lesson.course })
+                if(!Master.isAvailable){
+                    next(ApiError.Forbidden())
+                }
                 res.json(Lesson)
             } else if(role === roles.super){
                 const Lesson = await lessonsService.getLesson(id)
@@ -92,7 +101,7 @@ class LessonsController {
                 if(!file){
                     throw ApiError.BadRequest("Ошибка в записи файла")
                 }
-                const Progress = await lessonProgressService.getProgress(lesson, user)
+                const Progress = await courseProgressService.getLessonProgress(lesson, user)
                 const Homework = await homeworkService.createHomework({ user, lesson, course: Progress.course }, { filename: file.originalname, filepath: 'homeworks/'+ file.filename });
                 res.json(Homework)
             } else {
@@ -125,7 +134,7 @@ class LessonsController {
             const { id: lesson } = req.params;
             const { role, id: user } = req.user;
             if(role === roles.user) {
-                const Progress = await lessonProgressService.completeProgress({ lesson, user })
+                const Progress = await courseProgressService.completeLessonProgress({ lesson, user })
                 res.json(Progress)
             } else {
                 next(ApiError.Forbidden())

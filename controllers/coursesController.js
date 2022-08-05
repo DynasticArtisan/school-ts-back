@@ -28,6 +28,7 @@ class CoursesController {
             next(e)
         }
     }
+
     async createCourseProgress(req, res, next){
         try {
             const { id: course } = req.params;
@@ -39,7 +40,7 @@ class CoursesController {
                     next(ApiError.BadRequest("Этот пользователь не может проходить курсы"))
                 }
                 await coursesService.getCourse(course)
-                const Progress = await courseProgressService.createProgress({ user, course, format })
+                const Progress = await courseProgressService.createCourseProgress({ user, course, format })
                 res.json(Progress)
             } else {
                 next(ApiError.Forbidden())
@@ -48,6 +49,7 @@ class CoursesController {
             next(e)
         }
     }
+
     async createCourseMaster(req, res, next){
         try {
             const { id: course } = req.params;
@@ -88,6 +90,7 @@ class CoursesController {
             next(e)
         }
     }
+
     async getHomeworkCourses(req, res, next){
         try {
             const { role, id: user } = req.user;
@@ -105,17 +108,16 @@ class CoursesController {
         }
     }
     
-
     async getCourseModules(req, res, next){
         try {
             const { id: course } = req.params;
             const { role, id:user } = req.user;
             if(role === roles.user){
-                const Progress = await courseProgressService.getProgress({ user, course })
+                const Progress = await courseProgressService.getCourseProgress({ user, course })
                 const Course = await coursesService.getCourseModulesProgress(course, user)
                 res.json({ ...Course, progress: Progress })
             } else if (role === roles.teacher || role === roles.curator){
-                const Master = await courseMastersService.getMaster({ user, course })
+                await courseMastersService.getMaster({ user, course })
                 const Course = await coursesService.getCourseModules(course);
                 res.json(Course)
             } else if(role === roles.super) {
@@ -128,18 +130,19 @@ class CoursesController {
             next(e)
         }
     }
+
     async getCourseStudents(req, res, next){
         try {
             const { id } = req.params;
             const { role, id: user } = req.user;
             if(role === roles.super){
                 const Course = await coursesService.getCourse(id)
-                const Students = await courseProgressService.getCourseProgresses(id)
+                const Students = await courseProgressService.getCourseStudents(id)
                 res.json({ ...Course, students: Students })
             } else if(role === roles.teacher){
                 await courseMastersService.getMaster({ user, course:id })
                 const Course = await coursesService.getCourse(id)
-                const Students = await courseProgressService.getCourseProgresses(id)
+                const Students = await courseProgressService.getCourseStudents(id)
                 res.json({ ...Course, students: Students.filter(progress => progress.isAvailable) })
             } else {
                 next(ApiError.Forbidden())
@@ -148,6 +151,7 @@ class CoursesController {
             next(e)
         }
     }
+
     async getCourseExercises(req, res, next){
         try {
             const { role, id:user } = req.user;
@@ -192,37 +196,14 @@ class CoursesController {
             next(e)
         }
     }
-    async updateCourseProgressAccess(req, res, next){
-        try {
-            const { id } = req.params;
-            const { role } = req.user;
-            const { isAvailable } = req.body;
-            if(role === roles.super){
-                if(progress){
-                    const Progress = await courseProgressService.updateProgress({ user, course}, progress)
-                    res.json({ progress: Progress })
-                }
-                else if(mastering){
-                    const Master = await courseMastersService.updateMaster({ user, course }, mastering)
-                    res.json({ mastering: Master })
-                } else {
-                    next(ApiError.BadRequest("Некоррекный запрос"))
-                }
-            
-            } else {
-                next(ApiError.Forbidden())
-            }
-        } catch (e) {
-            next(e)
-        }
-    }
+
     async updateProgressAccess(req, res, next){
         try {
             const { id } = req.params;
             const { role } = req.user;
             const { isAvailable } = req.body;
             if(role === roles.super){
-                const Progress = await courseProgressService.updateProgress(id, { isAvailable })
+                const Progress = await courseProgressService.updateCourseProgress(id, { isAvailable })
                 res.json(Progress)          
             } else {
                 next(ApiError.Forbidden())
@@ -231,6 +212,7 @@ class CoursesController {
             next(e)
         }
     }
+
     async updateMasterAccess(req, res, next){
         try {
             const { id } = req.params;
@@ -246,7 +228,6 @@ class CoursesController {
             next(e)
         }
     }
-
 
     async deleteCourse(req,res,next){
         try {

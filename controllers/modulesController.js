@@ -1,10 +1,10 @@
 const ApiError = require("../exceptions/ApiError");
 const lessonsService = require("../services/lessonsService");
-const moduleProgressService = require("../services/moduleProgressService")
 const modulesService = require("../services/modulesService")
 const coursesService = require("../services/coursesService")
 const roles = require("../utils/roles");
 const courseMastersService = require("../services/courseMastersService");
+const courseProgressService = require("../services/courseProgressService");
 
 class ModulesController {
     async createModule(req, res, next){
@@ -28,12 +28,19 @@ class ModulesController {
             const { id } = req.params;
             const { role, id: user } = req.user;
             if(role === roles.user){
-                const Progress = await moduleProgressService.getProgress({ user, module: id })
                 const Module = await modulesService.getModuleLessonsProgress(id, user)
+                const CourseProgress = await courseProgressService.getCourseProgress({ user, course: Module.course })
+                if(!CourseProgress.isAvailable){
+                    next(ApiError.Forbidden())
+                }
+                const Progress = await courseProgressService.createModuleProgress({ user, module: id, course: Module.course, prevModule: Module.prevModule })
                 res.json({ ...Module, progress: Progress })
             } else if(role === roles.teacher || role === roles.curator){
                 const Module = await modulesService.getModuleLessons(id)
                 const Master = await courseMastersService.getMaster({ user, course: Module.course})
+                if(!Master.isAvailable){
+                    next(ApiError.Forbidden())
+                }
                 res.json(Module)
             } else if(role === roles.super){
                 const Module = await modulesService.getModuleLessons(id)
