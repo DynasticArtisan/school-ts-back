@@ -1,6 +1,8 @@
 class CourseProgressDto {
     constructor(model){
         this.id = model._id
+        this.course = model.course
+        this.user = model.user
         this.format = model.format
         this.isAvailable = model.isAvailable
         this.isCompleted = model.isCompleted

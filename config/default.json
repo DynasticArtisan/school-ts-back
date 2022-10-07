@@ -12,5 +12,7 @@
   "smtpPort": 587,
   "smtpUser": "alexartgorka@gmail.com",
   "smtpPassword": "Artgorka7700",
-  "googlePass": "pidjyocmyenhbwhe"
+  "googlePass": "pidjyocmyenhbwhe",
+
+  "MailoKey": "ab9e45f8edb321165c444cb81b0cab00"
 }

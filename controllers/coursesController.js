@@ -8,6 +8,7 @@ const courseMastersService = require("../services/courseMastersService");
 const modulesService = require("../services/modulesService");
 const lessonsService = require("../services/lessonsService");
 const userService = require("../services/userService");
+const notifsService = require("../services/notifications/notifsService");
 
 class CoursesController {
     async createCourse(req, res, next){
@@ -203,7 +204,14 @@ class CoursesController {
             const { role } = req.user;
             const { isAvailable } = req.body;
             if(role === roles.super){
-                const Progress = await courseProgressService.updateCourseProgress(id, { isAvailable })
+                const Progress = await courseProgressService.updateCourseProgress(id, { isAvailable })        
+
+                const Course = await coursesService.getCourse(Progress.course)
+                if(isAvailable){
+                    await notifsService.createCourseUnlockNotif(Progress.user, Course)
+                } else {
+                    await notifsService.createCourseLockNotif(Progress.user, Course)
+                }
                 res.json(Progress)          
             } else {
                 next(ApiError.Forbidden())
