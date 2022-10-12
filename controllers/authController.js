@@ -3,6 +3,7 @@ const ApiError = require("../exceptions/ApiError");
 
 const userService = require("../services/userService");
 const tokenService = require("../services/tokenService");
+const notifsService = require("../services/notifications/notifsService");
 
 class AuthController {
     async refresh(req, res, next){
@@ -47,7 +48,8 @@ class AuthController {
     async activate(req, res, next){
         try {
             const { link } = req.params;
-            await userService.activate(link);
+            const User = await userService.activate(link);
+            await notifsService.createNewUserNotifs(User)
             return res.redirect(config.get("ClientURL"));
             // на страницу спасибо
         } catch (e) {

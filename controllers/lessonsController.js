@@ -101,7 +101,7 @@ class LessonsController {
                 if(!file){
                     throw ApiError.BadRequest("Ошибка в записи файла")
                 }
-                const Progress = await courseProgressService.getLessonProgress(lesson, user)
+                const Progress = await courseProgressService.getLessonProgress({ lesson, user })
                 const Homework = await homeworkService.createHomework({ user, lesson, course: Progress.course }, { filename: file.originalname, filepath: 'homeworks/'+ file.filename });
                 res.json(Homework)
             } else {

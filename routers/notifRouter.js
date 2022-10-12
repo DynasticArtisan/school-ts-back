@@ -19,6 +19,7 @@ notifRouter.delete('/template/:id', notifController.deleteTemplate)
 notifRouter.post('/hw-wait', notifController.createHWWaitNotif)
 notifRouter.post('/course-lock', notifController.createCourseLockNotif)
 notifRouter.post('/course-unlock', notifController.createCourseUnlockNotif)
+notifRouter.post('/new-user', notifController.createNewUserNotif)
 
 
 module.exports = notifRouter;

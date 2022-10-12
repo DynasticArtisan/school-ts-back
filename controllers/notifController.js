@@ -108,7 +108,7 @@ class NotifController {
             if(!Lesson){
                 throw ApiError.BadRequest('Урок не найден')
             }
-            const Notif = await notifsService.createHomeworkWaitNotif(user, Lesson)
+            const Notif = await notifsService.createHomeworkNotif(user, Lesson, 'wait')
             res.json(Notif)
         } catch (e) {
             next(e)
@@ -141,6 +141,15 @@ class NotifController {
         }
     }
 
+    async createNewUserNotif(req, res, next){
+        try {
+            const { id, name } = req.body
+            const Notifs = await notifsService.createNewUserNotifs({id, name})
+            res.json(Notifs)
+        } catch (e) {
+            next(e)
+        }
+    }
 
 
 }

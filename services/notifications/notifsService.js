@@ -16,7 +16,7 @@ class NotifService {
     }
     async getUserNotifs(user){
         const notifs = await notificationsModel.find({ user })
-        notificationsModel.updateMany({user, readed: false}, {readed: true})
+        await notificationsModel.updateMany({user, readed: false}, {readed: true})
         return notifs
     }
     async deleteNotif(id){
@@ -40,14 +40,14 @@ class NotifService {
         return await notificationsModel.create(users.map(user => ({ user, title, image, body })))
     }
 
-    // ДЗ на проверке
-    async createHomeworkWaitNotif(user, lesson){
-        const Template = await templatesModel.findOne({ type: "hw-wait" })
+    // домашние задания
+    async createHomeworkNotif(user, lesson, status){
+        const Template = await templatesModel.findOne({ type: `hw-${status}` })
         if(!Template){
             throw ApiError.BadRequest(`Шаблон уведомления не найден`);
         }
-        const { title, image, body } = Template
-        return await notificationsModel.create({ user, title, image, body: replacer(body, { lesson }) })
+        const { title, image, icon, body } = Template
+        return await notificationsModel.create({ user, title, image, icon, body: replacer(body, { lesson }) })
     }
 
     // Доступ к курсу
@@ -68,7 +68,14 @@ class NotifService {
         return await notificationsModel.create({ user, title, image, body: replacer(body, { course }) })
     }
 
-
+    async createNewUserNotifs(user){
+        const Templates = await templatesModel.find({ type: "new-user" })
+        if(!Templates.length){
+            throw ApiError.BadRequest(`Шаблон уведомления не найден`);
+        }
+        const notifs = Templates.map(({ title, image, icon, body }) => ({ user: user.id , title, image, icon, body: replacer(body, { user })}))
+        return await notificationsModel.create(notifs)
+    }
 
 
 
