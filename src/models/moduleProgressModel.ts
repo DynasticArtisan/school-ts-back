@@ -1,6 +1,6 @@
 import { model, ObjectId, Schema } from "mongoose";
 
-interface ModuleProgressDocument extends Document {
+export interface ModuleProgressDocument extends Document {
   user: ObjectId;
   module: ObjectId;
   course: ObjectId;
@@ -16,7 +16,7 @@ const ModuleProgressSchema = new Schema<ModuleProgressDocument>({
   isAvailable: { type: Boolean, default: true },
 });
 
-module.exports = model<ModuleProgressDocument>(
+export default model<ModuleProgressDocument>(
   "UsersModuleProgress",
   ModuleProgressSchema
 );

@@ -6,6 +6,8 @@ declare global {
       user: TokenUser;
       file: any;
       files: any;
+      course: any;
+      module: any;
     }
   }
 }

@@ -14,7 +14,7 @@ class NotifService {
   }
 
   async checkNewUserNotifs(user: ObjectId) {
-    return await notificationsModel.findOne({ user, readed: false }).count();
+    return await notificationsModel.find({ user, readed: false }).count();
   }
 
   async getUserNotifs(user: ObjectId) {

@@ -12,3 +12,5 @@ module.exports = class UserDto {
         this.registryAt = model.createdAt;
     }
 }
+
+

@@ -1,9 +1,14 @@
+import c from "config";
 import { ObjectId } from "mongoose";
 import ApiError from "src/exceptions/ApiError";
 import courseProgressModel, {
   CourseProgressFormat,
 } from "src/models/courseProgressModel";
+import lessonModel from "src/models/lessonModel";
+import moduleModel from "src/models/moduleModel";
+import moduleProgressModel from "src/models/moduleProgressModel";
 import userModel from "src/models/userModel";
+import courseConstructionService from "./courseConstructionService";
 import coursesService from "./coursesService";
 import notifsService from "./notifications/notifsService";
 
@@ -11,7 +16,6 @@ const CourseProgressDto = require("../dtos/CourseProgressDto");
 const ModuleProgressDto = require("../dtos/ModuleProgressDto");
 const LessonProgressDto = require("../dtos/LessonProgressDto");
 
-const moduleProgressModel = require("../models/moduleProgressModel");
 const lessonProgressModel = require("../models/lessonProgressModel");
 
 class CourseProgressService {
@@ -36,9 +40,9 @@ class CourseProgressService {
     });
     return new CourseProgressDto(Progress);
   }
-  async updateCourseProgressAccess(id: string, isAvailable: boolean) {
+  async updateCourseProgressAccess(progress: string, isAvailable: boolean) {
     const Progress = await courseProgressModel.findByIdAndUpdate(
-      id,
+      progress,
       { isAvailable },
       {
         new: true,
@@ -56,12 +60,104 @@ class CourseProgressService {
     return new CourseProgressDto(Progress);
   }
   async getCourseProgress(user: string, course: string) {
-    const Progress = await courseProgressModel.findOne({ user, course });
+    const Progress = await courseProgressModel.findOne({
+      user,
+      course,
+      isAvailable: true,
+    });
     if (!Progress) {
       throw ApiError.BadRequest("Прогресс пользователя не найден");
     }
     return new CourseProgressDto(Progress);
   }
+
+  async getModuleProgress(user: string, module: string) {
+    const PrevProgress = await moduleProgressModel.findOne({
+      user,
+      module,
+      isAvailable: true,
+    });
+    if (PrevProgress) {
+      // а есть ли доступ к курсу?
+      await this.getCourseProgress(user, PrevProgress.course);
+      return new ModuleProgressDto(PrevProgress);
+    }
+    const NewProgress = await this.createModuleProgress(user, module);
+    return NewProgress;
+  }
+  async createModuleProgress(user: string, module: string) {
+    const Module = await moduleModel.findById(module);
+    if (!Module) {
+      throw ApiError.BadRequest("Модуль не найден");
+    }
+    // а есть ли доступ к курсу?
+    await this.getCourseProgress(user, Module.course);
+    const PrevModule = await moduleModel.findOne({
+      course: Module.course,
+      index: Module.index - 1,
+    });
+    if (PrevModule) {
+      const PrevModuleCompleted = await moduleProgressModel.findOne({
+        user,
+        module: PrevModule._id,
+        isCompleted: true,
+      });
+      if (!PrevModuleCompleted) {
+        throw ApiError.Forbidden();
+      }
+    }
+    const Progress = await moduleProgressModel.create({
+      user,
+      module,
+      course: Module.course,
+    });
+    return new ModuleProgressDto(Progress);
+  }
+
+  async getLessonProgress(user: string, lesson: string) {
+    const PrevProgress = await lessonProgressModel.findOne({
+      user,
+      lesson,
+      isAvailable: true,
+    });
+    if (PrevProgress) {
+      // а есть ли доступ к курсу?
+      await this.getCourseProgress(user, PrevProgress.course);
+      return PrevProgress;
+    }
+    const NewProgress = await this.createLessonProgress(user, lesson);
+    return NewProgress;
+  }
+  async createLessonProgress(user: string, lesson: string) {
+    const Lesson = await lessonModel.findById(lesson);
+    if (!Lesson) {
+      throw ApiError.BadRequest("Урок не найден");
+    }
+    // а есть ли доступ к модулю?
+    await this.getModuleProgress(user, Lesson.module);
+    const PrevLesson = await lessonModel.findOne({
+      module: Lesson.module,
+      index: Lesson.index - 1,
+    });
+    if (PrevLesson) {
+      const PrevLessonCompleted = await lessonProgressModel.findOne({
+        user,
+        lesson: PrevLesson._id,
+        isCompleted: true,
+      });
+      if (!PrevLessonCompleted) {
+        throw ApiError.Forbidden();
+      }
+    }
+    const Progress = await lessonProgressModel.create({
+      user,
+      lesson,
+      module: Lesson.module,
+      course: Lesson.course,
+    });
+    return Progress;
+  }
+
   // ##################################################
 
   async updateCourseProgress(id, payload) {
@@ -89,77 +185,6 @@ class CourseProgressService {
       ])
       .lean();
     return Progresses.map((progress) => new CourseProgressDto(progress));
-  }
-
-  async createModuleProgress({ user, module, course, prevModule }) {
-    // ВОЗВРАЩАЕМ ПРОГРЕСС, ЕСЛИ ЕСТЬ
-    const PrevProgress = await moduleProgressModel.findOne({ user, module });
-    if (PrevProgress) {
-      return new ModuleProgressDto(PrevProgress);
-    }
-    // ПРОВЕРЯЕМ, ПРОЙДЕН ЛИ ПРЕДЫДЩИЙ МОДУЛЬ
-    if (prevModule) {
-      const PrevModelCompleted = await moduleProgressModel.findOne({
-        user,
-        module: prevModule,
-        isCompleted: true,
-      });
-      if (!PrevModelCompleted) {
-        throw ApiError.Forbidden();
-      }
-    }
-    // СОЗДАЕМ НОВЫЙ ПРОГРЕСС
-    const Progress = await moduleProgressModel.create({ user, module, course });
-    return new ModuleProgressDto(Progress);
-  }
-
-  async createLessonProgress({ user, lesson, module, course, prevLesson }) {
-    // ВОЗВРАЩАЕМ ПРОГРЕСС, ЕСЛИ ЕСТЬ
-    const PrevProgress = await lessonProgressModel.findOne({ user, lesson });
-    if (PrevProgress) {
-      return new LessonProgressDto(PrevProgress);
-    }
-    // ПРОВЕРЯЕМ, ПРОЙДЕН ЛИ ПРЕДЫДЩИЙ УРОК
-    if (prevLesson) {
-      const PrevLessonCompleted = await lessonProgressModel.findOne({
-        user,
-        lesson: prevLesson,
-        isCompleted: true,
-      });
-      if (!PrevLessonCompleted) {
-        throw ApiError.Forbidden();
-      }
-    }
-    // СОЗДАЕМ НОВЫЙ ПРОГРЕСС
-    const Progress = await lessonProgressModel.create({
-      user,
-      lesson,
-      module,
-      course,
-    });
-    return new LessonProgressDto(Progress);
-  }
-
-  async getModuleProgress({ user, module }) {
-    const Progress = await moduleProgressModel.findOne({ user, module });
-    if (!Progress) {
-      throw ApiError.BadRequest("Прогресс пользователя не найден");
-    }
-    return new ModuleProgressDto(Progress);
-  }
-
-  async getLessonProgress({ user, lesson }) {
-    const Progress = await lessonProgressModel
-      .findOne({ user, lesson })
-      .populate({
-        path: "homework",
-        populate: "files",
-      })
-      .lean();
-    if (!Progress) {
-      throw ApiError.BadRequest("Прогресс пользователя не найден");
-    }
-    return new LessonProgressDto(Progress);
   }
 
   async completeCourseProgress({ user, course }) {

@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { ObjectId } from "mongoose";
 import ApiError from "src/exceptions/ApiError";
+import courseConstructionService from "src/services/courseConstructionService";
+import coursesService from "src/services/coursesService";
 import homeworkService from "src/services/homeworkService";
 import { HomeworkStatus } from "src/utils/statuses";
 
@@ -15,83 +17,57 @@ const courseProgressService = require("../services/courseProgressService");
 class LessonsController {
   async createLesson(req: Request, res: Response, next: NextFunction) {
     try {
-      const { role } = req.user;
-      const lessonPayload = req.body;
-      if (role === roles.super) {
-        const Module = await modulesService.getModule(lessonPayload.module);
-        const Lesson = await lessonsService.createLesson({
-          ...lessonPayload,
-          course: Module.course,
-        });
-        res.json(Lesson);
-      } else {
-        next(ApiError.Forbidden());
-      }
+      const { module, title, description, content, withExercise, exercise } =
+        req.body;
+      const Lesson = await courseConstructionService.createLesson(
+        module,
+        title,
+        description,
+        content,
+        withExercise,
+        exercise
+      );
+      res.json(Lesson);
     } catch (e) {
       next(e);
     }
   }
   async updateLesson(req: Request, res: Response, next: NextFunction) {
     try {
-      const { role } = req.user;
       const { id } = req.params;
-      if (role === roles.super) {
-        const Lesson = await lessonsService.updateLesson(id, req.body);
-        res.json(Lesson);
-      } else {
-        next(ApiError.Forbidden());
-      }
+      const { title, description, content, withExercise, exercise } = req.body;
+      const Lesson = await courseConstructionService.updateLesson(
+        id,
+        title,
+        description,
+        content,
+        withExercise,
+        exercise
+      );
+      res.json(Lesson);
+    } catch (e) {
+      next(e);
+    }
+  }
+  async deleteLesson(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      await courseConstructionService.deleteLesson(id);
+      res.json({ message: "Запись об уроке удалена" });
+    } catch (e) {
+      next(e);
+    }
+  }
+  async getLesson(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { lesson } = req.params;
+      const Lesson = await coursesService.getLessonByRoles(lesson, req.user);
+      res.json(Lesson);
     } catch (e) {
       next(e);
     }
   }
 
-  async getLesson(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const { role, id: user } = req.user;
-      if (role === roles.user) {
-        const Lesson = await lessonsService.getLesson(id);
-        const CourseProgress = await courseProgressService.getCourseProgress({
-          user,
-          course: Lesson.course,
-        });
-        if (!CourseProgress.isAvailable) {
-          next(ApiError.Forbidden());
-        }
-        const Progress = await courseProgressService.createLessonProgress({
-          user,
-          lesson: id,
-          module: Lesson.module,
-          course: Lesson.course,
-          prevLesson: Lesson.prev,
-        });
-        // УРОК ПРОХОДИТСЯ АВТОМАТИЧЕСКИ
-        await courseProgressService.completeLessonProgress({
-          user,
-          lesson: id,
-        });
-        res.json({ ...Lesson, progress: Progress });
-      } else if (role === roles.teacher || role === roles.curator) {
-        const Lesson = await lessonsService.getLesson(id);
-        const Master = await courseMastersService.getMaster({
-          user,
-          course: Lesson.course,
-        });
-        if (!Master.isAvailable) {
-          next(ApiError.Forbidden());
-        }
-        res.json(Lesson);
-      } else if (role === roles.super) {
-        const Lesson = await lessonsService.getLesson(id);
-        res.json(Lesson);
-      } else {
-        next(ApiError.Forbidden());
-      }
-    } catch (e) {
-      next(e);
-    }
-  }
   async getLessonHomeworks(
     req: Request<{ id: ObjectId }>,
     res: Response,
@@ -200,21 +176,6 @@ class LessonsController {
         next(ApiError.Forbidden());
       }
     } catch (error) {}
-  }
-
-  async deleteLesson(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { role } = req.user;
-      const { id } = req.params;
-      if (role === roles.super) {
-        await lessonsService.deleteLesson(id);
-        res.json({ message: "Запись об уроке удалена" });
-      } else {
-        next(ApiError.Forbidden());
-      }
-    } catch (e) {
-      next(e);
-    }
   }
 }
 export default new LessonsController();

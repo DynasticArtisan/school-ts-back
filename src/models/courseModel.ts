@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { Document, model, ObjectId, PopulatedDoc, Schema } from "mongoose";
 import { CourseMasterDocument } from "./courseMasterModel";
 import { CourseProgressDocument } from "./courseProgressModel";
 import { LessonDocument } from "./lessonModel";
@@ -13,7 +13,8 @@ export interface CourseInput {
 }
 
 export interface CourseDocument extends Document, CourseInput {
-  modules?: ModuleDocument[];
+  // modules?: PopulatedDoc<Document<ObjectId> & ModuleDocument>;
+  _id: ObjectId;
   exercises?: LessonDocument[];
   progress?: CourseProgressDocument;
   students?: CourseProgressDocument[];

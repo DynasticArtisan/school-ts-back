@@ -2,15 +2,18 @@ import { model, ObjectId, Schema } from "mongoose";
 import { ModuleProgressDocument } from "./moduleProgressModel";
 
 export interface ModuleDocument extends Document {
+  _id: ObjectId;
+  index: number;
   title: string;
   description: string;
-  firstModule: boolean;
-  prevModule: ObjectId;
   course: ObjectId;
+  firstModule?: boolean;
+  prevModule?: ObjectId;
   progress?: ModuleProgressDocument;
 }
 
 const ModuleSchema = new Schema<ModuleDocument>({
+  index: { type: Number, required: true },
   title: { type: String },
   description: { type: String },
   course: { type: Schema.Types.ObjectId, rel: "Courses" },

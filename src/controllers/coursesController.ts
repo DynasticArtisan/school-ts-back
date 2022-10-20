@@ -28,17 +28,20 @@ class CoursesController {
   }
   async updateCourse(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const { course } = req.params;
       const { icon, image } = req.files;
       const { title, subtitle, description } = req.body;
-      const course: CourseInput = { title, subtitle, description };
+      const courseData: CourseInput = { title, subtitle, description };
       if (icon) {
-        course.icon = "images/" + icon[0].filename;
+        courseData.icon = "images/" + icon[0].filename;
       }
       if (image) {
-        course.image = "images/" + image[0].filename;
+        courseData.image = "images/" + image[0].filename;
       }
-      const Course = await courseConstructionService.updateCourse(id, course);
+      const Course = await courseConstructionService.updateCourse(
+        course,
+        courseData
+      );
       res.json(Course);
     } catch (e) {
       next(e);
@@ -46,8 +49,8 @@ class CoursesController {
   }
   async deleteCourse(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
-      await courseConstructionService.deleteCourse(id);
+      const { course } = req.params;
+      await courseConstructionService.deleteCourse(course);
       res.json({ message: "Курс удален" });
     } catch (e) {
       next(e);
@@ -56,7 +59,7 @@ class CoursesController {
 
   async createCourseProgress(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id: course } = req.params;
+      const { course } = req.params;
       const { user, format } = req.body;
       const Progress = await courseProgressService.createCourseProgress(
         user,
@@ -70,11 +73,12 @@ class CoursesController {
   }
   async updateProgressAccess(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const { progress } = req.params;
       const { isAvailable } = req.body;
-      const Progress = await courseProgressService.updateCourseProgress(id, {
-        isAvailable,
-      });
+      const Progress = await courseProgressService.updateCourseProgressAccess(
+        progress,
+        isAvailable
+      );
       res.json(Progress);
     } catch (e) {
       next(e);
@@ -83,7 +87,7 @@ class CoursesController {
 
   async createCourseMaster(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id: course } = req.params;
+      const { course } = req.params;
       const { user } = req.body;
       const Master = await courseMastersService.createMaster(user, course);
       res.json(Master);
@@ -93,10 +97,10 @@ class CoursesController {
   }
   async updateMasterAccess(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const { master } = req.params;
       const { isAvailable } = req.body;
       const Progress = await courseMastersService.updateMasterAccess(
-        id,
+        master,
         isAvailable
       );
       res.json(Progress);
@@ -124,8 +128,11 @@ class CoursesController {
 
   async getCourseModules(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
-      const Course = await coursesService.getCourseModulesByRoles(id, req.user);
+      const { course } = req.params;
+      const Course = await coursesService.getCourseModulesByRoles(
+        course,
+        req.user
+      );
       res.json(Course);
     } catch (e) {
       next(e);
@@ -134,9 +141,9 @@ class CoursesController {
 
   async getCourseStudents(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const { course } = req.params;
       const CourseStudents = await coursesService.getCourseStudentsByRoles(
-        id,
+        course,
         req.user
       );
       res.json(CourseStudents);
@@ -144,12 +151,11 @@ class CoursesController {
       next(e);
     }
   }
-
   async getCourseExercises(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const { course } = req.params;
       const CourseExercises = await coursesService.getCourseExerciseByRoles(
-        id,
+        course,
         req.user
       );
       res.json(CourseExercises);
