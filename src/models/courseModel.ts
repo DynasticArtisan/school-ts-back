@@ -1,8 +1,4 @@
-import { Document, model, ObjectId, PopulatedDoc, Schema } from "mongoose";
-import { CourseMasterDocument } from "./courseMasterModel";
-import { CourseProgressDocument } from "./courseProgressModel";
-import { LessonDocument } from "./lessonModel";
-import { ModuleDocument } from "./moduleModel";
+import { Document, model, ObjectId, Schema } from "mongoose";
 
 export interface CourseInput {
   title: string;
@@ -13,12 +9,7 @@ export interface CourseInput {
 }
 
 export interface CourseDocument extends Document, CourseInput {
-  // modules?: PopulatedDoc<Document<ObjectId> & ModuleDocument>;
   _id: ObjectId;
-  exercises?: LessonDocument[];
-  progress?: CourseProgressDocument;
-  students?: CourseProgressDocument[];
-  mastering?: CourseMasterDocument;
 }
 
 const CourseSchema = new Schema<CourseDocument>({
@@ -75,6 +66,7 @@ CourseSchema.virtual("totalCompleted", {
   },
   count: true,
 });
+
 CourseSchema.virtual("totalInProgress", {
   ref: "UsersCourseProgress",
   localField: "_id",

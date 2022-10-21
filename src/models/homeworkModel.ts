@@ -1,17 +1,15 @@
 import { Document, model, ObjectId, Schema } from "mongoose";
 import { HomeworkStatus } from "src/utils/statuses";
-import { IHomeworkFile } from "./homeworkFilesModel";
 
-export interface IHomework extends Document {
+export interface HomeworkDocument extends Document {
   user: ObjectId;
   lesson: ObjectId;
   course: ObjectId;
   status: HomeworkStatus;
   comment?: string;
-  files?: IHomeworkFile[];
 }
 
-const HomeworkSchema = new Schema<IHomework>(
+const HomeworkSchema = new Schema<HomeworkDocument>(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     lesson: { type: Schema.Types.ObjectId, ref: "Lessons", required: true },
@@ -34,4 +32,4 @@ HomeworkSchema.virtual("files", {
   localField: "_id",
 });
 
-export default model<IHomework>("Homeworks", HomeworkSchema);
+export default model<HomeworkDocument>("Homeworks", HomeworkSchema);

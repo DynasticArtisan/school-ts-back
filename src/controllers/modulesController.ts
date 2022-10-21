@@ -1,12 +1,16 @@
 import { NextFunction, Request, Response } from "express";
-import courseConstructionService from "src/services/courseConstructionService";
-import coursesService from "src/services/coursesService";
+import ApiError from "src/exceptions/ApiError";
+import courseService from "src/services/courseService";
+import courseDataService from "src/services/courseDataService";
 
 class ModulesController {
   async createModule(req: Request, res: Response, next: NextFunction) {
     try {
       const { course, title, description } = req.body;
-      const Module = await courseConstructionService.createModule(
+      if (!course || !title || !description) {
+        next(ApiError.BadRequest("Недостаточно данных"));
+      }
+      const Module = await courseService.createModule(
         course,
         title,
         description
@@ -19,10 +23,13 @@ class ModulesController {
 
   async updateModule(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const { module } = req.params;
       const { title, description } = req.body;
-      const Module = await courseConstructionService.updateModule(
-        id,
+      if (!title || !description) {
+        next(ApiError.BadRequest("Недостаточно данных"));
+      }
+      const Module = await courseService.updateModule(
+        module,
         title,
         description
       );
@@ -34,18 +41,18 @@ class ModulesController {
 
   async deleteModule(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
-      await courseConstructionService.deleteModule(id);
+      const { module } = req.params;
+      await courseService.deleteModule(module);
       res.json({ message: "Модуль успешно удален" });
     } catch (e) {
       next(e);
     }
   }
 
-  async getModule(req: Request, res: Response, next: NextFunction) {
+  async getModuleLessons(req: Request, res: Response, next: NextFunction) {
     try {
       const { module } = req.params;
-      const Module = await coursesService.getModuleLessonsByRoles(
+      const Module = await courseDataService.getModuleLessonsByRoles(
         module,
         req.user
       );

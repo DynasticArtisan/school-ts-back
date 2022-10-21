@@ -1,13 +1,12 @@
-import { ObjectId } from "mongoose";
 import tokenModel from "src/models/tokenModel";
+import { UserRole } from "src/models/userModel";
 
-const { Schema } = require("mongoose");
 const config = require("config");
 const jwt = require("jsonwebtoken");
 
 export interface TokenUser {
   id: string;
-  role: string;
+  role: UserRole;
   isActivated: boolean;
 }
 

@@ -1,17 +1,13 @@
 import { NextFunction, Request, Response } from "express";
-import { ObjectId } from "mongoose";
 import ApiError from "src/exceptions/ApiError";
-import courseConstructionService from "src/services/courseConstructionService";
-import coursesService from "src/services/coursesService";
+import courseService from "src/services/courseService";
+import courseDataService from "src/services/courseDataService";
 import homeworkService from "src/services/homeworkService";
 import { HomeworkStatus } from "src/utils/statuses";
+import { unlinkSync } from "fs";
 
 const roles = require("../utils/roles");
 
-const lessonsService = require("../services/lessonsService");
-const modulesService = require("../services/modulesService");
-
-const courseMastersService = require("../services/courseMastersService");
 const courseProgressService = require("../services/courseProgressService");
 
 class LessonsController {
@@ -19,7 +15,10 @@ class LessonsController {
     try {
       const { module, title, description, content, withExercise, exercise } =
         req.body;
-      const Lesson = await courseConstructionService.createLesson(
+      if (!module || !title || !description || !content) {
+        next(ApiError.BadRequest("Недостаточно данных"));
+      }
+      const Lesson = await courseService.createLesson(
         module,
         title,
         description,
@@ -36,7 +35,7 @@ class LessonsController {
     try {
       const { id } = req.params;
       const { title, description, content, withExercise, exercise } = req.body;
-      const Lesson = await courseConstructionService.updateLesson(
+      const Lesson = await courseService.updateLesson(
         id,
         title,
         description,
@@ -52,7 +51,7 @@ class LessonsController {
   async deleteLesson(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      await courseConstructionService.deleteLesson(id);
+      await courseService.deleteLesson(id);
       res.json({ message: "Запись об уроке удалена" });
     } catch (e) {
       next(e);
@@ -61,121 +60,48 @@ class LessonsController {
   async getLesson(req: Request, res: Response, next: NextFunction) {
     try {
       const { lesson } = req.params;
-      const Lesson = await coursesService.getLessonByRoles(lesson, req.user);
+      const Lesson = await courseDataService.getLessonByRoles(lesson, req.user);
       res.json(Lesson);
     } catch (e) {
       next(e);
     }
   }
 
-  async getLessonHomeworks(
-    req: Request<{ id: ObjectId }>,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      const { id } = req.params;
-      const { role, id: user } = req.user;
-      if (role === roles.super) {
-        const Lesson = await lessonsService.getLesson(id);
-        const Homeworks = await homeworkService.getLessonHomeworks(id);
-        res.json({ ...Lesson, homeworks: Homeworks });
-      } else if (role === roles.teacher || role === roles.curator) {
-        const Lesson = await lessonsService.getLesson(id);
-        await courseMastersService.getMaster({ user, course: Lesson.course });
-        const Homeworks = await homeworkService.getLessonHomeworks(id);
-        res.json({ ...Lesson, homeworks: Homeworks });
-      } else {
-        next(ApiError.Forbidden());
-      }
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async createHomework(
-    req: Request<{ id: ObjectId }>,
-    res: Response,
-    next: NextFunction
-  ) {
+  async createHomework(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.file) {
-        throw ApiError.BadRequest("Ошибка в записи файла");
+        next(ApiError.BadRequest("Ошибка в записи файла"));
       }
-      const { id: lesson } = req.params;
-      const { role, id: user } = req.user;
-      const { filename, filepath } = req.file;
-      if (role === roles.user) {
-        const { course } = await courseProgressService.getLessonProgress({
-          lesson,
-          user,
-        });
-        const Homework = await homeworkService.createHomework(
-          user,
-          lesson,
-          course
-        );
-        const File = await homeworkService.createFile(
-          Homework._id,
-          user,
-          filename,
-          filepath
-        );
-        res.json({ ...Homework, files: [File] });
-      } else {
-        next(ApiError.Forbidden());
-      }
+      const { lesson } = req.params;
+      const Homework = await homeworkService.createHomework(
+        lesson,
+        req.user.id,
+        req.file.filename,
+        req.file.filepath
+      );
+      res.json(Homework);
     } catch (e) {
+      unlinkSync(req.file.filepath);
       next(e);
     }
   }
-
-  async updateHomework(
-    req: Request<{ id: ObjectId }>,
-    res: Response,
-    next: NextFunction
-  ) {
+  async updateHomework(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.file) {
-        throw ApiError.BadRequest("Ошибка в записи файла");
+        next(ApiError.BadRequest("Ошибка в записи файла"));
       }
-      const { id } = req.params;
-      const { role, id: user } = req.user;
-      const { filename, filepath } = req.file;
-      if (role === roles.user) {
-        const Homework = await homeworkService.updateHomework(
-          id,
-          HomeworkStatus.wait
-        );
-        const File = await homeworkService.createFile(
-          id,
-          user,
-          filename,
-          filepath
-        );
-        res.json(File);
-      } else {
-        next(ApiError.Forbidden());
-      }
+      const { lesson } = req.params;
+      const Homework = await homeworkService.updateHomework(
+        lesson,
+        req.user.id,
+        req.file.filename,
+        req.file.filepath
+      );
+      res.json(Homework);
     } catch (e) {
+      unlinkSync(req.file.filepath);
       next(e);
     }
-  }
-
-  async completeLesson(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id: lesson } = req.params;
-      const { role, id: user } = req.user;
-      if (role === roles.user) {
-        const Progress = await courseProgressService.completeLessonProgress({
-          lesson,
-          user,
-        });
-        res.json(Progress);
-      } else {
-        next(ApiError.Forbidden());
-      }
-    } catch (error) {}
   }
 }
 export default new LessonsController();

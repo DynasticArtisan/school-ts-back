@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ObjectId } from "mongoose";
 import ApiError from "src/exceptions/ApiError";
 import { ITemplate } from "src/models/notifications/templatesModel";
-import coursesService from "src/services/coursesService";
+import courseDataService from "src/services/courseDataService";
 import lessonsService from "src/services/lessonsService";
 import notifsService from "src/services/notifications/notifsService";
 import templateService from "src/services/notifications/templateService";
@@ -155,7 +155,7 @@ class NotifController {
   async createCourseLockNotif(req: Request, res: Response, next: NextFunction) {
     try {
       const { user, course } = req.body;
-      const Course = await coursesService.getCourse(course);
+      const Course = await courseDataService.getCourse(course);
       if (!Course) {
         throw ApiError.BadRequest("Курс не найден");
       }
@@ -172,7 +172,7 @@ class NotifController {
   ) {
     try {
       const { user, course } = req.body;
-      const Course = await coursesService.getCourse(course);
+      const Course = await courseDataService.getCourse(course);
       if (!Course) {
         throw ApiError.BadRequest("Курс не найден");
       }

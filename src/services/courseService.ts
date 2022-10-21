@@ -6,7 +6,7 @@ import courseModel, { CourseInput } from "src/models/courseModel";
 import lessonModel, { LessonDocument } from "src/models/lessonModel";
 import moduleModel, { ModuleDocument } from "src/models/moduleModel";
 
-class CourseConstructionService {
+class courseService {
   async getCourse(course: string) {
     const Course = await courseModel.findById(course);
     if (!Course) {
@@ -152,4 +152,4 @@ class CourseConstructionService {
     await Lesson.delete();
   }
 }
-export default new CourseConstructionService();
+export default new courseService();

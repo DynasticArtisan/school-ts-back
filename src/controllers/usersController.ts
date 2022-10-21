@@ -4,7 +4,7 @@ const ApiError = require("../exceptions/ApiError");
 const roles = require("../utils/roles");
 
 const userService = require("../services/userService");
-const coursesService = require("../services/coursesService");
+const courseDataService = require("../services/courseDataService");
 const courseProgressService = require("../services/courseProgressService");
 const tokenService = require("../services/tokenService");
 const homeworkService = require("../services/homeworkService");
@@ -31,10 +31,10 @@ class UserController {
       if (role === roles.super || role === roles.admin) {
         const User = await userService.getUser(id);
         if (User.role === roles.user) {
-          const Courses = await coursesService.getUserCourses(id);
+          const Courses = await courseDataService.getUserCourses(id);
           res.json({ user: User, courses: Courses });
         } else if (User.role === roles.teacher || User.role === roles.curator) {
-          const Courses = await coursesService.getMasterCourses(id);
+          const Courses = await courseDataService.getCourseMasterCourses(id);
           res.json({ user: User, courses: Courses });
         }
         res.json({ user: User, courses: [] });
@@ -52,7 +52,7 @@ class UserController {
       if (role === roles.super) {
         await courseProgressService.getCourseProgress({ user: id, course });
         const User = await userService.getUser(id);
-        const Courses = await coursesService.getUserCourses(id);
+        const Courses = await courseDataService.getUserCourses(id);
         res.json({ user: User, courses: Courses });
       } else {
         next(ApiError.Forbidden());

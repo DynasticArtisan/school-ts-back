@@ -11,7 +11,7 @@ import { TokenUser } from "./tokenService";
 
 const CourseDto = require("../dtos/CourseDto");
 
-class CoursesService {
+class courseDataService {
   // ---------------------BY ROLES---------------------------------
   async getCoursesByRoles(user: TokenUser) {
     switch (user.role) {
@@ -69,11 +69,10 @@ class CoursesService {
         throw ApiError.Forbidden();
     }
   }
-
   async getCourseStudentsByRoles(course: string, user: TokenUser) {
     switch (user.role) {
       case UserRole.teacher:
-        await courseMastersService.getMaster(user.id, course);
+        await courseMastersService.getCourseMaster(user.id, course);
       case UserRole.teacher || UserRole.super:
         const Course = await this.getCourseStudents(course);
         return new CourseDto(Course);
@@ -84,7 +83,7 @@ class CoursesService {
   async getCourseExerciseByRoles(course: string, user: TokenUser) {
     switch (user.role) {
       case UserRole.teacher || UserRole.curator:
-        await courseMastersService.getMaster(user.id, course);
+        await courseMastersService.getCourseMaster(user.id, course);
       case UserRole.teacher || UserRole.curator || UserRole.super:
         const Course = await this.getCourseExercises(course);
         return new CourseDto(Course);
@@ -102,7 +101,10 @@ class CoursesService {
         const UserCourse = await this.getUserCourseModules(course, user.id);
         return { ...UserCourse, progress };
       case UserRole.teacher || UserRole.curator:
-        const Master = await courseMastersService.getMaster(user.id, course);
+        const Master = await courseMastersService.getCourseMaster(
+          user.id,
+          course
+        );
         const MasterCourse = await this.getCourseModules(course);
         return { ...MasterCourse, mastering: Master };
       case UserRole.super: {
@@ -124,7 +126,10 @@ class CoursesService {
         return { ...UserModule, progress };
       case UserRole.teacher || UserRole.curator:
         const MasterModule = await this.getModuleLessons(module);
-        await courseMastersService.getMaster(user.id, MasterModule.course);
+        await courseMastersService.getCourseMaster(
+          user.id,
+          MasterModule.course
+        );
         return new ModuleDto(MasterModule);
       case UserRole.super:
         const Module = await this.getModuleLessons(module);
@@ -144,10 +149,29 @@ class CoursesService {
         return { ...UserLesson, progress };
       case UserRole.super:
         const MasterLesson = await this.getLesson(lesson);
-        await courseMastersService.getMaster(user.id, MasterLesson.course);
+        await courseMastersService.getCourseMaster(
+          user.id,
+          MasterLesson.course
+        );
         return MasterLesson;
       case UserRole.teacher || UserRole.curator:
         const Lesson = await this.getLesson(lesson);
+        return Lesson;
+      default:
+        throw ApiError.Forbidden();
+    }
+  }
+  async getLessonHomeworksByRole(lesson: string, user: TokenUser) {
+    switch (user.role) {
+      case UserRole.teacher || UserRole.curator:
+        const MasterLesson = await this.getLessonHomeworks(lesson);
+        await courseMastersService.getCourseMaster(
+          user.id,
+          MasterLesson.course
+        );
+        return MasterLesson;
+      case UserRole.super:
+        const Lesson = await this.getLessonHomeworks(lesson);
         return Lesson;
       default:
         throw ApiError.Forbidden();
@@ -242,6 +266,14 @@ class CoursesService {
     const Course = await courseModel.findById(course).populate({
       path: "exercises",
     });
+    return Course;
+  }
+  async getLessonHomeworks(lesson: string) {
+    const Lesson = await lessonModel.findById(lesson).populate("homeworks");
+    if (!Lesson) {
+      throw ApiError.BadRequest("Урок не найден");
+    }
+    return Lesson;
   }
 
   // #####################################
@@ -257,7 +289,7 @@ class CoursesService {
     });
     return Courses.map((course) => new CourseDto(course));
   }
-  async getMasterCourses(user) {
+  async getCourseMasterCourses(user) {
     const Courses = await courseModel.find().populate({
       path: "mastering",
       match: { user },
@@ -278,4 +310,4 @@ class CoursesService {
   }
 }
 
-export default new CoursesService();
+export default new courseDataService();

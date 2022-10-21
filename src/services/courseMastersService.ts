@@ -6,7 +6,7 @@ const CourseMasterDto = require("../dtos/CourseMasterDto");
 const courseMasterModel = require("../models/courseMasterModel");
 
 class CourseMastersService {
-  async createMaster(user: string, course: string) {
+  async createCourseMaster(user: string, course: string) {
     const PrevMaster = await courseMasterModel.findOne({ user, course });
     if (PrevMaster) {
       throw new ApiError.BadRequest("Курс уже доступен пользователю");
@@ -28,7 +28,7 @@ class CourseMastersService {
     return new CourseMasterDto(Master);
   }
 
-  async updateMasterAccess(id: string, isAvailable: boolean) {
+  async updateCourseMasterAccess(id: string, isAvailable: boolean) {
     const Master = await courseMasterModel.findByIdAndUpdate(
       id,
       { isAvailable },
@@ -42,7 +42,7 @@ class CourseMastersService {
     return new CourseMasterDto(Master);
   }
 
-  async getMaster(user: string, course: string) {
+  async getCourseMaster(user: string, course: string) {
     const Master = await courseMasterModel.findOne({ user, course });
     if (!Master) {
       throw ApiError.BadRequest("Доступ к курсу не найден");

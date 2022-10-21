@@ -1,31 +1,18 @@
 import { model, ObjectId, Schema } from "mongoose";
-import { ModuleProgressDocument } from "./moduleProgressModel";
 
 export interface ModuleDocument extends Document {
   _id: ObjectId;
   index: number;
+  course: ObjectId;
   title: string;
   description: string;
-  course: ObjectId;
-  firstModule?: boolean;
-  prevModule?: ObjectId;
-  progress?: ModuleProgressDocument;
 }
 
 const ModuleSchema = new Schema<ModuleDocument>({
   index: { type: Number, required: true },
+  course: { type: Schema.Types.ObjectId, rel: "Courses" },
   title: { type: String },
   description: { type: String },
-  course: { type: Schema.Types.ObjectId, rel: "Courses" },
-  firstModule: { type: Boolean, default: false },
-  prevModule: { type: Schema.Types.ObjectId, rel: "Modules" },
-});
-
-ModuleSchema.virtual("nextModule", {
-  ref: "Modules",
-  localField: "_id",
-  foreignField: "prevModule",
-  justOne: true,
 });
 
 ModuleSchema.virtual("lessons", {
@@ -33,7 +20,6 @@ ModuleSchema.virtual("lessons", {
   localField: "_id",
   foreignField: "module",
 });
-
 ModuleSchema.virtual("progress", {
   ref: "UsersModuleProgress",
   localField: "_id",

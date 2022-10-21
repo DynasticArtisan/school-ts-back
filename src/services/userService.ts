@@ -11,8 +11,8 @@ class UserService {
     return Users.map((user) => new UserDto(user));
   }
 
-  async getUser(id: ObjectId) {
-    const User = await userModel.findById(id);
+  async getUser(user: string) {
+    const User = await userModel.findById(user);
     if (!User) {
       throw ApiError.BadRequest("Пользователь не найден");
     }

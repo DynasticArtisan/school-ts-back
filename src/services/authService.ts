@@ -64,7 +64,7 @@ class AuthService {
   }
 
   async login(email: string, password: string) {
-    const User = await userModel.findOne({ email });
+    const User = await userModel.findOne({ email, isActivated: true });
     if (!User) {
       throw ApiError.BadRequest("Пользователь не найден");
     }

@@ -1,69 +1,57 @@
 import express from "express";
 import coursesController from "src/controllers/coursesController";
-import CourseAccessMiddleware from "src/middlewares/courseAccessMiddleware";
-import OnlySuperMiddleware from "src/middlewares/onlySuperMiddleware";
+import CreateAccessMiddleware from "src/middlewares/createAccessMiddleware";
 import courseMulter from "src/multer/courseMulter";
+import { UserRole } from "src/models/userModel";
 
 const coursesRouter = express.Router();
 
 coursesRouter.post(
   "/",
-  OnlySuperMiddleware,
+  CreateAccessMiddleware([UserRole.super]),
   courseMulter,
   coursesController.createCourse
 );
 coursesRouter.put(
   "/:course",
-  OnlySuperMiddleware,
+  CreateAccessMiddleware([UserRole.super]),
   courseMulter,
   coursesController.updateCourse
 );
 coursesRouter.delete(
   "/:course",
-  OnlySuperMiddleware,
+  CreateAccessMiddleware([UserRole.super]),
   coursesController.deleteCourse
 );
 
-coursesRouter.post(
-  "/:course/progress",
-  OnlySuperMiddleware,
-  coursesController.createCourseProgress
-);
-coursesRouter.put(
-  "/:course/progress/:progress/access",
-  OnlySuperMiddleware,
-  coursesController.updateProgressAccess
-);
-
-coursesRouter.post(
-  "/:course/master",
-  OnlySuperMiddleware,
-  coursesController.createCourseMaster
-);
-coursesRouter.put(
-  "/:course/master/:master/access",
-  OnlySuperMiddleware,
-  coursesController.updateMasterAccess
-);
-
 coursesRouter.get(
-  "/:course/students",
-
-  coursesController.getCourseStudents
+  "/",
+  CreateAccessMiddleware([
+    UserRole.super,
+    UserRole.teacher,
+    UserRole.curator,
+    UserRole.user,
+  ]),
+  coursesController.getProgressCourses
 );
-coursesRouter.get(
-  "/:course/exercises",
-
-  coursesController.getCourseExercises
-);
-
 coursesRouter.get(
   "/:course/modules",
-
+  CreateAccessMiddleware([
+    UserRole.super,
+    UserRole.teacher,
+    UserRole.curator,
+    UserRole.user,
+  ]),
   coursesController.getCourseModules
 );
+coursesRouter.get(
+  "/:course/students",
+  CreateAccessMiddleware([UserRole.super, UserRole.teacher]),
+  coursesController.getCourseStudents
+);
 
-coursesRouter.get("/progress", coursesController.getProgressCourses);
+coursesRouter.get("/:course/exercises", coursesController.getCourseExercises);
+
 coursesRouter.get("/homework", coursesController.getHomeworkCourses);
 
 export default coursesRouter;
