@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import tokenService from "src/services/tokenService";
+import tokenService from "../services/token.service";
 
 export default async function AuthMiddleware(
   req: Request,
