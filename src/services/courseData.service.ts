@@ -8,13 +8,13 @@ import moduleModel from "../models/module.model";
 import { UserRole } from "../models/user.model";
 import courseMastersService from "./courseMasters.service";
 import courseProgressService from "./courseProgress.service";
-import { TokenUser } from "./token.service";
+import TokenDto from "../dtos/token.dto";
 
 const CourseDto = require("../dtos/CourseDto");
 
 class courseDataService {
   // ---------------------BY ROLES---------------------------------
-  async getCoursesByRoles(user: TokenUser) {
+  async getCoursesByRoles(user: TokenDto) {
     switch (user.role) {
       case UserRole.user:
         const UserCourses = await courseModel
@@ -49,7 +49,7 @@ class courseDataService {
         throw ApiError.Forbidden();
     }
   }
-  async getHomeworkCoursesByRoles(user: TokenUser) {
+  async getHomeworkCoursesByRoles(user: TokenDto) {
     switch (user.role) {
       case UserRole.teacher || UserRole.curator:
         const MasterCourses = await courseModel
@@ -72,7 +72,7 @@ class courseDataService {
         throw ApiError.Forbidden();
     }
   }
-  async getCourseStudentsByRoles(course: string, user: TokenUser) {
+  async getCourseStudentsByRoles(course: string, user: TokenDto) {
     switch (user.role) {
       case UserRole.teacher:
         await courseMastersService.getCourseMaster(user.id, course);
@@ -83,7 +83,7 @@ class courseDataService {
         throw ApiError.Forbidden();
     }
   }
-  async getCourseExerciseByRoles(course: string, user: TokenUser) {
+  async getCourseExerciseByRoles(course: string, user: TokenDto) {
     switch (user.role) {
       case UserRole.teacher || UserRole.curator:
         await courseMastersService.getCourseMaster(user.id, course);
@@ -94,7 +94,7 @@ class courseDataService {
         throw ApiError.Forbidden();
     }
   }
-  async getCourseModulesByRoles(course: string, user: TokenUser) {
+  async getCourseModulesByRoles(course: string, user: TokenDto) {
     switch (user.role) {
       case UserRole.user:
         const progress = await courseProgressService.getCourseProgress(
@@ -118,7 +118,7 @@ class courseDataService {
         throw ApiError.Forbidden();
     }
   }
-  async getModuleLessonsByRoles(module: string, user: TokenUser) {
+  async getModuleLessonsByRoles(module: string, user: TokenDto) {
     switch (user.role) {
       case UserRole.user:
         const progress = await courseProgressService.getModuleProgress(
@@ -141,7 +141,7 @@ class courseDataService {
         throw ApiError.Forbidden();
     }
   }
-  async getLessonByRoles(lesson: string, user: TokenUser) {
+  async getLessonByRoles(lesson: string, user: TokenDto) {
     switch (user.role) {
       case UserRole.user:
         const progress = await courseProgressService.getLessonProgress(
@@ -164,7 +164,7 @@ class courseDataService {
         throw ApiError.Forbidden();
     }
   }
-  async getLessonHomeworksByRole(lesson: string, user: TokenUser) {
+  async getLessonHomeworksByRole(lesson: string, user: TokenDto) {
     switch (user.role) {
       case UserRole.teacher || UserRole.curator:
         const MasterLesson = await this.getLessonHomeworks(lesson);

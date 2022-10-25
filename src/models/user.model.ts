@@ -1,5 +1,5 @@
 import { Document, model, Schema } from "mongoose";
-
+import bcrypt from "bcrypt";
 export enum UserRole {
   user = "user",
   super = "super",
@@ -7,6 +7,7 @@ export enum UserRole {
   curator = "curator",
   teacher = "teacher",
 }
+
 export interface UserSettings {
   birthday?: string;
   phone?: string;
@@ -16,17 +17,19 @@ export interface UserSettings {
   avatar?: number;
 }
 
-export interface UserInput {
+export interface UserDocument extends Document {
+  email: string;
   name: string;
   surname: string;
-  email: string;
   password: string;
-  activateLink: string;
-}
-export interface UserDocument extends UserInput, Document {
   isActivated: boolean;
   role: UserRole;
   settings?: UserSettings;
+  activateLink: string;
+  passwordResetCode: string;
+  createdAt: Date;
+  updatedAt: Date;
+  comparePassword(password: string): Promise<boolean>;
 }
 
 const UserSchema = new Schema<UserDocument>(
@@ -37,6 +40,7 @@ const UserSchema = new Schema<UserDocument>(
     password: { type: String, required: true },
     isActivated: { type: Boolean, default: false },
     activateLink: { type: String },
+    passwordResetCode: { type: String || null, default: null },
     role: { type: String, required: true, default: UserRole.user },
     settings: {
       birthday: { type: String },
@@ -51,4 +55,26 @@ const UserSchema = new Schema<UserDocument>(
     timestamps: true,
   }
 );
-export default model("User", UserSchema);
+
+UserSchema.pre("save", async function (next) {
+  let user = this as UserDocument;
+  if (!user.isModified("password")) {
+    return next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(user.password, salt);
+  user.password = hash;
+  console.log(user.password);
+  return next();
+});
+
+UserSchema.methods.comparePassword = async function (
+  password: string
+): Promise<boolean> {
+  const user = this as UserDocument;
+  return await bcrypt.compare(password, user.password).catch((e) => false);
+};
+
+const UserModel = model("User", UserSchema);
+
+export default UserModel;

@@ -9,19 +9,20 @@ const {
 const authRouter = express.Router();
 
 authRouter.get("/refresh", authController.refresh);
+
 authRouter.post(
   "/registration",
   validateRegistrationData,
   authController.registration
 );
+
 authRouter.post("/login", authController.login);
-authRouter.get("/activate/:link", authController.activate);
+authRouter.get("/activate/:user/:activatecode", authController.activate);
 authRouter.post("/logout", authController.logout);
 
 authRouter.post("/forgot-password", authController.forgotPassword);
-authRouter.get("/reset-password/:id/:token", authController.getResetToken);
 authRouter.post(
-  "/reset-password",
+  "/reset-password/:user/:passwordResetCode",
   validateResetPassword,
   authController.resetPassword
 );

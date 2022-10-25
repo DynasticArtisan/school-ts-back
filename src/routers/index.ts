@@ -8,7 +8,7 @@ import modulesRouter from "./modules.router";
 import lessonsRouter from "./lessons.router";
 import homeworkRouter from "./homework.router";
 import notifRouter from "./notification.router";
-import AuthMiddleware from "../middlewares/authMiddleware";
+import AuthMiddleware from "../middlewares/auth.middleware";
 
 const router = express.Router();
 

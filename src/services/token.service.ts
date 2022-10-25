@@ -1,17 +1,11 @@
 import { ObjectId } from "mongoose";
-import TokenDto from "../dtos/token.dto";
 import tokenModel from "../models/token.model";
-import { UserRole } from "../models/user.model";
 import config from "config";
 import jwt from "jsonwebtoken";
-
-export interface TokenUser extends jwt.JwtPayload {
-  id: string;
-  role: UserRole;
-}
+import TokenDto from "../dtos/token.dto";
 
 class TokenService {
-  async generateTokens(data: TokenUser) {
+  generateTokens(data: TokenDto) {
     const accessToken = jwt.sign(data, config.get("JwtAccessSecret"), {
       expiresIn: "15m",
     });
@@ -23,27 +17,28 @@ class TokenService {
       refreshToken,
     };
   }
-  async generateResetToken(data: TokenUser, password: any) {
-    const resetToken = jwt.sign(data, config.get("JwtResetSecret") + password, {
-      expiresIn: "10m",
-    });
-    return resetToken;
-  }
-  validateAccessToken(token: string): TokenUser | null {
+  validateAccessToken(token: string) {
     try {
       return jwt.verify(token, config.get("JwtAccessSecret"));
     } catch (e) {
       return null;
     }
   }
-  validateRefreshToken(token: string): TokenUser {
+  validateRefreshToken(token: string) {
     try {
       return jwt.verify(token, config.get("JwtRefreshSecret"));
     } catch (e) {
       return null;
     }
   }
-  async validateResetToken(token: string, password: string) {
+
+  generateResetToken(data: TokenDto, password: any): string {
+    const resetToken = jwt.sign(data, config.get("JwtResetSecret") + password, {
+      expiresIn: "10m",
+    });
+    return resetToken;
+  }
+  validateResetToken(token: string, password: string) {
     try {
       return jwt.verify(token, config.get("JwtResetSecret") + password);
     } catch (e) {
@@ -51,7 +46,7 @@ class TokenService {
     }
   }
 
-  async saveToken(user: ObjectId | string, refreshToken: string) {
+  async saveToken(user: string, refreshToken: string) {
     const Token = await tokenModel.findOneAndUpdate({ user }, { refreshToken });
     if (!Token) {
       return await tokenModel.create({ user, refreshToken });

@@ -1,6 +1,10 @@
-const config = require("config");
-const nodemailer = require("nodemailer");
-// const getRegistrationMail = require("../mails/registration");
+import ApiError from "../exceptions/ApiError";
+import MailTemplateModel, {
+  MailTemplateType,
+} from "../models/mailTemplates.model";
+import { UserDocument } from "../models/user.model";
+import nodemailer from "nodemailer";
+import config from "config";
 
 class MailService {
   transporter: any = null;
@@ -13,29 +17,55 @@ class MailService {
         user: config.get("smtpUser"),
         pass: config.get("smtpPass"),
       },
+      from: "Scholl Active",
     });
   }
 
-  async sendActivationMail(to: string, link: string, name: string) {
+  async sendActivationMail(to: string, activateLink: string) {
+    const Template = await MailTemplateModel.findOne({
+      type: MailTemplateType.activate,
+    });
+    if (!Template) {
+      throw ApiError.BadRequest("Шаблон не найден");
+    }
+    const { subject, html } = await Template.prepare({});
     await this.transporter.sendMail({
-      from: config.get("smtpUser"),
       to,
-      subject: `Активация аккаунта на ${config.get("APIURL")}`,
-      text: "",
-      // html: getRegistrationMail({ name, link }),
+      subject,
+      html: html.replace("#activate-link#", activateLink),
     });
   }
-  async sendResetPasswordLink(to: string, link: string) {
-    await this.transporter.sendMail({
-      from: config.get("smtpUser"),
-      to,
-      subject: `Восстановление пароля ${config.get("APIURL")}`,
-      text: "",
-      html: `<div>
-                <h1>Для восстановления пароля перейдите по ссылке</h1>
-                <a href="${link}">${link}</a>
-            </div>`,
+  async sendResetPasswordMail(to: string, user: UserDocument) {
+    const Template = await MailTemplateModel.findOne({
+      type: MailTemplateType.resetpassword,
     });
+    if (!Template) {
+      throw ApiError.BadRequest("Шаблон не найден");
+    }
+    const { subject, html } = Template.prepare({ user });
+    await this.transporter.sendMail({
+      to,
+      subject,
+      html,
+    });
+  }
+
+  async createTemplate(
+    type: MailTemplateType,
+    title: string,
+    subject: string,
+    html: string
+  ) {
+    const Template = await MailTemplateModel.create({
+      type,
+      title,
+      subject,
+      html,
+    });
+    return Template;
+  }
+  async getTemplates() {
+    return await MailTemplateModel.find();
   }
 }
 

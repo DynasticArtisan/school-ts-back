@@ -53,71 +53,47 @@ class NotifService {
     const Notifications = await notificationsModel.create(
       Templates.map((template) => ({
         user,
-        title: template.title,
-        icon: template.icon,
-        image: template.image,
-        body: template.replace({ user: UserDocument }),
+        ...template.prepare({ user: UserDocument }),
       }))
     );
     return Notifications;
   }
 
-  async createHomeworkRejectNotif(
-    user: ObjectId | String,
-    lesson: LessonDocument
-  ) {
+  async createHomeworkRejectNotif(user: string, lesson: LessonDocument) {
     const Template = await notifTemplateService.getSpecialTemplate(
       NotifTemplateTypes.homeworkReject
     );
     return await notificationsModel.create({
       user,
-      title: Template.title,
-      image: Template.image,
-      icon: Template.icon,
-      body: Template.replace({ lesson }),
+      ...Template.prepare({ lesson }),
     });
   }
-  async createHomeworkAcceptNotif(
-    user: ObjectId | String,
-    lesson: LessonDocument
-  ) {
+  async createHomeworkAcceptNotif(user: string, lesson: LessonDocument) {
     const Template = await notifTemplateService.getSpecialTemplate(
       NotifTemplateTypes.homeworkAccept
     );
     return await notificationsModel.create({
       user,
-      title: Template.title,
-      image: Template.image,
-      icon: Template.icon,
-      body: Template.replace({ lesson }),
+      ...Template.prepare({ lesson }),
     });
   }
 
-  async createCourseLockNotif(user: ObjectId | string, course: CourseDocument) {
+  async createCourseLockNotif(user: string, course: CourseDocument) {
     const Template = await notifTemplateService.getSpecialTemplate(
       NotifTemplateTypes.courseLock
     );
     return await notificationsModel.create({
       user,
-      title: Template.title,
-      image: Template.image,
-      icon: Template.icon,
-      body: Template.replace({ course }),
+      ...Template.prepare({ course }),
     });
   }
-  async createCourseUnlockNotif(
-    user: ObjectId | String,
-    course: CourseDocument
-  ) {
+  async createCourseUnlockNotif(user: string, course: CourseDocument) {
     const Template = await notifTemplateService.getSpecialTemplate(
       NotifTemplateTypes.courseLock
     );
     return await notificationsModel.create({
       user,
-      title: Template.title,
-      image: Template.image,
-      icon: Template.icon,
-      body: Template.replace({ course }),
+      ...Template.prepare({ course }),
     });
   }
 

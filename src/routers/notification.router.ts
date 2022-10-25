@@ -1,6 +1,6 @@
 import express from "express";
 import notifController from "../controllers/notification.controller";
-import AuthMiddleware from "../middlewares/authMiddleware";
+import AuthMiddleware from "../middlewares/auth.middleware";
 
 const notifRouter = express.Router();
 

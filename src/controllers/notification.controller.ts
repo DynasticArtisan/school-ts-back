@@ -5,13 +5,12 @@ import notifTemplateService from "../services/notifTemplate.service.ts";
 class NotifController {
   async createTemplate(req: Request, res: Response, next: NextFunction) {
     try {
-      const { type, title, image, icon, body } = req.body;
+      const { title, image, icon, body } = req.body;
       const Template = await notifTemplateService.createTemplate({
         title,
         image,
         icon,
         body,
-        type,
       });
       res.json(Template);
     } catch (e) {
@@ -33,7 +32,6 @@ class NotifController {
       const { id } = req.params;
       const { type, title, image, icon, body } = req.body;
       const Template = await notifTemplateService.updateTemplate(id, {
-        type,
         title,
         image,
         icon,

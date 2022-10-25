@@ -7,6 +7,7 @@ import { connect } from "mongoose";
 
 import errorMiddleware from "./middlewares/errorMiddleware";
 import router from "./routers";
+import devrouter from "./routers/dev.router";
 
 const PORT = config.get("serverPORT");
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ credentials: true, origin: config.get("ClientURL") }));
 app.use("/api", router);
+app.use("/dev", devrouter);
 app.use(errorMiddleware);
 
 // app.use("/images", express.static(path.join(__dirname, "filestore/images")));

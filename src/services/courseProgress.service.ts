@@ -86,9 +86,15 @@ class CourseProgressService {
     }
     const Course = await courseService.getCourse(Progress.course);
     if (isAvailable) {
-      await notificationService.createCourseUnlockNotif(Progress.user, Course);
+      await notificationService.createCourseUnlockNotif(
+        String(Progress.user),
+        Course
+      );
     } else {
-      await notificationService.createCourseLockNotif(Progress.user, Course);
+      await notificationService.createCourseLockNotif(
+        String(Progress.user),
+        Course
+      );
     }
     return new CourseProgressDto(Progress);
   }

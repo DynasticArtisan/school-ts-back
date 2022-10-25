@@ -1,9 +1,7 @@
 import { ObjectId } from "mongoose";
+import UserDto from "../dtos/user.dto";
 import ApiError from "../exceptions/ApiError";
 import userModel, { UserDocument, UserRole } from "../models/user.model";
-
-const UserDto = require("../dtos/userDto");
-const bcrypt = require("bcrypt");
 
 class UserService {
   async getUsers() {
@@ -31,8 +29,7 @@ class UserService {
     }
     return User;
   }
-
-  async setUserRole(user: ObjectId | string, role: UserRole) {
+  async setUserRole(user: string, role: UserRole) {
     const User = await userModel.findByIdAndUpdate(
       user,
       { role },
@@ -43,39 +40,24 @@ class UserService {
     }
     return new UserDto(User);
   }
-
-  async updateUser(id: ObjectId | string, payload: UserDocument) {
+  async updateUser(id: string, payload: UserDocument) {
     const User = await userModel.findByIdAndUpdate(id, payload, { new: true });
     if (!User) {
       throw ApiError.BadRequest("Пользователь не найден");
     }
     return new UserDto(User);
   }
-
-  async replacePassword(id: ObjectId, password: string, newPassword: string) {
+  async updatePassword(id: string, password: string, newPassword: string) {
     const User = await userModel.findById(id);
     if (!User) {
       throw ApiError.BadRequest("Пользователь не найден");
     }
-    const isPassEquals = await bcrypt.compare(password, User.password);
-    if (!isPassEquals) {
+    if (!User.comparePassword(password)) {
       throw ApiError.BadRequest("Неверный пароль");
     }
-    const hashPassword = await bcrypt.hash(newPassword, 3);
-    User.password = hashPassword;
+    User.password = newPassword;
     await User.save();
     return new UserDto(User);
-  }
-
-  async updatePassword(id: ObjectId, password: string) {
-    const hashPassword = await bcrypt.hash(password, 3);
-    const User = await userModel.findByIdAndUpdate(id, {
-      password: hashPassword,
-    });
-    if (!User) {
-      throw ApiError.BadRequest("Пользователь не найден");
-    }
-    return User;
   }
 }
 

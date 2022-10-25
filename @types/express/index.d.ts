@@ -1,10 +1,10 @@
 import { CourseImageFiles, FileField } from "src/multer/types";
-import { TokenUser } from "src/services/tokenService";
+import TokenDto from "../../src/dtos/token.dto";
 
 declare global {
   namespace Express {
     interface Request {
-      user: TokenUser;
+      user: TokenDto;
       // file: Express.Multer.File;
       // files: {
       //   image: Express.Multer.File[];

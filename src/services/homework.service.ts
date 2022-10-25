@@ -1,13 +1,13 @@
+import TokenDto from "../dtos/token.dto";
 import ApiError from "../exceptions/ApiError";
 import homeworkModel, { HomeworkStatus } from "../models/homework.model";
 import homeworkVerifyModel from "../models/homeworkVerify.model";
 import { UserRole } from "../models/user.model";
 import courseMastersService from "./courseMasters.service";
 import courseProgressService from "./courseProgress.service";
-import { TokenUser } from "./token.service";
 
 class HomeworkService {
-  async getHomeworkByRoles(homework: string, user: TokenUser) {
+  async getHomeworkByRoles(homework: string, user: TokenDto) {
     switch (user.role) {
       case UserRole.teacher || UserRole.curator:
         const MasterHomework = await this.getHomework(homework);
@@ -23,7 +23,7 @@ class HomeworkService {
         throw ApiError.Forbidden();
     }
   }
-  async acceptHomeworkByRoles(homework: string, user: TokenUser) {
+  async acceptHomeworkByRoles(homework: string, user: TokenDto) {
     switch (user.role) {
       case UserRole.teacher || UserRole.curator:
         await this.verifyHomework(homework, user.id);
@@ -36,7 +36,7 @@ class HomeworkService {
         throw ApiError.Forbidden();
     }
   }
-  async rejectHomeworkByRoles(homework: string, user: TokenUser) {
+  async rejectHomeworkByRoles(homework: string, user: TokenDto) {
     switch (user.role) {
       case UserRole.teacher || UserRole.curator:
         await this.verifyHomework(homework, user.id);

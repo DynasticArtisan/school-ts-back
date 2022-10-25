@@ -2,14 +2,26 @@ import { ObjectId } from "mongoose";
 import ApiError from "../exceptions/ApiError";
 import templatesModel, {
   NotifTemplateTypes,
-  TemplateInput,
 } from "../models/notifTemplates.model";
 
 class TemplateService {
-  async createTemplate(payload: TemplateInput) {
+  async createTemplate(payload: {
+    title: string;
+    icon?: string;
+    image?: string;
+    body: string;
+  }) {
     return await templatesModel.create(payload);
   }
-  async updateTemplate(id: ObjectId | string, payload: TemplateInput) {
+  async updateTemplate(
+    id: ObjectId | string,
+    payload: {
+      title: string;
+      icon?: string;
+      image?: string;
+      body: string;
+    }
+  ) {
     return await templatesModel.findByIdAndUpdate(id, payload, {
       new: true,
     });
@@ -23,7 +35,6 @@ class TemplateService {
   async getCustomTemplates() {
     return await templatesModel.find({ type: "custom" });
   }
-
   async getTemplate(id: ObjectId | string) {
     const Template = await templatesModel.findById(id);
     if (!Template) {

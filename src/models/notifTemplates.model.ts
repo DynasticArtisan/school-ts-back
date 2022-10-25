@@ -12,31 +12,27 @@ export enum NotifTemplateTypes {
   homeworkAccept = "homework-accept",
 }
 
-interface ReplaceData {
+interface PopulateDocuments {
   user?: UserDocument;
   course?: CourseDocument;
   lesson?: LessonDocument;
 }
 
-export interface TemplateInput {
+export interface TemplateDocument extends Document {
   type: NotifTemplateTypes;
   title: string;
   image?: string;
   icon?: string;
   body: string;
+  prepare(object: PopulateDocuments): {
+    title: string;
+    image?: string;
+    icon?: string;
+    body: string;
+  };
 }
 
-interface TemplateMethods {
-  replace(data: ReplaceData): string;
-}
-
-type TemplateModel = Model<TemplateInput, {}, TemplateMethods>;
-
-const TemplateSchema = new Schema<
-  TemplateInput,
-  TemplateModel,
-  TemplateMethods
->({
+const TemplateSchema = new Schema<TemplateDocument>({
   type: { type: String, required: true, default: NotifTemplateTypes.custom },
   title: { type: String, required: true },
   image: { type: String },
@@ -44,21 +40,32 @@ const TemplateSchema = new Schema<
   body: { type: String, required: true },
 });
 
-TemplateSchema.method("replace", function replace(data: ReplaceData) {
-  const body: string = this.body;
-  if (data.user) {
-    body.replace("#user-name#", data.user.name);
+TemplateSchema.methods.prepare = function ({
+  user,
+  course,
+  lesson,
+}: PopulateDocuments): {
+  title: string;
+  image?: string;
+  icon?: string;
+  body: string;
+} {
+  const { title, image, icon, body } = this as TemplateDocument;
+  if (user) {
+    body.replace("#user-name#", user.name);
   }
-  if (data.course) {
-    body.replace("#course-title#", data.course.title);
+  if (course) {
+    body.replace("#course-title#", course.title);
   }
-  if (data.lesson) {
-    body.replace("#lesson-title#", data.lesson.title);
+  if (lesson) {
+    body.replace("#lesson-title#", lesson.title);
   }
-  return body;
-});
+  return {
+    title,
+    image,
+    icon,
+    body,
+  };
+};
 
-export default model<TemplateInput, TemplateModel>(
-  "NotifTemplates",
-  TemplateSchema
-);
+export default model<TemplateDocument>("NotifTemplates", TemplateSchema);
