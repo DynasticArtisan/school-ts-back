@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import TokenDto from "../dtos/token.dto";
+import ApiError from "../exceptions/ApiError";
 import tokenService from "../services/token.service";
 
 export default async function AuthMiddleware(
@@ -13,16 +13,16 @@ export default async function AuthMiddleware(
       ""
     );
     if (!accessToken) {
-      return res.status(403).json("Пользователь не авторизован");
+      return next(ApiError.Forbidden());
     }
     const userData = tokenService.validateAccessToken(accessToken);
     if (!userData) {
-      return res.status(401).json("Невалидный токен");
+      return next(ApiError.UnauthorizedError());
     }
     // @ts-ignore
     req.user = userData;
     next();
   } catch (e) {
-    return res.status(403).json("Пользователь не авторизован");
+    return next(ApiError.Forbidden());
   }
 }

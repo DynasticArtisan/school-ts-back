@@ -6,10 +6,10 @@ export default class UserDto {
   lastname: string;
   email: string;
   role: UserRole;
-  constructor(model: UserDocument) {
+  constructor(model: any) {
     this.id = model._id;
     this.name = model.name;
-    this.lastname = model.surname;
+    this.lastname = model.lastname;
     this.email = model.email;
     this.role = model.role;
   }

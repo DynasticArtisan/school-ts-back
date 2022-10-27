@@ -26,9 +26,9 @@ usersRouter.delete(
   usersController.deleteUser
 );
 
+usersRouter.put("/me", usersController.updateProfile);
 // ##########################################################
 
-// usersRouter.put("/me", usersController.updateProfile);
 // usersRouter.put("/me/password", usersController.updatePassword);
 
 export default usersRouter;

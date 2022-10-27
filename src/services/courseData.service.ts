@@ -246,7 +246,7 @@ class courseDataService {
   async getCourseStudents(course: string) {
     const Course = await courseModel
       .findById(course)
-      .populate({
+      .populate<{ students: CourseProgressDocument }>({
         path: "students",
         populate: [
           {

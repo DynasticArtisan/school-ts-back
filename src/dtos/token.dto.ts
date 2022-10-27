@@ -4,7 +4,7 @@ export default class TokenDto {
   id: string;
   role: UserRole;
   constructor(model: UserDocument) {
-    this.id = model._id;
+    this.id = String(model._id);
     this.role = model.role;
   }
 }

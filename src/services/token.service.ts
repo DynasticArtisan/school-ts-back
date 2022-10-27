@@ -1,15 +1,14 @@
-import { ObjectId } from "mongoose";
 import tokenModel from "../models/token.model";
 import config from "config";
-import jwt from "jsonwebtoken";
+import jwt, { sign } from "jsonwebtoken";
 import TokenDto from "../dtos/token.dto";
 
 class TokenService {
-  generateTokens(data: TokenDto) {
-    const accessToken = jwt.sign(data, config.get("JwtAccessSecret"), {
+  async generateTokens(data: TokenDto) {
+    const accessToken = sign({ ...data }, config.get("JwtAccessSecret"), {
       expiresIn: "15m",
     });
-    const refreshToken = jwt.sign(data, config.get("JwtRefreshSecret"), {
+    const refreshToken = sign({ ...data }, config.get("JwtRefreshSecret"), {
       expiresIn: "15d",
     });
     return {

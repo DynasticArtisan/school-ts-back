@@ -2,6 +2,7 @@ import { ObjectId } from "mongoose";
 import UserDto from "../dtos/user.dto";
 import ApiError from "../exceptions/ApiError";
 import userModel, { UserDocument, UserRole } from "../models/user.model";
+import UserinfoModel, { UserinfoInput } from "../models/userinfo.model";
 
 class UserService {
   async getUsers() {
@@ -40,12 +41,21 @@ class UserService {
     }
     return new UserDto(User);
   }
-  async updateUser(id: string, payload: UserDocument) {
+  async updateUser(id: string, payload: { name: string; lastname: string }) {
     const User = await userModel.findByIdAndUpdate(id, payload, { new: true });
     if (!User) {
       throw ApiError.BadRequest("Пользователь не найден");
     }
     return new UserDto(User);
+  }
+  async updateUserinfo(user: string, payload: UserinfoInput) {
+    const Userinfo = await UserinfoModel.findOneAndUpdate({ user }, payload, {
+      new: true,
+    });
+    if (Userinfo) {
+      return Userinfo;
+    }
+    return await UserinfoModel.create({ user, ...payload });
   }
   async updatePassword(id: string, password: string, newPassword: string) {
     const User = await userModel.findById(id);

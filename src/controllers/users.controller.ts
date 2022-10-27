@@ -44,20 +44,20 @@ class UserController {
     }
   }
 
-  // async updateProfile(req: Request, res: Response, next: NextFunction) {
-  //   try {
-  //     const { id } = req.user;
-  //     const { name, surname, ...settings } = req.body;
-  //     const User = await userService.updateUser(id, {
-  //       name,
-  //       surname,
-  //       settings,
-  //     });
-  //     res.json(User);
-  //   } catch (e) {
-  //     next(e);
-  //   }
-  // }
+  async updateProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.user;
+      const { name, lastname, ...info } = req.body;
+      const User = await userService.updateUser(id, {
+        name,
+        lastname,
+      });
+      const userinfo = await userService.updateUserinfo(id, info);
+      res.json({ ...User, userinfo });
+    } catch (e) {
+      next(e);
+    }
+  }
   // async updatePassword(req: Request, res: Response, next: NextFunction) {
   //   try {
   //     const { id } = req.user;

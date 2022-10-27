@@ -35,18 +35,18 @@ class MailService {
       html: html.replace("#activate-link#", activateLink),
     });
   }
-  async sendResetPasswordMail(to: string, user: UserDocument) {
+  async sendResetPasswordMail(to: string, passwordResetLink: string) {
     const Template = await MailTemplateModel.findOne({
       type: MailTemplateType.resetpassword,
     });
     if (!Template) {
       throw ApiError.BadRequest("Шаблон не найден");
     }
-    const { subject, html } = Template.prepare({ user });
+    const { subject, html } = await Template.prepare({});
     await this.transporter.sendMail({
       to,
       subject,
-      html,
+      html: html.replace("#reset-link#", passwordResetLink),
     });
   }
 

@@ -6,7 +6,8 @@ import notificationService from "./notification.service";
 import tokenService from "./token.service";
 import TokenDto from "../dtos/token.dto";
 import config from "config";
-const uuid = require("uuid");
+import { v4 } from "uuid";
+import { UserinfoDocument } from "../models/userinfo.model";
 
 class AuthService {
   async registration(
@@ -21,28 +22,28 @@ class AuthService {
         `Пользователь с почтовым адресом ${email} уже существует`
       );
     }
-    const activateLink = uuid.v4();
     const User = await userModel.create({
-      activateLink,
+      activationCode: v4(),
       name,
       surname,
       email,
       password,
     });
+    const activationLink = `${config.get("ClientURL")}/activation/${User._id}/${
+      User.activationCode
+    }`;
     try {
-      await mailService.sendActivationMail(
-        email,
-        `${config.get("APIURL")}/api/auth/activate/${User._id}/${activateLink}`
-      );
+      await mailService.sendActivationMail(email, activationLink);
     } catch (e) {
-      console.log(e);
+      return "Не удалось отправить письмо для активации аккаунта";
     }
-    return new UserDto(User);
+    return `На почтовый адресс ${email} отправлено письмо, для потверждения регистрации`;
   }
-  async activate(activateLink: string) {
+
+  async activate(user: string, activationCode: string) {
     const User = await userModel.findOneAndUpdate(
-      { activateLink },
-      { activateLink: null, isActivated: true }
+      { _id: user, activationCode },
+      { activationCode: null, isActivated: true }
     );
     if (!User) {
       throw ApiError.BadRequest("Некорректная ссылка для активации");
@@ -52,11 +53,13 @@ class AuthService {
     } catch (e) {
       console.log(e);
     }
-    return new UserDto(User);
+    return true;
   }
 
   async login(email: string, password: string) {
-    const User = await userModel.findOne({ email });
+    const User = await userModel
+      .findOne({ email })
+      .populate<{ userinfo: UserinfoDocument }>("userinfo");
     if (!User) {
       throw ApiError.BadRequest("Пользователь не найден");
     }
@@ -66,8 +69,8 @@ class AuthService {
     if (!User.comparePassword(password)) {
       throw ApiError.BadRequest("Неверный пароль");
     }
-    const tokens = tokenService.generateTokens(new TokenDto(User));
-    await tokenService.saveToken(User.id, tokens.refreshToken);
+    const tokens = await tokenService.generateTokens(new TokenDto(User));
+    await tokenService.saveToken(User._id, tokens.refreshToken);
     return { ...tokens, user: new UserDto(User) };
   }
 
@@ -76,18 +79,21 @@ class AuthService {
       throw ApiError.BadRequest("Невалидный токен");
     }
     const tokenData = tokenService.validateRefreshToken(refreshToken);
-    const session = await tokenService.findToken(refreshToken);
     if (!tokenData) {
       throw ApiError.BadRequest("Невалидный токен");
     }
+    const session = await tokenService.findToken(refreshToken);
     if (!session) {
       throw ApiError.BadRequest("Токен перезаписан");
     }
-    const User = await userModel.findById(session.user);
+    const User = await userModel
+      .findById(session.user)
+      .populate<{ userinfo: UserinfoDocument }>("userinfo")
+      .lean();
     if (!User) {
       throw ApiError.BadRequest("Пользователь не найден");
     }
-    const tokens = tokenService.generateTokens(new TokenDto(User));
+    const tokens = await tokenService.generateTokens(new TokenDto(User));
     await tokenService.saveToken(User.id, tokens.refreshToken);
     return { ...tokens, user: new UserDto(User) };
   }
@@ -102,9 +108,17 @@ class AuthService {
     if (!User.isActivated) {
       return "Требуется подтверждение почтового адреса";
     }
-    User.passwordResetCode = uuid.v4();
+    User.passwordResetCode = v4();
     await User.save();
-    console.log(User.passwordResetCode);
+    const passwordResetLink = `${config.get("ClientURL")}/resetpassword/${
+      User._id
+    }/${User.passwordResetCode}`;
+    try {
+      await mailService.sendResetPasswordMail(email, passwordResetLink);
+    } catch (e) {
+      console.log(e);
+      throw ApiError.BadRequest("Не удалось отпрваить письмо");
+    }
     return message;
   }
 
@@ -113,13 +127,13 @@ class AuthService {
     passwordResetCode: string,
     password: string
   ) {
-    const User = await userModel.findOneAndUpdate(
-      { _id: user, passwordResetCode },
-      { password }
-    );
+    const User = await userModel.findOne({ _id: user, passwordResetCode });
     if (!User) {
       throw ApiError.Forbidden();
     }
+    User.password = password;
+    User.passwordResetCode = null;
+    await User.save();
     return "Пароль успешно изменен";
   }
 }

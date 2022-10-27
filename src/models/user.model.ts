@@ -7,16 +7,6 @@ export enum UserRole {
   curator = "curator",
   teacher = "teacher",
 }
-
-export interface UserSettings {
-  birthday?: string;
-  phone?: string;
-  city?: string;
-  gender?: string;
-  status?: string;
-  avatar?: number;
-}
-
 export interface UserDocument extends Document {
   email: string;
   name: string;
@@ -24,9 +14,8 @@ export interface UserDocument extends Document {
   password: string;
   isActivated: boolean;
   role: UserRole;
-  settings?: UserSettings;
-  activateLink: string;
-  passwordResetCode: string;
+  activationCode: string | null;
+  passwordResetCode: string | null;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(password: string): Promise<boolean>;
@@ -39,17 +28,9 @@ const UserSchema = new Schema<UserDocument>(
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
     isActivated: { type: Boolean, default: false },
-    activateLink: { type: String },
+    activationCode: { type: String || null, default: null },
     passwordResetCode: { type: String || null, default: null },
     role: { type: String, required: true, default: UserRole.user },
-    settings: {
-      birthday: { type: String },
-      phone: { type: String },
-      city: { type: String },
-      gender: { type: String },
-      status: { type: String },
-      avatar: { type: Number, min: 1, max: 12 },
-    },
   },
   {
     timestamps: true,
@@ -64,7 +45,6 @@ UserSchema.pre("save", async function (next) {
   const salt = await bcrypt.genSalt(10);
   const hash = await bcrypt.hash(user.password, salt);
   user.password = hash;
-  console.log(user.password);
   return next();
 });
 
@@ -74,6 +54,13 @@ UserSchema.methods.comparePassword = async function (
   const user = this as UserDocument;
   return await bcrypt.compare(password, user.password).catch((e) => false);
 };
+
+UserSchema.virtual("userinfo", {
+  ref: "Userinfo",
+  localField: "_id",
+  foreignField: "user",
+  justOne: true,
+});
 
 const UserModel = model("User", UserSchema);
 
