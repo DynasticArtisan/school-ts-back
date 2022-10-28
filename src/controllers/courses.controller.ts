@@ -60,7 +60,7 @@ class CoursesController {
     }
   }
 
-  async getProgressCourses(req: Request, res: Response, next: NextFunction) {
+  async getCourses(req: Request, res: Response, next: NextFunction) {
     try {
       const Courses = await courseDataService.getCoursesByRoles(req.user);
       res.json(Courses);
@@ -68,7 +68,24 @@ class CoursesController {
       next(e);
     }
   }
-  async getCourseModules(req: Request, res: Response, next: NextFunction) {
+  async createModule(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { course } = req.params;
+      const { title, description } = req.body;
+      if (!course || !title || !description) {
+        next(ApiError.BadRequest("Недостаточно данных"));
+      }
+      const Module = await courseService.createModule(
+        course,
+        title,
+        description
+      );
+      res.json(Module);
+    } catch (e) {
+      next(e);
+    }
+  }
+  async getModules(req: Request, res: Response, next: NextFunction) {
     try {
       const { course } = req.params;
       const Course = await courseDataService.getCourseModulesByRoles(
@@ -80,7 +97,8 @@ class CoursesController {
       next(e);
     }
   }
-  async getCourseStudents(req: Request, res: Response, next: NextFunction) {
+
+  async getStudents(req: Request, res: Response, next: NextFunction) {
     try {
       const { course } = req.params;
       const CourseStudents = await courseDataService.getCourseStudentsByRoles(

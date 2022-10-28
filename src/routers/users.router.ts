@@ -11,9 +11,9 @@ usersRouter.get(
   usersController.getUsers
 );
 usersRouter.get(
-  "/:user",
+  "/:user/profile",
   CreateAccessMiddleware([UserRole.super, UserRole.admin]),
-  usersController.getUser
+  usersController.getUserProfile
 );
 usersRouter.put(
   "/:user/role",
@@ -27,8 +27,6 @@ usersRouter.delete(
 );
 
 usersRouter.put("/me", usersController.updateProfile);
-// ##########################################################
-
-// usersRouter.put("/me/password", usersController.updatePassword);
+usersRouter.put("/me/password", usersController.updatePassword);
 
 export default usersRouter;

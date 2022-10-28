@@ -3,7 +3,7 @@ import ApiError from "../exceptions/ApiError";
 import { CourseMasterDocument } from "../models/courseMaster.model";
 import courseModel from "../models/course.model";
 import { CourseProgressDocument } from "../models/courseProgress.model";
-import lessonModel from "../models/lesson.model";
+import lessonModel, { LessonDocument } from "../models/lesson.model";
 import moduleModel from "../models/module.model";
 import { UserRole } from "../models/user.model";
 import courseMastersService from "./courseMasters.service";
@@ -76,13 +76,22 @@ class courseDataService {
     switch (user.role) {
       case UserRole.teacher:
         await courseMastersService.getCourseMaster(user.id, course);
-      case UserRole.teacher || UserRole.super:
-        const Course = await this.getCourseStudents(course);
-        return new CourseDto(Course);
       default:
-        throw ApiError.Forbidden();
+        const Course = await this.getCourseStudents(course);
+        return Course;
     }
   }
+  // async getStudentByRole(student: string, user: TokenDto){
+  //   switch (user.role) {
+  //     case UserRole.teacher:
+  //       const MasterStudent = await
+
+  //     case UserRole.teacher || UserRole.super:
+  //       const Student = await
+  //     default:
+  //       throw ApiError.Forbidden();
+  //   }
+  // }
   async getCourseExerciseByRoles(course: string, user: TokenDto) {
     switch (user.role) {
       case UserRole.teacher || UserRole.curator:
@@ -133,10 +142,10 @@ class courseDataService {
           user.id,
           MasterModule.course
         );
-        return new ModuleDto(MasterModule);
+        return MasterModule;
       case UserRole.super:
         const Module = await this.getModuleLessons(module);
-        return new ModuleDto(Module);
+        return Module;
       default:
         throw ApiError.Forbidden();
     }
@@ -150,14 +159,14 @@ class courseDataService {
         );
         const UserLesson = await this.getUserLesson(lesson, user.id);
         return { ...UserLesson, progress };
-      case UserRole.super:
+      case UserRole.teacher || UserRole.curator:
         const MasterLesson = await this.getLesson(lesson);
         await courseMastersService.getCourseMaster(
           user.id,
           MasterLesson.course
         );
         return MasterLesson;
-      case UserRole.teacher || UserRole.curator:
+      case UserRole.super:
         const Lesson = await this.getLesson(lesson);
         return Lesson;
       default:
@@ -182,6 +191,18 @@ class courseDataService {
   }
 
   // ------------------------------------------------------------
+
+  async getUserCourses(user: string) {
+    const Courses = await courseModel.find().populate<{
+      progress: CourseProgressDocument;
+      lastLesson: LessonDocument;
+    }>({
+      path: "progress",
+      match: { user },
+      populate: "lastLesson",
+    });
+    return Courses.map((course) => new CourseDto(course));
+  }
 
   async getCourseModules(course: string) {
     const Course = await courseModel
@@ -263,7 +284,7 @@ class courseDataService {
     if (!Course) {
       throw ApiError.BadRequest("Курс не найден");
     }
-    return new CourseDto(Course);
+    return Course;
   }
   async getCourseExercises(course: string) {
     const Course = await courseModel.findById(course).populate({

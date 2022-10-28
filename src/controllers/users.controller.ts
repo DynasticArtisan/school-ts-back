@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions/ApiError";
 import { UserRole } from "../models/user.model";
+import courseDataService from "../services/courseData.service";
 import userService from "../services/user.service";
 
 class UserController {
@@ -12,11 +13,12 @@ class UserController {
       next(e);
     }
   }
-  async getUser(req: Request, res: Response, next: NextFunction) {
+  async getUserProfile(req: Request, res: Response, next: NextFunction) {
     try {
       const { user } = req.params;
       const UserProfile = await userService.getUserProfile(user);
-      res.json(UserProfile);
+      const UserCourses = await courseDataService.getUserCourses(user);
+      res.json({ user: UserProfile, courses: UserCourses });
     } catch (e) {
       next(e);
     }
@@ -44,6 +46,8 @@ class UserController {
     }
   }
 
+  // to other router
+
   async updateProfile(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.user;
@@ -58,15 +62,15 @@ class UserController {
       next(e);
     }
   }
-  // async updatePassword(req: Request, res: Response, next: NextFunction) {
-  //   try {
-  //     const { id } = req.user;
-  //     const { password, newPassword } = req.body;
-  //     const User = userService.replacePassword(id, password, newPassword);
-  //     res.json(User);
-  //   } catch (e) {
-  //     next(e);
-  //   }
-  // }
+  async updatePassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.user;
+      const { password, newPassword } = req.body;
+      await userService.updatePassword(id, password, newPassword);
+      res.send();
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 export default new UserController();

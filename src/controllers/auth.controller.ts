@@ -5,10 +5,10 @@ import tokenService from "../services/token.service";
 class AuthController {
   async registration(req: Request, res: Response, next: NextFunction) {
     try {
-      const { name, surname, email, password } = req.body;
+      const { name, lastname, email, password } = req.body;
       const message = await authService.registration(
         name,
-        surname,
+        lastname,
         email,
         password
       );

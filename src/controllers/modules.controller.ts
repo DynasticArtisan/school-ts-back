@@ -49,7 +49,27 @@ class ModulesController {
     }
   }
 
-  async getModuleLessons(req: Request, res: Response, next: NextFunction) {
+  async createLesson(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { module } = req.params;
+      const { title, description, content, withExercise, exercise } = req.body;
+      if (!module || !title || !description || !content) {
+        next(ApiError.BadRequest("Недостаточно данных"));
+      }
+      const Lesson = await courseService.createLesson(
+        module,
+        title,
+        description,
+        content,
+        withExercise,
+        exercise
+      );
+      res.json(Lesson);
+    } catch (e) {
+      next(e);
+    }
+  }
+  async getLessons(req: Request, res: Response, next: NextFunction) {
     try {
       const { module } = req.params;
       const Module = await courseDataService.getModuleLessonsByRoles(

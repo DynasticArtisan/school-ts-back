@@ -22,6 +22,7 @@ class MailService {
   }
 
   async sendActivationMail(to: string, activateLink: string) {
+    console.log(activateLink);
     const Template = await MailTemplateModel.findOne({
       type: MailTemplateType.activate,
     });

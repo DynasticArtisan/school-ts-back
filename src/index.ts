@@ -19,7 +19,10 @@ app.use("/api", router);
 app.use("/dev", devrouter);
 app.use(errorMiddleware);
 
-// app.use("/images", express.static(path.join(__dirname, "filestore/images")));
+app.use(
+  "/images",
+  express.static(path.join(__dirname, "..", "filestore/images"))
+);
 // app.use(
 //   "/homeworks",
 //   express.static(path.join(__dirname, "filestore/homeworks/"))

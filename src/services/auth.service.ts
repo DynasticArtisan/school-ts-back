@@ -12,7 +12,7 @@ import { UserinfoDocument } from "../models/userinfo.model";
 class AuthService {
   async registration(
     name: string,
-    surname: string,
+    lastname: string,
     email: string,
     password: string
   ) {
@@ -25,7 +25,7 @@ class AuthService {
     const User = await userModel.create({
       activationCode: v4(),
       name,
-      surname,
+      lastname,
       email,
       password,
     });
@@ -66,11 +66,15 @@ class AuthService {
     if (!User.isActivated) {
       throw ApiError.BadRequest("Необходимо подтверждение почтового адреса");
     }
-    if (!User.comparePassword(password)) {
+    if (!(await User.comparePassword(password))) {
       throw ApiError.BadRequest("Неверный пароль");
     }
-    const tokens = await tokenService.generateTokens(new TokenDto(User));
+    const tokens = await tokenService.generateTokens({
+      id: User._id,
+      role: User.role,
+    });
     await tokenService.saveToken(User._id, tokens.refreshToken);
+
     return { ...tokens, user: new UserDto(User) };
   }
 
@@ -93,8 +97,11 @@ class AuthService {
     if (!User) {
       throw ApiError.BadRequest("Пользователь не найден");
     }
-    const tokens = await tokenService.generateTokens(new TokenDto(User));
-    await tokenService.saveToken(User.id, tokens.refreshToken);
+    const tokens = await tokenService.generateTokens({
+      id: User._id,
+      role: User.role,
+    });
+    await tokenService.saveToken(User._id, tokens.refreshToken);
     return { ...tokens, user: new UserDto(User) };
   }
 

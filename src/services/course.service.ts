@@ -14,12 +14,10 @@ class courseService {
     }
     return Course;
   }
-
   async createCourse(courseData: CourseInput) {
     const Course = await courseModel.create(courseData);
     return Course;
   }
-
   async updateCourse(id: ObjectId | string, courseData: CourseInput) {
     const Course = await courseModel.findByIdAndUpdate(id, courseData, {
       new: true,
@@ -29,7 +27,6 @@ class courseService {
     }
     return Course;
   }
-
   async deleteCourse(id: ObjectId | string) {
     const Course = await courseModel.findByIdAndDelete(id);
     if (!Course) {
@@ -47,7 +44,6 @@ class courseService {
     }
     return new ModuleDto(Module);
   }
-
   async createModule(
     course: ObjectId | string,
     title: string,
@@ -71,7 +67,6 @@ class courseService {
     }
     return new ModuleDto(Module);
   }
-
   async updateModule(
     id: ObjectId | string,
     title: string,
@@ -87,7 +82,6 @@ class courseService {
     }
     return Module;
   }
-
   async deleteModule(id: ObjectId | string) {
     const Module = await moduleModel.findById(id);
     if (!Module) {

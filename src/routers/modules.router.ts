@@ -20,6 +20,8 @@ modulesRouter.delete(
   modulesController.deleteModule
 );
 
-modulesRouter.get("/:module/lessons", modulesController.getModuleLessons);
+modulesRouter.post("/:module/lessons", modulesController.createLesson);
+
+modulesRouter.get("/:module/lessons", modulesController.getLessons);
 
 export default modulesRouter;

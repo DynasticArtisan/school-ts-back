@@ -5,6 +5,31 @@ import { UserRole } from "../models/user.model";
 import courseMulter from "../multer/courseMulter";
 
 const coursesRouter = express.Router();
+coursesRouter.get(
+  "/",
+  CreateAccessMiddleware([
+    UserRole.super,
+    UserRole.teacher,
+    UserRole.curator,
+    UserRole.user,
+  ]),
+  coursesController.getCourses
+);
+coursesRouter.get(
+  "/:course/modules",
+  CreateAccessMiddleware([
+    UserRole.super,
+    UserRole.teacher,
+    UserRole.curator,
+    UserRole.user,
+  ]),
+  coursesController.getModules
+);
+coursesRouter.get(
+  "/:course/students",
+  CreateAccessMiddleware([UserRole.super, UserRole.teacher]),
+  coursesController.getStudents
+);
 
 coursesRouter.post(
   "/",
@@ -22,32 +47,6 @@ coursesRouter.delete(
   "/:course",
   CreateAccessMiddleware([UserRole.super]),
   coursesController.deleteCourse
-);
-
-coursesRouter.get(
-  "/",
-  CreateAccessMiddleware([
-    UserRole.super,
-    UserRole.teacher,
-    UserRole.curator,
-    UserRole.user,
-  ]),
-  coursesController.getProgressCourses
-);
-coursesRouter.get(
-  "/:course/modules",
-  CreateAccessMiddleware([
-    UserRole.super,
-    UserRole.teacher,
-    UserRole.curator,
-    UserRole.user,
-  ]),
-  coursesController.getCourseModules
-);
-coursesRouter.get(
-  "/:course/students",
-  CreateAccessMiddleware([UserRole.super, UserRole.teacher]),
-  coursesController.getCourseStudents
 );
 
 export default coursesRouter;

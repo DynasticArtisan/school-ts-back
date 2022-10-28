@@ -10,7 +10,7 @@ export enum UserRole {
 export interface UserDocument extends Document {
   email: string;
   name: string;
-  surname: string;
+  lastname: string;
   password: string;
   isActivated: boolean;
   role: UserRole;
@@ -24,7 +24,7 @@ export interface UserDocument extends Document {
 const UserSchema = new Schema<UserDocument>(
   {
     name: { type: String, required: true },
-    surname: { type: String, required: true },
+    lastname: { type: String, required: true },
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
     isActivated: { type: Boolean, default: false },

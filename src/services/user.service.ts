@@ -1,35 +1,33 @@
-import { ObjectId } from "mongoose";
-import UserDto from "../dtos/user.dto";
+import UserDto, { UserinfoDto } from "../dtos/user.dto";
 import ApiError from "../exceptions/ApiError";
-import userModel, { UserDocument, UserRole } from "../models/user.model";
-import UserinfoModel, { UserinfoInput } from "../models/userinfo.model";
+import userModel, { UserRole } from "../models/user.model";
+import UserinfoModel, {
+  UserinfoDocument,
+  UserinfoInput,
+} from "../models/userinfo.model";
 
 class UserService {
   async getUsers() {
     const Users = await userModel.find();
     return Users.map((user) => new UserDto(user));
   }
-  async getUserProfile(user: ObjectId | string) {
+  async getUser(user: string) {
     const User = await userModel.findById(user);
     if (!User) {
       throw ApiError.BadRequest("Пользователь не найден");
     }
     return new UserDto(User);
   }
-  async getUser(user: ObjectId | string) {
-    const User = await userModel.findById(user);
+  async getUserProfile(user: string) {
+    const User = await userModel
+      .findById(user)
+      .populate<{ userinfo: UserinfoDocument }>("userinfo");
     if (!User) {
       throw ApiError.BadRequest("Пользователь не найден");
     }
     return new UserDto(User);
   }
-  async deleteUser(user: ObjectId | string) {
-    const User = await userModel.findByIdAndDelete(user);
-    if (!User) {
-      throw ApiError.BadRequest("Пользователь не найден");
-    }
-    return User;
-  }
+
   async setUserRole(user: string, role: UserRole) {
     const User = await userModel.findByIdAndUpdate(
       user,
@@ -48,26 +46,34 @@ class UserService {
     }
     return new UserDto(User);
   }
-  async updateUserinfo(user: string, payload: UserinfoInput) {
-    const Userinfo = await UserinfoModel.findOneAndUpdate({ user }, payload, {
+  async updateUserinfo(user: string, userinfo: UserinfoInput) {
+    const Userinfo = await UserinfoModel.findOneAndUpdate({ user }, userinfo, {
       new: true,
     });
     if (Userinfo) {
-      return Userinfo;
+      return new UserinfoDto(Userinfo);
     }
-    return await UserinfoModel.create({ user, ...payload });
+    return await UserinfoModel.create({ user, ...userinfo });
   }
   async updatePassword(id: string, password: string, newPassword: string) {
     const User = await userModel.findById(id);
     if (!User) {
       throw ApiError.BadRequest("Пользователь не найден");
     }
-    if (!User.comparePassword(password)) {
+    if (!(await User.comparePassword(password))) {
       throw ApiError.BadRequest("Неверный пароль");
     }
     User.password = newPassword;
     await User.save();
     return new UserDto(User);
+  }
+
+  async deleteUser(user: string) {
+    const User = await userModel.findByIdAndDelete(user);
+    if (!User) {
+      throw ApiError.BadRequest("Пользователь не найден");
+    }
+    return User;
   }
 }
 

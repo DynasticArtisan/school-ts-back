@@ -1,14 +1,17 @@
 import { ObjectId } from "mongoose";
+import path from "path";
 import ApiError from "../exceptions/ApiError";
 import courseModel from "../models/course.model";
 import courseProgressModel, {
+  CourseProgressDocument,
   CourseProgressFormat,
 } from "../models/courseProgress.model";
 import lessonModel, { LessonDocument } from "../models/lesson.model";
 import lessonProgressModel from "../models/lessonProgress.model";
 import moduleModel, { ModuleDocument } from "../models/module.model";
 import moduleProgressModel from "../models/moduleProgress.model";
-import userModel from "../models/user.model";
+import userModel, { UserDocument } from "../models/user.model";
+import { UserinfoDocument } from "../models/userinfo.model";
 import courseService from "./course.service";
 import notificationService from "./notification.service";
 
@@ -32,6 +35,26 @@ class CourseProgressService {
       ])
       .lean();
     return Students.map((progress) => new CourseProgressDto(progress));
+  }
+  async getStudent(progress: string) {
+    const Student = await courseProgressModel
+      .findById(progress)
+      .populate<{ user: UserDocument; userinfo: UserinfoDocument }>({
+        path: "user",
+        populate: "userinfo",
+      })
+      .lean();
+    const Courses = await courseModel
+      .find()
+      .populate<{
+        progress: CourseProgressDocument;
+        lastLesson: LessonDocument;
+      }>({
+        path: "progress",
+        match: { user: Student?.user._id },
+        populate: "lastLesson",
+      });
+    return { ...Student, courses: Courses };
   }
 
   async createCourseProgress(

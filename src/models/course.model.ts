@@ -39,14 +39,12 @@ CourseSchema.virtual("students", {
   ref: "UsersCourseProgress",
   localField: "_id",
   foreignField: "course",
-  match: { isAvailable: true },
 });
 
 CourseSchema.virtual("progress", {
   ref: "UsersCourseProgress",
   localField: "_id",
   foreignField: "course",
-  match: { isAvailable: true },
   justOne: true,
 });
 
