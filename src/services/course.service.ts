@@ -1,19 +1,17 @@
 import { ObjectId } from "mongoose";
+import CourseDto from "../dtos/CourseDto";
 import LessonDto from "../dtos/LessonDto";
 import ModuleDto from "../dtos/ModuleDto";
 import ApiError from "../exceptions/ApiError";
 import courseModel, { CourseInput } from "../models/course.model";
+import { CourseMasterDocument } from "../models/courseMaster.model";
+import { CourseProgressDocument } from "../models/courseProgress.model";
+import { HomeworkDocument } from "../models/homework.model";
 import lessonModel, { LessonDocument } from "../models/lesson.model";
 import moduleModel, { ModuleDocument } from "../models/module.model";
+import { UserDocument } from "../models/user.model";
 
 class courseService {
-  async getCourse(course: ObjectId | string) {
-    const Course = await courseModel.findById(course);
-    if (!Course) {
-      throw ApiError.BadRequest("Курс не найден");
-    }
-    return Course;
-  }
   async createCourse(courseData: CourseInput) {
     const Course = await courseModel.create(courseData);
     return Course;
@@ -37,13 +35,145 @@ class courseService {
     return Course;
   }
 
-  async getModule(module: ObjectId | string) {
-    const Module = await moduleModel.findById(module);
-    if (!Module) {
-      throw ApiError.BadRequest("Модуль не найден");
-    }
-    return new ModuleDto(Module);
+  async getCourses() {
+    const Courses = await courseModel.find();
+    return Courses.map((course) => new CourseDto(course));
   }
+  async getProgressCourses() {
+    const Courses = await courseModel
+      .find()
+      .populate<{ totalCompleted: number }>("totalCompleted")
+      .populate<{ totalInProgress: number }>("totalInProgress")
+      .lean();
+    return Courses.map((course) => new CourseDto(course));
+  }
+  async getUserProgressCourses(user: string) {
+    const UserCourses = await courseModel.find().populate<{
+      progress: CourseProgressDocument;
+      completedLessonsCount: number;
+      totalLessonsCount: number;
+    }>({
+      path: "progress",
+      match: { user },
+      populate: ["completedLessonsCount", "totalLessonsCount"],
+    });
+    return UserCourses.filter((course) => course.progress);
+  }
+  async getMasterProgressCourses(user: string) {
+    const MasterCourses = await courseModel
+      .find()
+      .populate<{ totalCompleted: number }>("totalCompleted")
+      .populate<{ totalInProgress: number }>("totalInProgress")
+      .populate<{ mastering: CourseMasterDocument }>({
+        path: "mastering",
+        match: { user },
+      })
+      .lean();
+    return MasterCourses.filter((course) => course.mastering).map(
+      (course) => new CourseDto(course)
+    );
+  }
+  async getMasterHomeworkCourses(user: string) {
+    const MasterCourses = await courseModel
+      .find()
+      .populate<{
+        mastering: CourseMasterDocument;
+        verifiedHomeworksCount: number;
+      }>({
+        path: "mastering",
+        match: { user },
+        populate: {
+          path: "verifiedHomeworksCount",
+        },
+      })
+      .lean();
+    return MasterCourses.filter((course) => course.mastering).map(
+      (course) => new CourseDto(course)
+    );
+  }
+  async getProfileCourses(user: string) {
+    const Courses = await courseModel.find().populate<{
+      mastering: CourseMasterDocument;
+      progress: CourseProgressDocument;
+      lastLesson: LessonDocument;
+    }>([
+      {
+        path: "progress",
+        match: { user },
+        populate: "lastLesson",
+      },
+      {
+        path: "mastering",
+        match: { user },
+      },
+    ]);
+    return Courses.map((course) => new CourseDto(course));
+  }
+
+  async getCourse(course: ObjectId | string) {
+    const Course = await courseModel.findById(course);
+    if (!Course) {
+      throw ApiError.BadRequest("Курс не найден");
+    }
+    return Course;
+  }
+  async getCourseModules(course: string) {
+    const Course = await courseModel
+      .findById(course)
+      .populate<{ modules: ModuleDocument[] }>("modules")
+      .lean();
+    if (!Course) {
+      throw ApiError.BadRequest("Курс не найден");
+    }
+    return new CourseDto(Course);
+  }
+  async getUserCourseModules(course: string, user: string) {
+    const Course = await courseModel.findById(course).populate({
+      path: "modules",
+      populate: {
+        path: "progress",
+        match: { user },
+      },
+    });
+    if (!Course) {
+      throw ApiError.BadRequest("Курс не найден");
+    }
+    return new CourseDto(Course);
+  }
+  async getCourseStudents(course: string) {
+    const Course = await courseModel
+      .findById(course)
+      .populate<{
+        students: CourseProgressDocument[];
+        user: UserDocument;
+        lastLesson: LessonDocument;
+      }>({
+        path: "students",
+        populate: [
+          {
+            path: "user",
+            select: "name lastname",
+          },
+          {
+            path: "lastLesson",
+            populate: "module lesson ",
+          },
+        ],
+      })
+      .lean();
+    if (!Course) {
+      throw ApiError.BadRequest("Курс не найден");
+    }
+    return Course;
+  }
+  async getCourseExercises(course: string) {
+    const Course = await courseModel
+      .findById(course)
+      .populate<{ exercises: LessonDocument[] }>("exercises")
+      .lean();
+    return Course;
+  }
+
   async createModule(
     course: ObjectId | string,
     title: string,
@@ -95,13 +225,37 @@ class courseService {
     await Module.delete();
   }
 
-  async getLesson(lesson: ObjectId | string) {
-    const Lesson = await lessonModel.findById(lesson);
-    if (!Lesson) {
-      throw ApiError.BadRequest("Урок не найден");
+  async getModule(module: ObjectId | string) {
+    const Module = await moduleModel.findById(module);
+    if (!Module) {
+      throw ApiError.BadRequest("Модуль не найден");
     }
-    return new LessonDto(Lesson);
+    return new ModuleDto(Module);
   }
+  async getModuleLessons(module: string) {
+    const Module = await moduleModel
+      .findById(module)
+      .populate<{ lessons: LessonDocument[] }>("lessons")
+      .lean();
+    if (!Module) {
+      throw ApiError.BadRequest("Модуль не найден");
+    }
+    return new ModuleDto(Module);
+  }
+  async getUserModuleLessons(module: string, user: string) {
+    const Module = await moduleModel.findById(module).populate({
+      path: "lessons",
+      populate: {
+        path: "progress",
+        match: { user },
+      },
+    });
+    if (!Module) {
+      throw ApiError.BadRequest("Курс не найден");
+    }
+    return new ModuleDto(Module);
+  }
+
   async createLesson(
     module: string,
     title: string,
@@ -159,6 +313,31 @@ class courseService {
       { $inc: { index: -1 } }
     );
     await Lesson.delete();
+  }
+
+  async getLesson(lesson: ObjectId | string) {
+    const Lesson = await lessonModel.findById(lesson);
+    if (!Lesson) {
+      throw ApiError.BadRequest("Урок не найден");
+    }
+    return Lesson;
+  }
+  async getUserLesson(lesson: string, user: string) {
+    const Lesson = await lessonModel.findById(lesson);
+    if (!Lesson) {
+      throw ApiError.BadRequest("Урок не найден");
+    }
+    return Lesson;
+  }
+  async getLessonHomeworks(lesson: string) {
+    const Lesson = await lessonModel
+      .findById(lesson)
+      .populate<{ homeworks: HomeworkDocument[] }>("homeworks")
+      .lean();
+    if (!Lesson) {
+      throw ApiError.BadRequest("Урок не найден");
+    }
+    return Lesson;
   }
 }
 export default new courseService();

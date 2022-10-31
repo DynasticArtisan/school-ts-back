@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import courseDataService from "../services/courseData.service";
-import homeworkService from "../services/homework.service";
+import courseDataService from "../services/courseAccess.service";
 
 class HomeworkController {
   async getCourses(req: Request, res: Response, next: NextFunction) {
@@ -40,7 +39,7 @@ class HomeworkController {
   async getHomework(req: Request, res: Response, next: NextFunction) {
     try {
       const { homework } = req.params;
-      const Homework = await homeworkService.getHomeworkByRoles(
+      const Homework = await courseDataService.getHomeworkByRoles(
         homework,
         req.user
       );
@@ -53,7 +52,7 @@ class HomeworkController {
   async acceptHomework(req: Request, res: Response, next: NextFunction) {
     try {
       const { homework } = req.params;
-      const Homework = await homeworkService.acceptHomeworkByRoles(
+      const Homework = await courseDataService.acceptHomeworkByRoles(
         homework,
         req.user
       );
@@ -65,7 +64,7 @@ class HomeworkController {
   async rejectHomework(req: Request, res: Response, next: NextFunction) {
     try {
       const { homework } = req.params;
-      const Homework = await homeworkService.rejectHomeworkByRoles(
+      const Homework = await courseDataService.rejectHomeworkByRoles(
         homework,
         req.user
       );

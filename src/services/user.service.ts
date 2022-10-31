@@ -28,7 +28,7 @@ class UserService {
     return new UserDto(User);
   }
 
-  async setUserRole(user: string, role: UserRole) {
+  async updateRole(user: string, role: UserRole) {
     const User = await userModel.findByIdAndUpdate(
       user,
       { role },

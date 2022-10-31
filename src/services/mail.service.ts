@@ -2,7 +2,6 @@ import ApiError from "../exceptions/ApiError";
 import MailTemplateModel, {
   MailTemplateType,
 } from "../models/mailTemplates.model";
-import { UserDocument } from "../models/user.model";
 import nodemailer from "nodemailer";
 import config from "config";
 

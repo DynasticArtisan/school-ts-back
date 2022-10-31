@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 
 import { unlinkSync } from "fs";
 import ApiError from "../exceptions/ApiError";
-import courseDataService from "../services/courseData.service";
+import courseDataService from "../services/courseAccess.service";
 import courseService from "../services/course.service";
 import homeworkService from "../services/homework.service";
 
@@ -53,6 +53,7 @@ class LessonsController {
       next(e);
     }
   }
+
   async getLesson(req: Request, res: Response, next: NextFunction) {
     try {
       const { lesson } = req.params;

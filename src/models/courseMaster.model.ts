@@ -21,6 +21,7 @@ CourseMasterSchema.virtual("verifiedHomeworksCount", {
   ref: "HomeworkVerifies",
   localField: "course",
   foreignField: "course",
+  match: (master: CourseMasterDocument) => ({ user: master.user }),
   count: true,
 });
 

@@ -32,6 +32,6 @@ LessonProgressSchema.virtual("homework", {
 });
 
 export default model<LessonProgressDocument>(
-  "LessonProgress",
+  "UsersLessonProgress",
   LessonProgressSchema
 );

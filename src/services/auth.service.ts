@@ -39,7 +39,6 @@ class AuthService {
     }
     return `На почтовый адресс ${email} отправлено письмо, для потверждения регистрации`;
   }
-
   async activate(user: string, activationCode: string) {
     const User = await userModel.findOneAndUpdate(
       { _id: user, activationCode },
@@ -77,7 +76,6 @@ class AuthService {
 
     return { ...tokens, user: new UserDto(User) };
   }
-
   async refresh(refreshToken: string) {
     if (!refreshToken) {
       throw ApiError.BadRequest("Невалидный токен");
@@ -128,7 +126,6 @@ class AuthService {
     }
     return message;
   }
-
   async resetPassword(
     user: string,
     passwordResetCode: string,

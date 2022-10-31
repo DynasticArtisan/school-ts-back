@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions/ApiError";
 import { UserRole } from "../models/user.model";
-import courseDataService from "../services/courseData.service";
+import courseService from "../services/course.service";
 import userService from "../services/user.service";
 
 class UserController {
@@ -17,7 +17,7 @@ class UserController {
     try {
       const { user } = req.params;
       const UserProfile = await userService.getUserProfile(user);
-      const UserCourses = await courseDataService.getUserCourses(user);
+      const UserCourses = await courseService.getProfileCourses(user);
       res.json({ user: UserProfile, courses: UserCourses });
     } catch (e) {
       next(e);
@@ -30,7 +30,7 @@ class UserController {
       if (!(role in UserRole)) {
         next(ApiError.BadRequest("Некорректная роль"));
       }
-      const User = await userService.setUserRole(user, role);
+      const User = await userService.updateRole(user, role);
       res.json(User);
     } catch (e) {
       next(e);
@@ -45,9 +45,6 @@ class UserController {
       next(e);
     }
   }
-
-  // to other router
-
   async updateProfile(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.user;

@@ -17,7 +17,6 @@ class NotifController {
       next(e);
     }
   }
-
   async getAllTemplates(req: Request, res: Response, next: NextFunction) {
     try {
       const Templates = await notifTemplateService.getAllTemplates();
@@ -26,7 +25,6 @@ class NotifController {
       next(e);
     }
   }
-
   async updateTemplate(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
@@ -52,15 +50,6 @@ class NotifController {
     }
   }
 
-  async getAllNotifs(req: Request, res: Response, next: NextFunction) {
-    try {
-      const Notifs = await notificationService.getAllNotifs();
-      res.json(Notifs);
-    } catch (e) {
-      next(e);
-    }
-  }
-
   async checkUserNotifs(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.user;
@@ -70,21 +59,11 @@ class NotifController {
       next(e);
     }
   }
-
   async getUserNotifs(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.user;
       const Notifs = await notificationService.getUserNotifs(id);
       res.json(Notifs);
-    } catch (e) {
-      next(e);
-    }
-  }
-  async deleteNotif(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.params;
-      const Notif = await notificationService.deleteNotif(id);
-      res.json(Notif);
     } catch (e) {
       next(e);
     }
@@ -107,6 +86,23 @@ class NotifController {
     try {
       const { id, users } = req.body;
       const Notif = await notificationService.createManyCustomNotif(id, users);
+      res.json(Notif);
+    } catch (e) {
+      next(e);
+    }
+  }
+  async getAllNotifs(req: Request, res: Response, next: NextFunction) {
+    try {
+      const Notifs = await notificationService.getAllNotifs();
+      res.json(Notifs);
+    } catch (e) {
+      next(e);
+    }
+  }
+  async deleteNotif(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const Notif = await notificationService.deleteNotif(id);
       res.json(Notif);
     } catch (e) {
       next(e);

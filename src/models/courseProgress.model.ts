@@ -50,10 +50,6 @@ CourseProgressSchema.virtual("lastLesson", {
   ref: "UsersLessonProgress",
   localField: "course",
   foreignField: "course",
-  match: (progress: CourseProgressDocument) => ({
-    user: progress.user,
-    isCompleted: true,
-  }),
   justOne: true,
 });
 

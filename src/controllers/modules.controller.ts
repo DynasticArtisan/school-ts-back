@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions/ApiError";
-import courseDataService from "../services/courseData.service";
+import courseDataService from "../services/courseAccess.service";
 import courseService from "../services/course.service";
 
 class ModulesController {
@@ -20,7 +20,6 @@ class ModulesController {
       next(e);
     }
   }
-
   async updateModule(req: Request, res: Response, next: NextFunction) {
     try {
       const { module } = req.params;
@@ -38,7 +37,6 @@ class ModulesController {
       next(e);
     }
   }
-
   async deleteModule(req: Request, res: Response, next: NextFunction) {
     try {
       const { module } = req.params;

@@ -31,20 +31,6 @@ class TokenService {
     }
   }
 
-  generateResetToken(data: TokenDto, password: any): string {
-    const resetToken = jwt.sign(data, config.get("JwtResetSecret") + password, {
-      expiresIn: "10m",
-    });
-    return resetToken;
-  }
-  validateResetToken(token: string, password: string) {
-    try {
-      return jwt.verify(token, config.get("JwtResetSecret") + password);
-    } catch (e) {
-      return null;
-    }
-  }
-
   async saveToken(user: string, refreshToken: string) {
     const Token = await tokenModel.findOneAndUpdate({ user }, { refreshToken });
     if (!Token) {

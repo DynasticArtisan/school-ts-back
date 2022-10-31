@@ -18,7 +18,7 @@ devrouter.delete("/users/:id", async (req, res) => {
   res.json(await userService.deleteUser(req.params.id));
 });
 devrouter.put("/users/:id/role", async (req, res) => {
-  res.json(await userService.setUserRole(req.params.id, req.body.role));
+  res.json(await userService.updateRole(req.params.id, req.body.role));
 });
 devrouter.post("/mailtemplate", async (req, res) => {
   // @ts-ignore

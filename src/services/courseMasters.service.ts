@@ -26,23 +26,37 @@ class CourseMastersService {
     const Master = await courseMasterModel.create({ user, course });
     return Master;
   }
-
-  async updateCourseMasterAccess(id: ObjectId | string, isAvailable: boolean) {
-    const Master = await courseMasterModel.findByIdAndUpdate(
-      id,
-      { isAvailable },
-      {
-        new: true,
-      }
-    );
+  async getCourseMaster(user: ObjectId | string, course: ObjectId | string) {
+    const Master = await courseMasterModel.findOne({ user, course });
     if (!Master) {
       throw ApiError.BadRequest("Доступ к курсу не найден");
     }
     return Master;
   }
 
-  async getCourseMaster(user: ObjectId | string, course: ObjectId | string) {
-    const Master = await courseMasterModel.findOne({ user, course });
+  async getCourseMasterAccess(user: string, course: string) {
+    const Master = await courseMasterModel.findOne({
+      user,
+      course,
+      isAvailable: true,
+    });
+    if (!Master) {
+      throw ApiError.Forbidden();
+    }
+    return true;
+  }
+  async updateCourseMasterAccess(
+    user: string,
+    course: string,
+    isAvailable: boolean
+  ) {
+    const Master = await courseMasterModel.findOneAndUpdate(
+      { user, course },
+      { isAvailable },
+      {
+        new: true,
+      }
+    );
     if (!Master) {
       throw ApiError.BadRequest("Доступ к курсу не найден");
     }

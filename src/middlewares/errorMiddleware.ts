@@ -14,6 +14,7 @@ export default function (
       errors: error.errors,
     });
   } else {
+    console.log(error);
     return res.status(500).json({ message: "Произошла непредвиденная ошибка" });
   }
 }

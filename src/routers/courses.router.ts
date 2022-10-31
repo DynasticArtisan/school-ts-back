@@ -25,11 +25,6 @@ coursesRouter.get(
   ]),
   coursesController.getModules
 );
-coursesRouter.get(
-  "/:course/students",
-  CreateAccessMiddleware([UserRole.super, UserRole.teacher]),
-  coursesController.getStudents
-);
 
 coursesRouter.post(
   "/",
@@ -49,4 +44,35 @@ coursesRouter.delete(
   coursesController.deleteCourse
 );
 
+coursesRouter.post(
+  "/:course/users/",
+  CreateAccessMiddleware([UserRole.super]),
+  coursesController.createStudent
+);
+coursesRouter.get(
+  "/:course/users",
+  CreateAccessMiddleware([UserRole.super, UserRole.teacher]),
+  coursesController.getStudents
+);
+coursesRouter.get(
+  "/:course/users/:user",
+  CreateAccessMiddleware([UserRole.super, UserRole.teacher]),
+  coursesController.getStudentProfile
+);
+coursesRouter.put(
+  "/:course/users/:user",
+  CreateAccessMiddleware([UserRole.super]),
+  coursesController.updateStudentAccess
+);
+
+coursesRouter.post(
+  "/:course/masters/",
+  CreateAccessMiddleware([UserRole.super]),
+  coursesController.createMaster
+);
+coursesRouter.put(
+  "/:course/masters/:user",
+  CreateAccessMiddleware([UserRole.super]),
+  coursesController.updateStudentAccess
+);
 export default coursesRouter;
