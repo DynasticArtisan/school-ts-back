@@ -50,15 +50,16 @@ TemplateSchema.methods.prepare = function ({
   icon?: string;
   body: string;
 } {
-  const { title, image, icon, body } = this as TemplateDocument;
+  let { title, image, icon, body } = this as TemplateDocument;
+  console.log(course);
   if (user) {
-    body.replace("#user-name#", user.name);
+    body = body.replace("#user-name#", user.name);
   }
   if (course) {
-    body.replace("#course-title#", course.title);
+    body = body.replace("#course-title#", course.title);
   }
   if (lesson) {
-    body.replace("#lesson-title#", lesson.title);
+    body = body.replace("#lesson-title#", lesson.title);
   }
   return {
     title,

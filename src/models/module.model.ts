@@ -26,5 +26,11 @@ ModuleSchema.virtual("progress", {
   foreignField: "module",
   justOne: true,
 });
-
+ModuleSchema.virtual("firstLesson", {
+  ref: "Lessons",
+  localField: "_id",
+  foreignField: "module",
+  match: { index: 0 },
+  justOne: true,
+});
 export default model<ModuleDocument>("Modules", ModuleSchema);

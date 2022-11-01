@@ -1,28 +1,20 @@
-import { ObjectId } from "mongoose";
 import ApiError from "../exceptions/ApiError";
 import courseModel from "../models/course.model";
 import courseProgressModel, {
   CourseProgressFormat,
 } from "../models/courseProgress.model";
+import { HomeworkDocument, HomeworkStatus } from "../models/homework.model";
 import lessonModel, { LessonDocument } from "../models/lesson.model";
 import lessonProgressModel from "../models/lessonProgress.model";
 import moduleModel, { ModuleDocument } from "../models/module.model";
 import moduleProgressModel from "../models/moduleProgress.model";
-import userModel from "../models/user.model";
+import userModel, { UserRole } from "../models/user.model";
 
 import courseService from "./course.service";
 import notificationService from "./notification.service";
 
-const CourseProgressDto = require("../dtos/CourseProgressDto");
-const ModuleProgressDto = require("../dtos/ModuleProgressDto");
-const LessonProgressDto = require("../dtos/LessonProgressDto");
-
 class CourseProgressService {
-  async createCourseProgress(
-    user: ObjectId | string,
-    course: ObjectId | string,
-    format: string
-  ) {
+  async createCourseProgress(user: string, course: string, format: string) {
     if (!Object.values<string>(CourseProgressFormat).includes(format)) {
       throw ApiError.BadRequest("Неверный формат");
     }
@@ -30,10 +22,19 @@ class CourseProgressService {
     if (PrevProgress) {
       throw ApiError.BadRequest("Курс уже доступен пользователю");
     }
-    const User = await userModel.findOne({ _id: user, isActivated: true });
-    const Course = await courseModel.findById(course);
-    if (!User || !Course) {
-      throw ApiError.BadRequest("Ползователь или курс не найден");
+    const User = await userModel.findOne({
+      _id: user,
+      role: UserRole.user,
+      isActivated: true,
+    });
+    if (!User) {
+      throw ApiError.BadRequest("Ползователь не найден");
+    }
+    const Course = await courseModel
+      .findById(course)
+      .populate<{ firstModule: ModuleDocument }>("firstModule");
+    if (!Course) {
+      throw ApiError.BadRequest("Курс не найден");
     }
     const Progress = await courseProgressModel.create({
       user,
@@ -41,9 +42,12 @@ class CourseProgressService {
       format,
       endAt: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
     });
-    return new CourseProgressDto(Progress);
+    if (Course.firstModule) {
+      await this.createModuleProgress(user, String(Course.firstModule._id));
+    }
+    return Progress;
   }
-  async getCourseProgress(user: ObjectId | string, course: ObjectId | string) {
+  async getCourseProgress(user: string, course: string) {
     const Progress = await courseProgressModel.findOne({
       user,
       course,
@@ -51,7 +55,7 @@ class CourseProgressService {
     if (!Progress) {
       throw ApiError.BadRequest("Прогресс пользователя не найден");
     }
-    return new CourseProgressDto(Progress);
+    return Progress;
   }
   async getCourseProgressAccess(user: string, course: string) {
     const Progress = await courseProgressModel.findOne({
@@ -62,7 +66,7 @@ class CourseProgressService {
     if (!Progress) {
       throw ApiError.Forbidden();
     }
-    return true;
+    return Progress;
   }
   async updateCourseProgressAccess(
     user: string,
@@ -80,23 +84,24 @@ class CourseProgressService {
       throw ApiError.BadRequest("Прогресс пользователя не найден");
     }
     const Course = await courseService.getCourse(Progress.course);
-    if (isAvailable) {
-      await notificationService.createCourseUnlockNotif(
-        String(Progress.user),
-        Course
-      );
-    } else {
-      await notificationService.createCourseLockNotif(
-        String(Progress.user),
-        Course
-      );
+    try {
+      if (isAvailable) {
+        await notificationService.createCourseUnlockNotif(
+          String(Progress.user),
+          Course
+        );
+      } else {
+        await notificationService.createCourseLockNotif(
+          String(Progress.user),
+          Course
+        );
+      }
+    } catch (e) {
+      console.log(e);
     }
-    return new CourseProgressDto(Progress);
+    return Progress;
   }
-  async completeCourseProgress(
-    user: ObjectId | string,
-    course: ObjectId | string
-  ) {
+  async completeCourseProgress(user: string, course: string) {
     const Progress = await courseProgressModel.findOneAndUpdate(
       { course, user },
       { isCompleted: true },
@@ -105,52 +110,39 @@ class CourseProgressService {
     if (!Progress) {
       throw ApiError.BadRequest("Прогресс пользователя не найден");
     }
-    return new CourseProgressDto(Progress);
+    return Progress;
   }
 
-  async createModuleProgress(
-    user: ObjectId | string,
-    module: ObjectId | string
-  ) {
-    const Module = await moduleModel.findById(module);
+  async createModuleProgress(user: string, module: string) {
+    const PrevProgress = await moduleProgressModel.findOne({ user, module });
+    if (PrevProgress) {
+      throw ApiError.BadRequest("Прогресс пользователя уже существует");
+    }
+    const Module = await moduleModel
+      .findById(module)
+      .populate<{ firstLesson: LessonDocument }>("firstLesson");
     if (!Module) {
       throw ApiError.BadRequest("Модуль не найден");
-    }
-    // а есть ли доступ к курсу?
-    await this.getCourseProgress(user, Module.course);
-    const PrevModule = await moduleModel.findOne({
-      course: Module.course,
-      index: Module.index - 1,
-    });
-    if (PrevModule) {
-      const PrevModuleCompleted = await moduleProgressModel.findOne({
-        user,
-        module: PrevModule._id,
-        isCompleted: true,
-      });
-      if (!PrevModuleCompleted) {
-        throw ApiError.Forbidden();
-      }
     }
     const Progress = await moduleProgressModel.create({
       user,
       module,
       course: Module.course,
     });
-    return new ModuleProgressDto(Progress);
+    if (Module.firstLesson) {
+      await this.createLessonProgress(user, String(Module.firstLesson._id));
+    }
+    return Progress;
   }
-  async getModuleProgress(user: ObjectId | string, module: ObjectId | string) {
-    const PrevProgress = await moduleProgressModel.findOne({
+  async getModuleProgress(user: string, module: string) {
+    const Progress = await moduleProgressModel.findOne({
       user,
       module,
     });
-    if (PrevProgress) {
-      // а есть ли доступ к курсу?
-      await this.getCourseProgress(user, PrevProgress.course);
-      return new ModuleProgressDto(PrevProgress);
+    if (!Progress) {
+      throw ApiError.BadRequest("Прогресс не найден");
     }
-    const NewProgress = await this.createModuleProgress(user, module);
-    return NewProgress;
+    return Progress;
   }
   async getModuleProgressAccess(user: string, module: string) {
     const ModuleProgress = await moduleProgressModel.findOne({
@@ -161,51 +153,38 @@ class CourseProgressService {
     if (!ModuleProgress) {
       throw ApiError.Forbidden();
     }
-    return this.getCourseProgressAccess(user, String(ModuleProgress.course));
+    await this.getCourseProgressAccess(user, String(ModuleProgress.course));
+    return ModuleProgress;
   }
-  async completeModuleProgress(
-    user: ObjectId | string,
-    module: ObjectId | string
-  ) {
+  async completeModuleProgress(user: string, module: string) {
     const Progress = await moduleProgressModel
       .findOneAndUpdate({ user, module }, { isCompleted: true }, { new: true })
       .populate<{ module: ModuleDocument }>("module");
+
     if (!Progress) {
       throw ApiError.BadRequest("Прогресс пользователя не найден");
     }
+    console.log(Progress.module.title);
     const NextModule = await moduleModel.findOne({
       course: Progress.course,
-      index: Progress.module.index + 1,
+      index: Number(Progress.module.index + 1),
     });
-    if (!NextModule) {
-      await this.completeCourseProgress(user, Progress.course);
+    if (NextModule) {
+      await this.createModuleProgress(user, String(NextModule._id));
+    } else {
+      await this.completeCourseProgress(user, String(Progress.course));
     }
-    return new ModuleProgressDto(Progress);
+    return Progress;
   }
 
-  async createLessonProgress(
-    user: ObjectId | string,
-    lesson: ObjectId | string
-  ) {
+  async createLessonProgress(user: string, lesson: string) {
+    const PrevProgress = await lessonProgressModel.findOne({ user, lesson });
+    if (PrevProgress) {
+      throw ApiError.BadRequest("Прогресс пользователя уже существует");
+    }
     const Lesson = await lessonModel.findById(lesson);
     if (!Lesson) {
       throw ApiError.BadRequest("Урок не найден");
-    }
-    // а есть ли доступ к модулю?
-    await this.getModuleProgress(user, Lesson.module);
-    const PrevLesson = await lessonModel.findOne({
-      module: Lesson.module,
-      index: Lesson.index - 1,
-    });
-    if (PrevLesson) {
-      const PrevLessonCompleted = await lessonProgressModel.findOne({
-        user,
-        lesson: PrevLesson._id,
-        isCompleted: true,
-      });
-      if (!PrevLessonCompleted) {
-        throw ApiError.Forbidden();
-      }
     }
     const Progress = await lessonProgressModel.create({
       user,
@@ -215,19 +194,15 @@ class CourseProgressService {
     });
     return Progress;
   }
-  async getLessonProgress(user: ObjectId | string, lesson: ObjectId | string) {
-    const PrevProgress = await lessonProgressModel.findOne({
+  async getLessonProgress(user: string, lesson: string) {
+    const Progress = await lessonProgressModel.findOne({
       user,
       lesson,
-      isAvailable: true,
     });
-    if (PrevProgress) {
-      // а есть ли доступ к курсу?
-      await this.getCourseProgress(user, PrevProgress.course);
-      return PrevProgress;
+    if (!Progress) {
+      throw ApiError.BadRequest("Прогресс не найден");
     }
-    const NewProgress = await this.createLessonProgress(user, lesson);
-    return NewProgress;
+    return Progress;
   }
   async getLessonProgressAccess(user: string, lesson: string) {
     const LessonProgress = await lessonProgressModel.findOne({
@@ -238,29 +213,40 @@ class CourseProgressService {
     if (!LessonProgress) {
       throw ApiError.Forbidden();
     }
-    return await this.getModuleProgressAccess(
-      user,
-      String(LessonProgress.module)
-    );
+    await this.getModuleProgressAccess(user, String(LessonProgress.module));
+    return LessonProgress;
   }
-  async completeLessonProgress(
-    user: ObjectId | string,
-    lesson: ObjectId | string
-  ) {
+  async completeLessonProgress(user: string, lesson: string) {
     const Progress = await lessonProgressModel
-      .findOneAndUpdate({ user, lesson }, { isCompleted: true }, { new: true })
-      .populate<{ lesson: LessonDocument }>("lesson");
+      .findOne({ user, lesson, isAvailable: true })
+      .populate<{ lesson: LessonDocument; homework: HomeworkDocument }>([
+        {
+          path: "lesson",
+        },
+        {
+          path: "homework",
+          match: { status: HomeworkStatus.accept },
+        },
+      ]);
     if (!Progress) {
       throw ApiError.BadRequest("Прогресс пользователя не найден");
     }
+    if (Progress.lesson.withExercise && !Progress.homework) {
+      throw ApiError.BadRequest("Домашнее задание не выполнено");
+    }
+    await this.getModuleProgressAccess(user, String(Progress.module));
+    Progress.isCompleted = true;
+    await Progress.save();
     const NextLesson = await lessonModel.findOne({
       module: Progress.module,
-      index: Progress.lesson.index + 1,
+      index: Number(Progress.lesson.index + 1),
     });
-    if (!NextLesson) {
-      await this.completeModuleProgress(user, Progress.module);
+    if (NextLesson) {
+      await this.createLessonProgress(user, String(NextLesson._id));
+    } else {
+      await this.completeModuleProgress(user, String(Progress.module));
     }
-    return new LessonProgressDto(Progress);
+    return Progress;
   }
 }
 export default new CourseProgressService();

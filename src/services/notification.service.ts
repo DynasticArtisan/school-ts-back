@@ -6,43 +6,33 @@ import notificationsModel from "../models/notifications.model";
 import { NotifTemplateTypes } from "../models/notifTemplates.model";
 import { UserDocument } from "../models/user.model";
 import notifTemplateService from "./notifTemplate.service.ts";
+import userService from "./user.service";
 
 class NotifService {
-  async createCustomNotif(
-    template: ObjectId | string,
-    user: ObjectId | string
-  ) {
-    const { title, image, icon, body } = await notifTemplateService.getTemplate(
-      template
-    );
+  async createCustomNotif(template: string, user: string) {
+    const Template = await notifTemplateService.getTemplate(template);
+    const User = await userService.getUser(user);
     const Notification = await notificationsModel.create({
-      user,
-      title,
-      image,
-      icon,
-      body,
+      user: User._id,
+      ...Template.prepare({ user: User }),
     });
     if (!Notification) {
       throw ApiError.BadRequest("Не удалось отправить уведомление");
     }
     return Notification;
   }
-  async createManyCustomNotif(
-    template: ObjectId | string,
-    users: ObjectId[] | string[]
-  ) {
-    const { title, image, icon, body } = await notifTemplateService.getTemplate(
-      template
-    );
+  async createManyCustomNotif(template: string, users: string[]) {
+    const Template = await notifTemplateService.getTemplate(template);
+    const Users = await userService.getUsersArray(users);
     const Notifications = await notificationsModel.create(
-      users.map((user) => ({ user, title, image, icon, body }))
+      Users.map((user) => ({ user: user._id, ...Template.prepare({ user }) }))
     );
     if (!Notifications) {
       throw ApiError.BadRequest("Не удалось отправить уведомления");
     }
     return Notifications;
   }
-  //   #########################################################
+
   async createNewUserNotifs(
     user: ObjectId | string,
     UserDocument: UserDocument
@@ -58,7 +48,6 @@ class NotifService {
     );
     return Notifications;
   }
-
   async createHomeworkRejectNotif(user: string, lesson: LessonDocument) {
     const Template = await notifTemplateService.getSpecialTemplate(
       NotifTemplateTypes.homeworkReject
@@ -77,7 +66,6 @@ class NotifService {
       ...Template.prepare({ lesson }),
     });
   }
-
   async createCourseLockNotif(user: string, course: CourseDocument) {
     const Template = await notifTemplateService.getSpecialTemplate(
       NotifTemplateTypes.courseLock
@@ -97,22 +85,21 @@ class NotifService {
     });
   }
 
-  async checkNewUserNotifs(user: ObjectId | string) {
+  async checkNewNotifs(user: string) {
     return await notificationsModel.find({ user, readed: false }).count();
   }
-  async getUserNotifs(user: ObjectId | string) {
-    const notifs = await notificationsModel.find({ user });
+  async getUserNotifs(user: string) {
+    const Notifications = await notificationsModel
+      .find({ user })
+      .sort("-createdAt");
     await notificationsModel.updateMany(
       { user, readed: false },
       { readed: true }
     );
-    return notifs;
+    return Notifications;
   }
 
-  async getAllNotifs() {
-    return await notificationsModel.find();
-  }
-  async deleteNotif(id: ObjectId | string) {
+  async deleteNotif(id: string) {
     return await notificationsModel.findByIdAndDelete(id);
   }
 }

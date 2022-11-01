@@ -50,25 +50,6 @@ class NotifController {
     }
   }
 
-  async checkUserNotifs(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.user;
-      const Count = await notificationService.checkNewUserNotifs(id);
-      res.json(Count);
-    } catch (e) {
-      next(e);
-    }
-  }
-  async getUserNotifs(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { id } = req.user;
-      const Notifs = await notificationService.getUserNotifs(id);
-      res.json(Notifs);
-    } catch (e) {
-      next(e);
-    }
-  }
-
   async createCustomNotif(req: Request, res: Response, next: NextFunction) {
     try {
       const { id, user } = req.body;
@@ -91,19 +72,28 @@ class NotifController {
       next(e);
     }
   }
-  async getAllNotifs(req: Request, res: Response, next: NextFunction) {
-    try {
-      const Notifs = await notificationService.getAllNotifs();
-      res.json(Notifs);
-    } catch (e) {
-      next(e);
-    }
-  }
   async deleteNotif(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
       const Notif = await notificationService.deleteNotif(id);
       res.json(Notif);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async checkNewNotifications(req: Request, res: Response, next: NextFunction) {
+    try {
+      const Count = await notificationService.checkNewNotifs(req.user.id);
+      res.json(Count);
+    } catch (e) {
+      next(e);
+    }
+  }
+  async getUserNotifications(req: Request, res: Response, next: NextFunction) {
+    try {
+      const Notifs = await notificationService.getUserNotifs(req.user.id);
+      res.json(Notifs);
     } catch (e) {
       next(e);
     }

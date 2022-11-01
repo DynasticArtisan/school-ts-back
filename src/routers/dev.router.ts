@@ -1,4 +1,8 @@
 import express from "express";
+import courseProgressModel from "../models/courseProgress.model";
+import homeworkModel from "../models/homework.model";
+import lessonProgressModel from "../models/lessonProgress.model";
+import moduleProgressModel from "../models/moduleProgress.model";
 import UserModel from "../models/user.model";
 import authService from "../services/auth.service";
 import courseService from "../services/course.service";
@@ -32,4 +36,11 @@ devrouter.get("/mailtemplate", async (req, res) => {
 devrouter.delete("/courses/:course", async (req, res) => {
   res.json(await courseService.deleteCourse(req.params.course));
 });
+devrouter.delete("/courses/:course/users", async (req, res) => {
+  await courseProgressModel.deleteMany({ course: req.params.course });
+  await moduleProgressModel.deleteMany({ course: req.params.course });
+  await lessonProgressModel.deleteMany({ course: req.params.course });
+  res.send();
+});
+
 export default devrouter;

@@ -12,9 +12,9 @@ interface LessonProgressDocument extends Document {
 const LessonProgressSchema = new Schema<LessonProgressDocument>(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    course: { type: Schema.Types.ObjectId, ref: "Courses" },
+    course: { type: Schema.Types.ObjectId, ref: "Courses", required: true },
     lesson: { type: Schema.Types.ObjectId, ref: "Lessons", required: true },
-    module: { type: Schema.Types.ObjectId, ref: "Modules" },
+    module: { type: Schema.Types.ObjectId, ref: "Modules", required: true },
     isCompleted: { type: Boolean, default: false },
     isAvailable: { type: Boolean, default: true },
   },

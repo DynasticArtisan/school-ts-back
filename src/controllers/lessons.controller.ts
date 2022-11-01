@@ -5,6 +5,7 @@ import ApiError from "../exceptions/ApiError";
 import courseDataService from "../services/courseAccess.service";
 import courseService from "../services/course.service";
 import homeworkService from "../services/homework.service";
+import courseProgressService from "../services/courseProgress.service";
 
 class LessonsController {
   async createLesson(req: Request, res: Response, next: NextFunction) {
@@ -29,10 +30,10 @@ class LessonsController {
   }
   async updateLesson(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
+      const { lesson } = req.params;
       const { title, description, content, withExercise, exercise } = req.body;
       const Lesson = await courseService.updateLesson(
-        id,
+        lesson,
         title,
         description,
         content,
@@ -64,6 +65,18 @@ class LessonsController {
     }
   }
 
+  async completeLesson(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { lesson } = req.params;
+      const Progress = await courseProgressService.completeLessonProgress(
+        req.user.id,
+        lesson
+      );
+      res.json(Progress);
+    } catch (e) {
+      next(e);
+    }
+  }
   async createHomework(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.file) {

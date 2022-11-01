@@ -1,5 +1,6 @@
 import ApiError from "../exceptions/ApiError";
 import homeworkModel, { HomeworkStatus } from "../models/homework.model";
+import homeworkFilesModel from "../models/homeworkFiles.model";
 import homeworkVerifyModel from "../models/homeworkVerify.model";
 import courseMastersService from "./courseMasters.service";
 import courseProgressService from "./courseProgress.service";
@@ -11,7 +12,7 @@ class HomeworkService {
     filename: string,
     filepath: string
   ) {
-    const Progress = await courseProgressService.getLessonProgress(
+    const Progress = await courseProgressService.getLessonProgressAccess(
       user,
       lesson
     );
@@ -27,8 +28,14 @@ class HomeworkService {
       lesson,
       course: Progress.course,
     });
+    const Files = await homeworkFilesModel.create({
+      homework: Homework._id,
+      user,
+      filename,
+      filepath,
+    });
 
-    return Homework;
+    return { ...Homework, files: Files };
   }
   async updateHomework(
     lesson: string,
@@ -36,10 +43,7 @@ class HomeworkService {
     filename: string,
     filepath: string
   ) {
-    const Progress = await courseProgressService.getLessonProgress(
-      user,
-      lesson
-    );
+    await courseProgressService.getLessonProgressAccess(user, lesson);
     const Homework = await homeworkModel.findOneAndUpdate(
       { lesson, user, status: HomeworkStatus.reject },
       { status: HomeworkStatus.wait }
@@ -47,8 +51,13 @@ class HomeworkService {
     if (!Homework) {
       throw ApiError.BadRequest("Домашнее задание не найдено");
     }
-
-    return Homework;
+    const Files = await homeworkFilesModel.create({
+      homework: Homework._id,
+      user,
+      filename,
+      filepath,
+    });
+    return { ...Homework, files: Files };
   }
 
   async getHomework(homework: string) {

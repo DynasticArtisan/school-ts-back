@@ -37,7 +37,7 @@ class courseService {
 
   async getCourses() {
     const Courses = await courseModel.find();
-    return Courses.map((course) => new CourseDto(course));
+    return Courses;
   }
   async getProgressCourses() {
     const Courses = await courseModel
@@ -45,18 +45,21 @@ class courseService {
       .populate<{ totalCompleted: number }>("totalCompleted")
       .populate<{ totalInProgress: number }>("totalInProgress")
       .lean();
-    return Courses.map((course) => new CourseDto(course));
+    return Courses;
   }
   async getUserProgressCourses(user: string) {
-    const UserCourses = await courseModel.find().populate<{
-      progress: CourseProgressDocument;
-      completedLessonsCount: number;
-      totalLessonsCount: number;
-    }>({
-      path: "progress",
-      match: { user },
-      populate: ["completedLessonsCount", "totalLessonsCount"],
-    });
+    const UserCourses = await courseModel
+      .find()
+      .populate<{
+        progress: CourseProgressDocument;
+        completedLessonsCount: number;
+        totalLessonsCount: number;
+      }>({
+        path: "progress",
+        match: { user },
+        populate: ["completedLessonsCount", "totalLessonsCount"],
+      })
+      .lean();
     return UserCourses.filter((course) => course.progress);
   }
   async getMasterProgressCourses(user: string) {
@@ -69,9 +72,7 @@ class courseService {
         match: { user },
       })
       .lean();
-    return MasterCourses.filter((course) => course.mastering).map(
-      (course) => new CourseDto(course)
-    );
+    return MasterCourses.filter((course) => course.mastering);
   }
   async getMasterHomeworkCourses(user: string) {
     const MasterCourses = await courseModel
@@ -87,27 +88,28 @@ class courseService {
         },
       })
       .lean();
-    return MasterCourses.filter((course) => course.mastering).map(
-      (course) => new CourseDto(course)
-    );
+    return MasterCourses.filter((course) => course.mastering);
   }
   async getProfileCourses(user: string) {
-    const Courses = await courseModel.find().populate<{
-      mastering: CourseMasterDocument;
-      progress: CourseProgressDocument;
-      lastLesson: LessonDocument;
-    }>([
-      {
-        path: "progress",
-        match: { user },
-        populate: "lastLesson",
-      },
-      {
-        path: "mastering",
-        match: { user },
-      },
-    ]);
-    return Courses.map((course) => new CourseDto(course));
+    const Courses = await courseModel
+      .find()
+      .populate<{
+        mastering: CourseMasterDocument;
+        progress: CourseProgressDocument;
+        lastLesson: LessonDocument;
+      }>([
+        {
+          path: "progress",
+          match: { user },
+          populate: "lastLesson",
+        },
+        {
+          path: "mastering",
+          match: { user },
+        },
+      ])
+      .lean();
+    return Courses;
   }
 
   async getCourse(course: ObjectId | string) {
@@ -125,20 +127,23 @@ class courseService {
     if (!Course) {
       throw ApiError.BadRequest("Курс не найден");
     }
-    return new CourseDto(Course);
+    return Course;
   }
   async getUserCourseModules(course: string, user: string) {
-    const Course = await courseModel.findById(course).populate({
-      path: "modules",
-      populate: {
-        path: "progress",
-        match: { user },
-      },
-    });
+    const Course = await courseModel
+      .findById(course)
+      .populate({
+        path: "modules",
+        populate: {
+          path: "progress",
+          match: { user },
+        },
+      })
+      .lean();
     if (!Course) {
       throw ApiError.BadRequest("Курс не найден");
     }
-    return new CourseDto(Course);
+    return Course;
   }
   async getCourseStudents(course: string) {
     const Course = await courseModel
@@ -156,7 +161,7 @@ class courseService {
           },
           {
             path: "lastLesson",
-            populate: "module lesson ",
+            populate: "module lesson",
           },
         ],
       })
@@ -323,7 +328,19 @@ class courseService {
     return Lesson;
   }
   async getUserLesson(lesson: string, user: string) {
-    const Lesson = await lessonModel.findById(lesson);
+    const Lesson = await lessonModel
+      .findById(lesson)
+      .populate({
+        path: "progress",
+        match: { user },
+        populate: {
+          path: "homework",
+          populate: {
+            path: "files",
+          },
+        },
+      })
+      .lean();
     if (!Lesson) {
       throw ApiError.BadRequest("Урок не найден");
     }

@@ -29,5 +29,10 @@ LessonSchema.virtual("progress", {
   foreignField: "lesson",
   justOne: true,
 });
+LessonSchema.virtual("homeworks", {
+  ref: "Homeworks",
+  localField: "_id",
+  foreignField: "lesson",
+});
 
 export default model<LessonDocument>("Lessons", LessonSchema);

@@ -16,7 +16,10 @@ class UserService {
     if (!User) {
       throw ApiError.BadRequest("Пользователь не найден");
     }
-    return new UserDto(User);
+    return User;
+  }
+  async getUsersArray(users: string[]) {
+    return await userModel.find({ _id: users });
   }
   async getUserProfile(user: string) {
     const User = await userModel

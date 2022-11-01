@@ -12,7 +12,8 @@ class CourseAccessService {
     switch (user.role) {
       case UserRole.user:
         return await courseService.getUserProgressCourses(user.id);
-      case UserRole.teacher || UserRole.curator:
+      case UserRole.teacher:
+      case UserRole.curator:
         return await courseService.getMasterProgressCourses(user.id);
       case UserRole.super:
         return await courseService.getProgressCourses();
@@ -23,15 +24,10 @@ class CourseAccessService {
   async getCourseModulesByRoles(course: string, user: TokenDto) {
     switch (user.role) {
       case UserRole.user:
-        const Progress = await courseProgressService.getCourseProgress(
-          user.id,
-          course
-        );
-        if (!Progress.isAvailable) {
-          throw ApiError.Forbidden();
-        }
+        await courseProgressService.getCourseProgressAccess(user.id, course);
         return await courseService.getUserCourseModules(course, user.id);
-      case UserRole.teacher || UserRole.curator:
+      case UserRole.teacher:
+      case UserRole.curator:
         await courseMastersService.getCourseMasterAccess(user.id, course);
         return await courseService.getCourseModules(course);
       case UserRole.super: {
@@ -46,7 +42,8 @@ class CourseAccessService {
       case UserRole.user:
         await courseProgressService.getModuleProgressAccess(user.id, module);
         return await courseService.getUserModuleLessons(module, user.id);
-      case UserRole.teacher || UserRole.curator:
+      case UserRole.teacher:
+      case UserRole.curator:
         const Module = await courseService.getModuleLessons(module);
         await courseMastersService.getCourseMasterAccess(
           user.id,
@@ -64,7 +61,8 @@ class CourseAccessService {
       case UserRole.user:
         await courseProgressService.getLessonProgressAccess(user.id, lesson);
         return await courseService.getUserLesson(lesson, user.id);
-      case UserRole.teacher || UserRole.curator:
+      case UserRole.teacher:
+      case UserRole.curator:
         const MasterLesson = await courseService.getLesson(lesson);
         await courseMastersService.getCourseMasterAccess(
           user.id,
@@ -80,7 +78,8 @@ class CourseAccessService {
 
   async getCourseStudentsByRoles(course: string, user: TokenDto) {
     switch (user.role) {
-      case UserRole.teacher || UserRole.curator:
+      case UserRole.teacher:
+      case UserRole.curator:
         await courseMastersService.getCourseMasterAccess(user.id, course);
         return await courseService.getCourseStudents(course);
       case UserRole.super:
@@ -112,7 +111,8 @@ class CourseAccessService {
 
   async getHomeworkCoursesByRoles(user: TokenDto) {
     switch (user.role) {
-      case UserRole.teacher || UserRole.curator:
+      case UserRole.teacher:
+      case UserRole.curator:
         return await courseService.getMasterHomeworkCourses(user.id);
       case UserRole.super:
         return await courseService.getCourses();
@@ -122,7 +122,8 @@ class CourseAccessService {
   }
   async getCourseExerciseByRoles(course: string, user: TokenDto) {
     switch (user.role) {
-      case UserRole.teacher || UserRole.curator:
+      case UserRole.teacher:
+      case UserRole.curator:
         await courseMastersService.getCourseMasterAccess(user.id, course);
         return await courseService.getCourseExercises(course);
       case UserRole.super:
@@ -133,7 +134,8 @@ class CourseAccessService {
   }
   async getLessonHomeworksByRole(lesson: string, user: TokenDto) {
     switch (user.role) {
-      case UserRole.teacher || UserRole.curator:
+      case UserRole.teacher:
+      case UserRole.curator:
         const Lesson = await courseService.getLessonHomeworks(lesson);
         await courseMastersService.getCourseMasterAccess(
           user.id,
@@ -148,7 +150,8 @@ class CourseAccessService {
   }
   async getHomeworkByRoles(homework: string, user: TokenDto) {
     switch (user.role) {
-      case UserRole.teacher || UserRole.curator:
+      case UserRole.teacher:
+      case UserRole.curator:
         const Homework = await homeworkService.getHomework(homework);
         await courseMastersService.getCourseMasterAccess(
           user.id,
@@ -163,7 +166,8 @@ class CourseAccessService {
   }
   async acceptHomeworkByRoles(homework: string, user: TokenDto) {
     switch (user.role) {
-      case UserRole.teacher || UserRole.curator:
+      case UserRole.teacher:
+      case UserRole.curator:
         await homeworkService.verifyHomework(homework, user.id);
         const MasterAcceptedHomework = await homeworkService.acceptHomework(
           homework
@@ -177,7 +181,8 @@ class CourseAccessService {
   }
   async rejectHomeworkByRoles(homework: string, user: TokenDto) {
     switch (user.role) {
-      case UserRole.teacher || UserRole.curator:
+      case UserRole.teacher:
+      case UserRole.curator:
         await homeworkService.verifyHomework(homework, user.id);
         const MasterRejectedHomework = await homeworkService.rejectHomework(
           homework

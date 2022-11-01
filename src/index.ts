@@ -8,6 +8,7 @@ import { connect } from "mongoose";
 import errorMiddleware from "./middlewares/errorMiddleware";
 import router from "./routers";
 import devrouter from "./routers/dev.router";
+import homeworkModel from "./models/homework.model";
 
 const PORT = config.get("serverPORT");
 
@@ -35,7 +36,7 @@ const start = async () => {
       // useNewUrlParser: true,
       // useUnifiedTopology: true,
     });
-    app.listen(PORT, () => {
+    app.listen(PORT, async () => {
       console.log("Server started on port ", PORT);
     });
   } catch (e: any) {

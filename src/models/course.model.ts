@@ -25,6 +25,13 @@ CourseSchema.virtual("modules", {
   localField: "_id",
   foreignField: "course",
 });
+CourseSchema.virtual("firstModule", {
+  ref: "Modules",
+  localField: "_id",
+  foreignField: "course",
+  match: { index: 0 },
+  justOne: true,
+});
 
 CourseSchema.virtual("exercises", {
   ref: "Lessons",
@@ -34,7 +41,6 @@ CourseSchema.virtual("exercises", {
     withExercise: true,
   },
 });
-
 CourseSchema.virtual("students", {
   ref: "UsersCourseProgress",
   localField: "_id",

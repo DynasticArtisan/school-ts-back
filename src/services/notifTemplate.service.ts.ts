@@ -14,7 +14,7 @@ class TemplateService {
     return await templatesModel.create(payload);
   }
   async updateTemplate(
-    id: ObjectId | string,
+    id: string,
     payload: {
       title: string;
       icon?: string;
@@ -26,7 +26,7 @@ class TemplateService {
       new: true,
     });
   }
-  async deleteTemplate(id: ObjectId | string) {
+  async deleteTemplate(id: string) {
     return await templatesModel.findByIdAndDelete(id);
   }
   async getAllTemplates() {
@@ -35,6 +35,7 @@ class TemplateService {
   async getCustomTemplates() {
     return await templatesModel.find({ type: "custom" });
   }
+
   async getTemplate(id: ObjectId | string) {
     const Template = await templatesModel.findById(id);
     if (!Template) {

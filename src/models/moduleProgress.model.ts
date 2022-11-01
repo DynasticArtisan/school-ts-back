@@ -11,7 +11,7 @@ export interface ModuleProgressDocument extends Document {
 const ModuleProgressSchema = new Schema<ModuleProgressDocument>({
   user: { type: Schema.Types.ObjectId, ref: "User" },
   course: { type: Schema.Types.ObjectId, ref: "Courses" },
-  module: { type: Schema.Types.ObjectId, rel: "Modules" },
+  module: { type: Schema.Types.ObjectId, ref: "Modules" },
   isCompleted: { type: Boolean, default: false },
   isAvailable: { type: Boolean, default: true },
 });

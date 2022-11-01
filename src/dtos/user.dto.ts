@@ -1,5 +1,5 @@
 import { Date } from "mongoose";
-import { UserDocument, UserRole } from "../models/user.model";
+import { UserRole } from "../models/user.model";
 
 export class UserinfoDto {
   birthday: string;

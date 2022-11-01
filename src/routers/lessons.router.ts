@@ -5,6 +5,7 @@ import { UserRole } from "../models/user.model";
 import homeworkMulter from "../multer/homeworkMulter";
 
 const lessonsRouter = express.Router();
+// SUPER ROUTES
 lessonsRouter.post(
   "/",
   CreateAccessMiddleware([UserRole.super]),
@@ -20,16 +21,11 @@ lessonsRouter.delete(
   CreateAccessMiddleware([UserRole.super]),
   lessonsController.deleteLesson
 );
-
-lessonsRouter.get(
+// USER ROUTES
+lessonsRouter.post(
   "/:lesson",
-  CreateAccessMiddleware([
-    UserRole.super,
-    UserRole.teacher,
-    UserRole.curator,
-    UserRole.user,
-  ]),
-  lessonsController.getLesson
+  CreateAccessMiddleware([UserRole.user]),
+  lessonsController.completeLesson
 );
 lessonsRouter.post(
   "/:lesson/homework",
@@ -42,6 +38,17 @@ lessonsRouter.put(
   CreateAccessMiddleware([UserRole.user]),
   homeworkMulter,
   lessonsController.updateHomework
+);
+// COMMON ROUTES
+lessonsRouter.get(
+  "/:lesson",
+  CreateAccessMiddleware([
+    UserRole.super,
+    UserRole.teacher,
+    UserRole.curator,
+    UserRole.user,
+  ]),
+  lessonsController.getLesson
 );
 
 export default lessonsRouter;
