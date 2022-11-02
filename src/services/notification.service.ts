@@ -77,7 +77,7 @@ class NotifService {
   }
   async createCourseUnlockNotif(user: string, course: CourseDocument) {
     const Template = await notifTemplateService.getSpecialTemplate(
-      NotifTemplateTypes.courseLock
+      NotifTemplateTypes.courseUnlock
     );
     return await notificationsModel.create({
       user,
@@ -98,7 +98,16 @@ class NotifService {
     );
     return Notifications;
   }
-
+  async deleteUserNotif(notification: string, user: string) {
+    const Notification = await notificationsModel.findOneAndDelete({
+      _id: notification,
+      user,
+    });
+    if (!Notification) {
+      throw ApiError.BadRequest("Уведомление не найдено");
+    }
+    return true;
+  }
   async deleteNotif(id: string) {
     return await notificationsModel.findByIdAndDelete(id);
   }

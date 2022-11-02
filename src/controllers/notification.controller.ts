@@ -27,9 +27,9 @@ class NotifController {
   }
   async updateTemplate(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
-      const { type, title, image, icon, body } = req.body;
-      const Template = await notifTemplateService.updateTemplate(id, {
+      const { templateId } = req.params;
+      const { title, image, icon, body } = req.body;
+      const Template = await notifTemplateService.updateTemplate(templateId, {
         title,
         image,
         icon,
@@ -42,9 +42,9 @@ class NotifController {
   }
   async deleteTemplate(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
-      const Template = await notifTemplateService.deleteTemplate(id);
-      res.json(Template);
+      const { templateId } = req.params;
+      await notifTemplateService.deleteTemplate(templateId);
+      res.json({ message: "Шаблон уведомления удален" });
     } catch (e) {
       next(e);
     }
@@ -65,8 +65,11 @@ class NotifController {
     next: NextFunction
   ) {
     try {
-      const { id, users } = req.body;
-      const Notif = await notificationService.createManyCustomNotif(id, users);
+      const { template, users } = req.body;
+      const Notif = await notificationService.createManyCustomNotif(
+        template,
+        users
+      );
       res.json(Notif);
     } catch (e) {
       next(e);
@@ -94,6 +97,19 @@ class NotifController {
     try {
       const Notifs = await notificationService.getUserNotifs(req.user.id);
       res.json(Notifs);
+    } catch (e) {
+      next(e);
+    }
+  }
+  async deleteUserNotification(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { notification } = req.params;
+      await notificationService.deleteUserNotif(notification, req.user.id);
+      res.json({ message: "Уведомление удалено" });
     } catch (e) {
       next(e);
     }

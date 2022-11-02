@@ -26,8 +26,12 @@ class TemplateService {
       new: true,
     });
   }
-  async deleteTemplate(id: string) {
-    return await templatesModel.findByIdAndDelete(id);
+  async deleteTemplate(templateId: string) {
+    const Template = await templatesModel.findByIdAndDelete(templateId);
+    if (!Template) {
+      throw ApiError.BadRequest("Шаблон уведомления не найден");
+    }
+    return Template;
   }
   async getAllTemplates() {
     return await templatesModel.find();

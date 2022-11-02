@@ -7,6 +7,7 @@ import lessonsRouter from "./lessons.router";
 import homeworkRouter from "./homework.router";
 import notifRouter from "./notification.router";
 import AuthMiddleware from "../middlewares/auth.middleware";
+import MailsRouter from "./mails.router";
 
 const router = express.Router();
 
@@ -18,6 +19,8 @@ router.use("/modules", AuthMiddleware, modulesRouter);
 router.use("/lessons", AuthMiddleware, lessonsRouter);
 
 router.use("/homeworks", AuthMiddleware, homeworkRouter);
+
 router.use("/notifications", AuthMiddleware, notifRouter);
+router.use("/mails", AuthMiddleware, MailsRouter);
 
 export default router;

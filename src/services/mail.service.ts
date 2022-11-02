@@ -4,6 +4,7 @@ import MailTemplateModel, {
 } from "../models/mailTemplates.model";
 import nodemailer from "nodemailer";
 import config from "config";
+import userService from "./user.service";
 
 class MailService {
   transporter: any = null;
@@ -17,6 +18,31 @@ class MailService {
         pass: config.get("smtpPass"),
       },
       from: "Scholl Active",
+    });
+  }
+
+  async sendCustomMails(templateId: string, users: string[]) {
+    const Template = await MailTemplateModel.findOne({
+      _id: templateId,
+      type: MailTemplateType.custom,
+    });
+    if (!Template) {
+      throw ApiError.BadRequest("Шаблон письма не найден");
+    }
+    const Users = await userService.getUsersArray(users);
+    const MailsData = Users.map((user) => {
+      return {
+        to: user.email,
+        ...Template.prepare({ user }),
+      };
+    });
+    MailsData.forEach(async (mail) => {
+      try {
+        const res = await this.transporter.sendMail(mail);
+        console.log(res);
+      } catch (e) {
+        console.log(e);
+      }
     });
   }
 
@@ -50,6 +76,9 @@ class MailService {
     });
   }
 
+  async getTemplates() {
+    return await MailTemplateModel.find();
+  }
   async createTemplate(
     type: MailTemplateType,
     title: string,
@@ -64,8 +93,67 @@ class MailService {
     });
     return Template;
   }
-  async getTemplates() {
-    return await MailTemplateModel.find();
+  async updateTemplate(
+    templateId: string,
+    title: string,
+    subject: string,
+    html: string
+  ) {
+    const Template = await MailTemplateModel.findByIdAndUpdate(
+      templateId,
+      { title, subject, html },
+      { new: true }
+    );
+    if (!Template) {
+      throw ApiError.BadRequest("Шаблон письма не найден");
+    }
+    return Template;
+  }
+  async deleteTemplate(templateId: string) {
+    const Template = await MailTemplateModel.findByIdAndDelete(templateId);
+    if (!Template) {
+      throw ApiError.BadRequest("Шаблон письма не найден");
+    }
+    return true;
+  }
+
+  async getCustomTemplates() {
+    return await MailTemplateModel.find({ type: MailTemplateType.custom });
+  }
+  async createCustomTemplate(title: string, subject: string, html: string) {
+    const Template = await MailTemplateModel.create({
+      type: MailTemplateType.custom,
+      title,
+      subject,
+      html,
+    });
+    return Template;
+  }
+  async updateCustomTemplate(
+    templateId: string,
+    title: string,
+    subject: string,
+    html: string
+  ) {
+    const Template = await MailTemplateModel.findOneAndUpdate(
+      { _id: templateId, type: MailTemplateType.custom },
+      { title, subject, html },
+      { new: true }
+    );
+    if (!Template) {
+      throw ApiError.BadRequest("Шаблон письма не найден");
+    }
+    return Template;
+  }
+  async deleteCustomTemplate(templateId: string) {
+    const Template = await MailTemplateModel.findOneAndDelete({
+      _id: templateId,
+      type: MailTemplateType.custom,
+    });
+    if (!Template) {
+      throw ApiError.BadRequest("Шаблон письма не найден");
+    }
+    return true;
   }
 }
 

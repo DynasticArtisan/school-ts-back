@@ -25,9 +25,7 @@ const MailTemplateSchema = new Schema<MailTemplateDocument>({
   html: { type: String, required: true },
 });
 
-MailTemplateSchema.methods.prepare = async function ({
-  user,
-}: PopulateDocuments) {
+MailTemplateSchema.methods.prepare = function ({ user }: PopulateDocuments) {
   let { subject, html } = this as MailTemplateDocument;
   if (user) {
     subject = subject.replace("#user-name#", user.name);
