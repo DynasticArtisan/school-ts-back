@@ -5,9 +5,14 @@ import courseDataService from "../services/courseAccess.service";
 import courseService from "../services/course.service";
 import courseProgressService from "../services/courseProgress.service";
 import courseMastersService from "../services/courseMasters.service";
+import { CreateCourseReq, UpdateCourseReq } from "../schemas/course.schema";
 
 class CoursesController {
-  async createCourse(req: Request, res: Response, next: NextFunction) {
+  async createCourse(
+    req: Request<{}, {}, CreateCourseReq["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       if (!req.files || Array.isArray(req.files)) {
         return next(ApiError.BadRequest("Изображения не найдены"));
@@ -30,7 +35,11 @@ class CoursesController {
       next(e);
     }
   }
-  async updateCourse(req: Request, res: Response, next: NextFunction) {
+  async updateCourse(
+    req: Request<UpdateCourseReq["params"], {}, UpdateCourseReq["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       if (!req.files || Array.isArray(req.files)) {
         return next(ApiError.BadRequest("Изображения не найдены"));

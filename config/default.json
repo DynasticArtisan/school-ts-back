@@ -6,12 +6,9 @@
 
   "JwtAccessSecret": "OwlsIsNotWhatTheySeem",
   "JwtRefreshSecret": "OwlsIsNotWhatTheySeem",
-  "JwtResetSecret": "OwlsIsNotWhatTheySeem",
 
   "smtpHost": "smtp.gmail.com",
   "smtpPort": 587,
   "smtpUser": "alexartgorka@gmail.com",
-  "smtpPass": "pidjyocmyenhbwhe",
-
-  "MailoKey": "ab9e45f8edb321165c444cb81b0cab00"
+  "smtpPass": "pidjyocmyenhbwhe"
 }

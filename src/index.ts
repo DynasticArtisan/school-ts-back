@@ -8,7 +8,6 @@ import { connect } from "mongoose";
 import errorMiddleware from "./middlewares/errorMiddleware";
 import router from "./routers";
 import devrouter from "./routers/dev.router";
-import homeworkModel from "./models/homework.model";
 
 const PORT = config.get("serverPORT");
 
@@ -24,11 +23,11 @@ app.use(
   "/images",
   express.static(path.join(__dirname, "..", "filestore/images"))
 );
-// app.use(
-//   "/homeworks",
-//   express.static(path.join(__dirname, "filestore/homeworks/"))
-// );
-// app.use("/avatars", express.static(path.join(__dirname, "filestore/avatars/")));
+app.use(
+  "/homeworks",
+  express.static(path.join(__dirname, "filestore/homeworks/"))
+);
+app.use("/avatars", express.static(path.join(__dirname, "filestore/avatars/")));
 
 const start = async () => {
   try {

@@ -1,9 +1,19 @@
 import { NextFunction, Request, Response } from "express";
+import {
+  ActivateUserReq,
+  CreateUserReq,
+  LoginUserReq,
+  RefreshReq,
+} from "../schemas/user.schema";
 import authService from "../services/auth.service";
 import tokenService from "../services/token.service";
 
 class AuthController {
-  async registration(req: Request, res: Response, next: NextFunction) {
+  async registration(
+    req: Request<{}, {}, CreateUserReq["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const { name, lastname, email, password } = req.body;
       const message = await authService.registration(
@@ -17,7 +27,11 @@ class AuthController {
       next(e);
     }
   }
-  async activation(req: Request, res: Response, next: NextFunction) {
+  async activation(
+    req: Request<ActivateUserReq["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const { user, activatecode } = req.params;
       await authService.activate(user, activatecode);
@@ -51,7 +65,11 @@ class AuthController {
     }
   }
 
-  async login(req: Request, res: Response, next: NextFunction) {
+  async login(
+    req: Request<{}, {}, LoginUserReq["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const { email, password, remember } = req.body;
       const User = await authService.login(email, password);
@@ -68,10 +86,15 @@ class AuthController {
       next(e);
     }
   }
-  async refresh(req: Request, res: Response, next: NextFunction) {
+  async refresh(
+    req: Request<{}, {}, {}, RefreshReq["query"], { test: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const { refreshToken } = req.cookies;
       const { remember } = req.query;
+
       const User = await authService.refresh(refreshToken);
       if (remember) {
         res.cookie("refreshToken", User.refreshToken, {

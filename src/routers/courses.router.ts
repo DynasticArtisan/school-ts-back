@@ -1,8 +1,13 @@
 import express from "express";
 import coursesController from "../controllers/courses.controller";
 import CreateAccessMiddleware from "../middlewares/createAccessMiddleware";
+import Validate from "../middlewares/validate.middleware";
 import { UserRole } from "../models/user.model";
 import courseMulter from "../multer/courseMulter";
+import {
+  CreateCourseSchema,
+  UpdateCourseSchema,
+} from "../schemas/course.schema";
 
 const coursesRouter = express.Router();
 coursesRouter.get(
@@ -29,12 +34,14 @@ coursesRouter.get(
 coursesRouter.post(
   "/",
   CreateAccessMiddleware([UserRole.super]),
+  Validate(CreateCourseSchema),
   courseMulter,
   coursesController.createCourse
 );
 coursesRouter.put(
   "/:course",
   CreateAccessMiddleware([UserRole.super]),
+  Validate(UpdateCourseSchema),
   courseMulter,
   coursesController.updateCourse
 );
