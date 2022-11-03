@@ -1,6 +1,10 @@
 import { isValidObjectId } from "mongoose";
 import { object, string, boolean, TypeOf } from "zod";
 
+export const UserIdSchema = string().refine((user) => isValidObjectId(user), {
+  message: "Некорректный ID пользователя",
+});
+
 export const CreateUserSchema = object({
   body: object({
     name: string({
@@ -21,9 +25,7 @@ export type CreateUserReq = TypeOf<typeof CreateUserSchema>;
 
 export const ActivateUserSchema = object({
   params: object({
-    user: string().refine((user) => isValidObjectId(user), {
-      message: "Некорректный ID пользователя",
-    }),
+    user: UserIdSchema,
     activatecode: string(),
   }),
 });

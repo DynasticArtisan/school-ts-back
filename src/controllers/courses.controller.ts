@@ -5,11 +5,27 @@ import courseDataService from "../services/courseAccess.service";
 import courseService from "../services/course.service";
 import courseProgressService from "../services/courseProgress.service";
 import courseMastersService from "../services/courseMasters.service";
-import { CreateCourseReq, UpdateCourseReq } from "../schemas/course.schema";
+import {
+  CreateCourseType,
+  CreateStudentType,
+  CreateTeacherType,
+  GetCourseType,
+  GetStudentType,
+  UpdateAccessType,
+  UpdateCourseType,
+} from "../schemas/course.schema";
 
 class CoursesController {
+  async getCourses(req: Request, res: Response, next: NextFunction) {
+    try {
+      const Courses = await courseDataService.getCoursesByRoles(req.user);
+      res.json(Courses);
+    } catch (e) {
+      next(e);
+    }
+  }
   async createCourse(
-    req: Request<{}, {}, CreateCourseReq["body"]>,
+    req: Request<{}, {}, CreateCourseType["body"]>,
     res: Response,
     next: NextFunction
   ) {
@@ -36,7 +52,7 @@ class CoursesController {
     }
   }
   async updateCourse(
-    req: Request<UpdateCourseReq["params"], {}, UpdateCourseReq["body"]>,
+    req: Request<UpdateCourseType["params"], {}, UpdateCourseType["body"]>,
     res: Response,
     next: NextFunction
   ) {
@@ -46,7 +62,7 @@ class CoursesController {
       }
       const image = req.files["image"][0];
       const icon = req.files["icon"][0];
-      const { course } = req.params;
+      const { courseId } = req.params;
       const { title, subtitle, description } = req.body;
       const courseData: CourseInput = { title, subtitle, description };
       if (icon) {
@@ -55,52 +71,35 @@ class CoursesController {
       if (image) {
         courseData.image = "images/" + image.filename;
       }
-      const Course = await courseService.updateCourse(course, courseData);
+      const Course = await courseService.updateCourse(courseId, courseData);
       res.json(Course);
     } catch (e) {
       next(e);
     }
   }
-  async deleteCourse(req: Request, res: Response, next: NextFunction) {
+  async deleteCourse(
+    req: Request<GetCourseType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { course } = req.params;
-      await courseService.deleteCourse(course);
+      const { courseId } = req.params;
+      await courseService.deleteCourse(courseId);
       res.json({ message: "Курс удален" });
     } catch (e) {
       next(e);
     }
   }
 
-  async getCourses(req: Request, res: Response, next: NextFunction) {
+  async getModules(
+    req: Request<GetCourseType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const Courses = await courseDataService.getCoursesByRoles(req.user);
-      res.json(Courses);
-    } catch (e) {
-      next(e);
-    }
-  }
-  async createModule(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { course } = req.params;
-      const { title, description } = req.body;
-      if (!course || !title || !description) {
-        next(ApiError.BadRequest("Недостаточно данных"));
-      }
-      const Module = await courseService.createModule(
-        course,
-        title,
-        description
-      );
-      res.json(Module);
-    } catch (e) {
-      next(e);
-    }
-  }
-  async getModules(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { course } = req.params;
+      const { courseId } = req.params;
       const Course = await courseDataService.getCourseModulesByRoles(
-        course,
+        courseId,
         req.user
       );
       res.json(Course);
@@ -108,12 +107,15 @@ class CoursesController {
       next(e);
     }
   }
-
-  async getStudents(req: Request, res: Response, next: NextFunction) {
+  async getStudents(
+    req: Request<GetCourseType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { course } = req.params;
+      const { courseId } = req.params;
       const CourseStudents = await courseDataService.getCourseStudentsByRoles(
-        course,
+        courseId,
         req.user
       );
       res.json(CourseStudents);
@@ -121,29 +123,17 @@ class CoursesController {
       next(e);
     }
   }
-  async getStudentProfile(req: Request, res: Response, next: NextFunction) {
+  async createStudent(
+    req: Request<CreateStudentType["params"], {}, CreateStudentType["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { course, user } = req.params;
-      const Profile = await courseDataService.getCourseStudentProfileByRoles(
-        course,
-        user,
-        req.user
-      );
-      res.json(Profile);
-    } catch (e) {
-      next(e);
-    }
-  }
-  async createStudent(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { course } = req.params;
-      const { format, user } = req.body;
-      if (!user || !course || !format) {
-        next(ApiError.BadRequest("Недостаточно данных"));
-      }
+      const { courseId, userId } = req.params;
+      const { format } = req.body;
       const Student = await courseProgressService.createCourseProgress(
-        user,
-        course,
+        userId,
+        courseId,
         format
       );
       res.json(Student);
@@ -151,13 +141,34 @@ class CoursesController {
       next(e);
     }
   }
-  async updateStudentAccess(req: Request, res: Response, next: NextFunction) {
+  async getStudentProfile(
+    req: Request<GetStudentType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { course, user } = req.params;
+      const { courseId, userId } = req.params;
+      const Profile = await courseDataService.getCourseStudentProfileByRoles(
+        courseId,
+        userId,
+        req.user
+      );
+      res.json(Profile);
+    } catch (e) {
+      next(e);
+    }
+  }
+  async updateStudentAccess(
+    req: Request<UpdateAccessType["params"], {}, UpdateAccessType["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { courseId, userId } = req.params;
       const { isAvailable } = req.body;
       const Progress = await courseProgressService.updateCourseProgressAccess(
-        user,
-        course,
+        userId,
+        courseId,
         isAvailable
       );
       res.json(Progress);
@@ -165,29 +176,34 @@ class CoursesController {
       next(e);
     }
   }
-  async createMaster(req: Request, res: Response, next: NextFunction) {
+
+  async createMaster(
+    req: Request<CreateTeacherType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { course } = req.params;
-      const { user } = req.body;
-      if (!user || !course) {
-        next(ApiError.BadRequest("Недостаточно данных"));
-      }
+      const { courseId, userId } = req.params;
       const Master = await courseMastersService.createCourseMaster(
-        user,
-        course
+        userId,
+        courseId
       );
       res.json(Master);
     } catch (e) {
       next(e);
     }
   }
-  async updateMasterAccess(req: Request, res: Response, next: NextFunction) {
+  async updateMasterAccess(
+    req: Request<UpdateAccessType["params"], {}, UpdateAccessType["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { course, user } = req.params;
+      const { courseId, userId } = req.params;
       const { isAvailable } = req.body;
       const Progress = await courseMastersService.updateCourseMasterAccess(
-        user,
-        course,
+        userId,
+        courseId,
         isAvailable
       );
       res.json(Progress);
