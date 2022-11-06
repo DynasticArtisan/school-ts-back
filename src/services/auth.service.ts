@@ -29,7 +29,7 @@ class AuthService {
       email,
       password,
     });
-    const activationLink = `${config.get("ClientURL")}/activation/${User._id}/${
+    const activationLink = `${config.get("SITEURL")}/activation/${User._id}/${
       User.activationCode
     }`;
     try {
@@ -115,7 +115,7 @@ class AuthService {
     }
     User.passwordResetCode = v4();
     await User.save();
-    const passwordResetLink = `${config.get("ClientURL")}/resetpassword/${
+    const passwordResetLink = `${config.get("SITEURL")}/resetpassword/${
       User._id
     }/${User.passwordResetCode}`;
     try {
