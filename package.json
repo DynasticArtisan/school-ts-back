@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node ./src/index.ts",
+    "reset": "ts-node ./src/reset/index.ts",
     "dev": "nodemon",
     "build": "npx tsc",
     "start:prod": "npm run build && node ./dist/src/index.js"

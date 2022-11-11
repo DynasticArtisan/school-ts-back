@@ -7,6 +7,7 @@ import UserModel from "../models/user.model";
 import authService from "../services/auth.service";
 import courseService from "../services/course.service";
 import mailService from "../services/mail.service";
+import notifTemplateService from "../services/notifTemplate.service.ts";
 import userService from "../services/user.service";
 const devrouter = express.Router();
 
@@ -32,7 +33,9 @@ devrouter.post("/mailtemplate", async (req, res) => {
 devrouter.get("/mailtemplate", async (req, res) => {
   res.json(await mailService.getTemplates());
 });
-
+devrouter.get("/notiftemplate", async (req, res) => {
+  res.json(await notifTemplateService.getAllTemplates());
+});
 devrouter.delete("/courses/:course", async (req, res) => {
   res.json(await courseService.deleteCourse(req.params.course));
 });
