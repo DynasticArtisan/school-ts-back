@@ -12,7 +12,7 @@ const Validate =
       });
       next();
     } catch (e: any) {
-      res.status(400).send(e.errors);
+      next(e)
     }
   };
 

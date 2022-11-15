@@ -115,7 +115,7 @@ class AuthService {
     }
     User.passwordResetCode = v4();
     await User.save();
-    const passwordResetLink = `${config.get("SITEURL")}/resetpassword/${
+    const passwordResetLink = `${config.get("SITEURL")}/lk/resetpassword/${
       User._id
     }/${User.passwordResetCode}`;
     try {
