@@ -19,7 +19,7 @@ class NotifController {
   }
   async getAllTemplates(req: Request, res: Response, next: NextFunction) {
     try {
-      const Templates = await notifTemplateService.getAllTemplates();
+      const Templates = await notifTemplateService.getCustomTemplates();
       res.json(Templates);
     } catch (e) {
       next(e);
