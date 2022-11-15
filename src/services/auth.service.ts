@@ -29,7 +29,7 @@ class AuthService {
       email,
       password,
     });
-    const activationLink = `${config.get("SITEURL")}/activation/${User._id}/${
+    const activationLink = `${config.get("SITEURL")}/lk/activation/${User._id}/${
       User.activationCode
     }`;
     try {
