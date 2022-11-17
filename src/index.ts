@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import { connect } from "mongoose";
 
-import errorMiddleware from "./middlewares/errorMiddleware";
+import errorMiddleware from "./middlewares/error.middleware";
 import router from "./routers";
 import devrouter from "./routers/dev.router";
 
