@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions/ApiError";
 import { CourseInput } from "../models/course.model";
 import courseDataService from "../services/courseAccess.service";

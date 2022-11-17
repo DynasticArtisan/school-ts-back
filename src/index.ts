@@ -12,7 +12,9 @@ import devrouter from "./routers/dev.router";
 const PORT = config.get("serverPORT");
 
 const app = express();
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors({ credentials: true, origin: config.get("SITEURL") }));
 app.use("/api", router);

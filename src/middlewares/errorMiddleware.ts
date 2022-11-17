@@ -1,13 +1,12 @@
-import { NextFunction, Request, Response } from "express";
+import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions/ApiError";
 
 export default function (
-  error: Error,
+  error: ErrorRequestHandler,
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  //console.log(error);
   if (error instanceof ApiError) {
     return res.status(error.status).json({
       message: error.message,

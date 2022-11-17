@@ -34,15 +34,16 @@ coursesRouter.get(
 coursesRouter.post(
   "/",
   CreateAccessMiddleware([UserRole.super]),
+  //courseMulter,
   Validate(CreateCourseSchema),
-  courseMulter,
   coursesController.createCourse
 );
+
 coursesRouter.put(
   "/:course",
   CreateAccessMiddleware([UserRole.super]),
-  Validate(UpdateCourseSchema),
   courseMulter,
+  Validate(UpdateCourseSchema),
   coursesController.updateCourse
 );
 coursesRouter.delete(
