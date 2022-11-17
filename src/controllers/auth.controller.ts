@@ -72,43 +72,45 @@ class AuthController {
   ) {
     try {
       const { email, password, remember } = req.body;
-      const User = await authService.login(email, password);
+      const { user, accessToken, refreshToken } = await authService.login(
+        email,
+        password,
+        remember
+      );
       if (remember) {
-        res.cookie("refreshToken", User.refreshToken, {
+        res.cookie("refreshToken", refreshToken, {
           maxAge: 30 * 24 * 60 * 60 * 1000,
           httpOnly: true,
         });
       } else {
-        res.cookie("refreshToken", User.refreshToken, { httpOnly: true });
+        res.cookie("refreshToken", refreshToken, { httpOnly: true });
       }
-      return res.json(User);
+      return res.json({ user, accessToken });
     } catch (e) {
       next(e);
     }
   }
-  async refresh(
-    req: Request<{}, {}, {}, RefreshReq["query"], { test: string }>,
-    res: Response,
-    next: NextFunction
-  ) {
-    try {
-      const { refreshToken } = req.cookies;
-      const { remember } = req.query;
 
-      const User = await authService.refresh(refreshToken);
+  async refresh(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { user, remember, accessToken, refreshToken } =
+        await authService.refresh(req.cookies.refreshToken);
+
       if (remember) {
-        res.cookie("refreshToken", User.refreshToken, {
+        res.cookie("refreshToken", refreshToken, {
           maxAge: 30 * 24 * 60 * 60 * 1000,
           httpOnly: true,
         });
       } else {
-        res.cookie("refreshToken", User.refreshToken, { httpOnly: true });
+        res.cookie("refreshToken", refreshToken, { httpOnly: true });
       }
-      return res.json(User);
+
+      return res.json({ user, accessToken });
     } catch (e) {
       next(e);
     }
   }
+
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;
