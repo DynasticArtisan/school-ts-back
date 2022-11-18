@@ -29,9 +29,9 @@ class AuthService {
       email,
       password,
     });
-    const activationLink = `${config.get("SITEURL")}/lk/activation/${
-      User._id
-    }/${User.activationCode}`;
+    const activationLink = `${config.get("SITEURL")}lk/activation/${User._id}/${
+      User.activationCode
+    }`;
     try {
       await mailService.sendActivationMail(email, activationLink);
     } catch (e) {
@@ -115,7 +115,7 @@ class AuthService {
     }
     User.passwordResetCode = v4();
     await User.save();
-    const passwordResetLink = `${config.get("SITEURL")}/lk/resetpassword/${
+    const passwordResetLink = `${config.get("SITEURL")}lk/resetpassword/${
       User._id
     }/${User.passwordResetCode}`;
     try {
