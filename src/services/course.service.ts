@@ -200,7 +200,7 @@ class courseService {
     if (!Module) {
       throw ApiError.BadRequest("При создании модуля произошла ошибка");
     }
-    return new ModuleDto(Module);
+    return Module;
   }
   async updateModule(
     id: ObjectId | string,
@@ -245,20 +245,23 @@ class courseService {
     if (!Module) {
       throw ApiError.BadRequest("Модуль не найден");
     }
-    return new ModuleDto(Module);
+    return Module;
   }
   async getUserModuleLessons(module: string, user: string) {
-    const Module = await moduleModel.findById(module).populate({
-      path: "lessons",
-      populate: {
-        path: "progress",
-        match: { user },
-      },
-    });
+    const Module = await moduleModel
+      .findById(module)
+      .populate({
+        path: "lessons",
+        populate: {
+          path: "progress",
+          match: { user },
+        },
+      })
+      .lean();
     if (!Module) {
       throw ApiError.BadRequest("Курс не найден");
     }
-    return new ModuleDto(Module);
+    return Module;
   }
 
   async createLesson(
@@ -286,7 +289,7 @@ class courseService {
       exercise,
     };
     const Lesson = await lessonModel.create(newLesson);
-    return new LessonDto(Lesson);
+    return Lesson;
   }
   async updateLesson(
     id: string,
@@ -306,7 +309,7 @@ class courseService {
     if (!Lesson) {
       throw ApiError.BadRequest("Урок не найден");
     }
-    return new LessonDto(Lesson);
+    return Lesson;
   }
   async deleteLesson(id: ObjectId | string) {
     const Lesson = await lessonModel.findById(id);

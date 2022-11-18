@@ -34,7 +34,7 @@ coursesRouter.get(
 coursesRouter.post(
   "/",
   CreateAccessMiddleware([UserRole.super]),
-  //courseMulter,
+  courseMulter,
   Validate(CreateCourseSchema),
   coursesController.createCourse
 );
@@ -53,7 +53,7 @@ coursesRouter.delete(
 );
 
 coursesRouter.post(
-  "/:course/users/",
+  "/:course/users/:user",
   CreateAccessMiddleware([UserRole.super]),
   coursesController.createStudent
 );
@@ -74,7 +74,7 @@ coursesRouter.put(
 );
 
 coursesRouter.post(
-  "/:course/masters/",
+  "/:course/masters/:user",
   CreateAccessMiddleware([UserRole.super]),
   coursesController.createMaster
 );

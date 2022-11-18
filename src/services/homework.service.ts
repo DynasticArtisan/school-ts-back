@@ -2,8 +2,10 @@ import ApiError from "../exceptions/ApiError";
 import homeworkModel, { HomeworkStatus } from "../models/homework.model";
 import homeworkFilesModel from "../models/homeworkFiles.model";
 import homeworkVerifyModel from "../models/homeworkVerify.model";
+import courseService from "./course.service";
 import courseMastersService from "./courseMasters.service";
 import courseProgressService from "./courseProgress.service";
+import notificationService from "./notification.service";
 
 class HomeworkService {
   async createHomework(
@@ -71,6 +73,7 @@ class HomeworkService {
     }
     return Homework;
   }
+
   async acceptHomework(homework: string) {
     const Homework = await homeworkModel.findByIdAndUpdate(homework, {
       status: HomeworkStatus.accept,
@@ -78,9 +81,16 @@ class HomeworkService {
     if (!Homework) {
       throw ApiError.BadRequest("Домашнее задание не найдено");
     }
-    // notification
+    try {
+      const Lesson = await courseService.getLesson(Homework.lesson);
+      await notificationService.createHomeworkAcceptNotif(
+        String(Homework.user),
+        Lesson
+      );
+    } catch (error) {}
     return Homework;
   }
+
   async rejectHomework(homework: string) {
     const Homework = await homeworkModel.findByIdAndUpdate(homework, {
       status: HomeworkStatus.reject,
@@ -88,9 +98,16 @@ class HomeworkService {
     if (!Homework) {
       throw ApiError.BadRequest("Домашнее задание не найдено");
     }
-    // notification
+    try {
+      const Lesson = await courseService.getLesson(Homework.lesson);
+      await notificationService.createHomeworkRejectNotif(
+        String(Homework.user),
+        Lesson
+      );
+    } catch (error) {}
     return Homework;
   }
+
   async verifyHomework(homework: string, user: string) {
     const Homework = await homeworkModel.findById(homework);
     if (!Homework) {

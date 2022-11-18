@@ -136,8 +136,8 @@ class CoursesController {
   }
   async createStudent(req: Request, res: Response, next: NextFunction) {
     try {
-      const { course } = req.params;
-      const { format, user } = req.body;
+      const { course, user } = req.params;
+      const { format } = req.body;
       if (!user || !course || !format) {
         next(ApiError.BadRequest("Недостаточно данных"));
       }
@@ -167,8 +167,7 @@ class CoursesController {
   }
   async createMaster(req: Request, res: Response, next: NextFunction) {
     try {
-      const { course } = req.params;
-      const { user } = req.body;
+      const { course, user } = req.params;
       if (!user || !course) {
         next(ApiError.BadRequest("Недостаточно данных"));
       }
