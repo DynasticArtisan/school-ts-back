@@ -1,5 +1,5 @@
 import { isValidObjectId } from "mongoose";
-import { object, string, boolean, TypeOf } from "zod";
+import { object, string, TypeOf, boolean } from "zod";
 import { CourseProgressFormat } from "../models/courseProgress.model";
 import { UserIdSchema } from "./user.schema";
 
@@ -43,7 +43,7 @@ export type GetCourseType = TypeOf<typeof GetCourseSchema>;
 
 export const UpdateCourseSchema = object({
   params: object({
-    courseId: CourseIdSchema,
+    course: CourseIdSchema,
   }),
   body: CourseInputSchema,
 });
@@ -52,10 +52,21 @@ export type UpdateCourseType = TypeOf<typeof UpdateCourseSchema>;
 export const CreateStudentSchema = object({
   params: object({
     courseId: CourseIdSchema,
-    userId: UserIdSchema,
   }),
-  body: StudentInputSchema,
+  body: object({
+    userId: UserIdSchema,
+    format: string().refine(
+      (format) =>
+        Object.values(CourseProgressFormat).includes(
+          format as CourseProgressFormat
+        ),
+      {
+        message: "Некорректный формат обучения",
+      }
+    ),
+  }),
 });
+
 export type CreateStudentType = TypeOf<typeof CreateStudentSchema>;
 
 export const CreateTeacherSchema = object({
@@ -84,3 +95,6 @@ export const UpdateAccessSchema = object({
   }),
 });
 export type UpdateAccessType = TypeOf<typeof UpdateAccessSchema>;
+export type UpdateCourseReq = TypeOf<typeof UpdateCourseSchema>;
+
+export type CreateStudentReq = TypeOf<typeof CreateStudentSchema>;

@@ -1,5 +1,5 @@
-.gitignore
 /node_modules
-/filestore/
-/config
+/filestore
 /dist
+/config/default.json
+

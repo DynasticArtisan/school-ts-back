@@ -47,8 +47,8 @@ class LessonsController {
   }
   async deleteLesson(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id } = req.params;
-      await courseService.deleteLesson(id);
+      const { lesson } = req.params;
+      await courseService.deleteLesson(lesson);
       res.json({ message: "Запись об уроке удалена" });
     } catch (e) {
       next(e);

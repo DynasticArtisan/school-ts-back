@@ -28,15 +28,16 @@ coursesRouter.get(
 coursesRouter.post(
   "/",
   CreateAccessMiddleware([UserRole.super]),
-  Validate(CreateCourseSchema),
   courseMulter,
+  Validate(CreateCourseSchema),
   coursesController.createCourse
 );
+
 coursesRouter.put(
   "/:courseId",
   CreateAccessMiddleware([UserRole.super]),
-  Validate(UpdateCourseSchema),
   courseMulter,
+  Validate(UpdateCourseSchema),
   coursesController.updateCourse
 );
 coursesRouter.delete(
@@ -63,11 +64,12 @@ coursesRouter.get(
   coursesController.getStudents
 );
 coursesRouter.post(
-  "/:courseId/users/:userId",
+  "/:courseId/students",
   CreateAccessMiddleware([UserRole.super]),
   Validate(CreateStudentSchema),
   coursesController.createStudent
 );
+
 coursesRouter.get(
   "/:courseId/users/:userId",
   CreateAccessMiddleware([UserRole.super, UserRole.teacher]),
@@ -82,7 +84,7 @@ coursesRouter.put(
 );
 
 coursesRouter.post(
-  "/:courseId/masters/:userId",
+  "/:course/masters/:user",
   CreateAccessMiddleware([UserRole.super]),
   Validate(CreateTeacherSchema),
   coursesController.createMaster

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions/ApiError";
 import { CourseInput } from "../models/course.model";
 import courseDataService from "../services/courseAccess.service";
@@ -60,16 +60,16 @@ class CoursesController {
       if (!req.files || Array.isArray(req.files)) {
         return next(ApiError.BadRequest("Изображения не найдены"));
       }
-      const image = req.files["image"][0];
-      const icon = req.files["icon"][0];
+      const image = req.files["image"];
+      const icon = req.files["icon"];
       const { courseId } = req.params;
       const { title, subtitle, description } = req.body;
       const courseData: CourseInput = { title, subtitle, description };
       if (icon) {
-        courseData.icon = "images/" + icon.filename;
+        courseData.icon = "images/" + icon[0].filename;
       }
       if (image) {
-        courseData.image = "images/" + image.filename;
+        courseData.image = "images/" + image[0].filename;
       }
       const Course = await courseService.updateCourse(courseId, courseData);
       res.json(Course);
@@ -123,14 +123,15 @@ class CoursesController {
       next(e);
     }
   }
+
   async createStudent(
     req: Request<CreateStudentType["params"], {}, CreateStudentType["body"]>,
     res: Response,
     next: NextFunction
   ) {
     try {
-      const { courseId, userId } = req.params;
-      const { format } = req.body;
+      const { courseId } = req.params;
+      const { userId, format } = req.body;
       const Student = await courseProgressService.createCourseProgress(
         userId,
         courseId,
@@ -183,7 +184,8 @@ class CoursesController {
     next: NextFunction
   ) {
     try {
-      const { courseId, userId } = req.params;
+      const { courseId } = req.params;
+      const { userId } = req.params;
       const Master = await courseMastersService.createCourseMaster(
         userId,
         courseId

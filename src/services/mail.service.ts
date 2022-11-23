@@ -51,15 +51,19 @@ class MailService {
     const Template = await MailTemplateModel.findOne({
       type: MailTemplateType.activate,
     });
-    if (!Template) {
-      throw ApiError.BadRequest("Шаблон не найден");
+    if (Template) {
+      const { subject, html } = await Template.prepare({});
+      await this.transporter.sendMail({
+        to,
+        subject,
+        html: html.replace("#activate-link#", activateLink),
+      });
+      return true
     }
-    const { subject, html } = await Template.prepare({});
-    await this.transporter.sendMail({
-      to,
-      subject,
-      html: html.replace("#activate-link#", activateLink),
-    });
+    await this.transporter.sendmail({
+      to, subject: "Активация аккаунта в онлайн школе Актив", html: `Для активации пройдите по <a href="${activateLink}"><b>ссылке</b></a>`
+    })
+    return true
   }
   async sendResetPasswordMail(to: string, passwordResetLink: string) {
     const Template = await MailTemplateModel.findOne({

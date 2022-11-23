@@ -5,16 +5,18 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import { connect } from "mongoose";
 
-import errorMiddleware from "./middlewares/errorMiddleware";
+import errorMiddleware from "./middlewares/error.middleware";
 import router from "./routers";
 import devrouter from "./routers/dev.router";
 
 const PORT = config.get("serverPORT");
 
 const app = express();
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors({ credentials: true, origin: config.get("ClientURL") }));
+app.use(cors({ credentials: true, origin: config.get("SITEURL") }));
 app.use("/api", router);
 app.use("/dev", devrouter);
 app.use(errorMiddleware);

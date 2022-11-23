@@ -29,7 +29,7 @@ class AuthService {
       email,
       password,
     });
-    const activationLink = `${config.get("ClientURL")}/activation/${User._id}/${
+    const activationLink = `${config.get("SITEURL")}lk/activation/${User._id}/${
       User.activationCode
     }`;
     try {
@@ -55,7 +55,7 @@ class AuthService {
     return true;
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string, remember: boolean) {
     const User = await userModel
       .findOne({ email })
       .populate<{ userinfo: UserinfoDocument }>("userinfo");
@@ -68,14 +68,14 @@ class AuthService {
     if (!(await User.comparePassword(password))) {
       throw ApiError.BadRequest("Неверный пароль");
     }
-    const tokens = await tokenService.generateTokens({
-      id: User._id,
-      role: User.role,
-    });
-    await tokenService.saveToken(User._id, tokens.refreshToken);
-
-    return { ...tokens, user: new UserDto(User) };
+    const { accessToken, refreshToken } = await tokenService.generateTokens(
+      User._id,
+      User.role,
+      remember
+    );
+    return { user: new UserDto(User), accessToken, refreshToken };
   }
+
   async refresh(refreshToken: string) {
     if (!refreshToken) {
       throw ApiError.BadRequest("Невалидный токен");
@@ -95,12 +95,12 @@ class AuthService {
     if (!User) {
       throw ApiError.BadRequest("Пользователь не найден");
     }
-    const tokens = await tokenService.generateTokens({
-      id: User._id,
-      role: User.role,
-    });
-    await tokenService.saveToken(User._id, tokens.refreshToken);
-    return { ...tokens, user: new UserDto(User) };
+    const tokens = await tokenService.generateTokens(
+      User._id,
+      User.role,
+      session.remember
+    );
+    return { user: new UserDto(User), remember: session.remember, ...tokens };
   }
 
   async forgotPassword(email: string) {
@@ -115,7 +115,7 @@ class AuthService {
     }
     User.passwordResetCode = v4();
     await User.save();
-    const passwordResetLink = `${config.get("ClientURL")}/resetpassword/${
+    const passwordResetLink = `${config.get("SITEURL")}lk/resetpassword/${
       User._id
     }/${User.passwordResetCode}`;
     try {

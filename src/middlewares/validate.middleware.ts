@@ -3,7 +3,7 @@ import { AnyZodObject } from "zod";
 
 const Validate =
   (schema: AnyZodObject) =>
-  (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       schema.parse({
         body: req.body,
@@ -12,7 +12,7 @@ const Validate =
       });
       next();
     } catch (e: any) {
-      res.status(400).send(e.errors);
+      next(e);
     }
   };
 

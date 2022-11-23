@@ -1,7 +1,9 @@
 import { Date, model, ObjectId, Schema } from "mongoose";
 
 export enum CourseProgressFormat {
+  standart = "стандартный",
   optimal = "оптимальный",
+  advanced = "продвинутый",
 }
 
 export interface CourseProgressDocument extends Document {
