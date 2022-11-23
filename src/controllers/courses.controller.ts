@@ -44,16 +44,16 @@ class CoursesController {
       if (!req.files || Array.isArray(req.files)) {
         return next(ApiError.BadRequest("Изображения не найдены"));
       }
-      const image = req.files["image"][0];
-      const icon = req.files["icon"][0];
+      const image = req.files["image"];
+      const icon = req.files["icon"];
       const { course } = req.params;
       const { title, subtitle, description } = req.body;
       const courseData: CourseInput = { title, subtitle, description };
       if (icon) {
-        courseData.icon = "images/" + icon.filename;
+        courseData.icon = "images/" + icon[0].filename;
       }
       if (image) {
-        courseData.image = "images/" + image.filename;
+        courseData.image = "images/" + image[0].filename;
       }
       const Course = await courseService.updateCourse(course, courseData);
       res.json(Course);

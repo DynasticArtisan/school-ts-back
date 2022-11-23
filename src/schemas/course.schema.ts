@@ -1,6 +1,13 @@
 import { isValidObjectId } from "mongoose";
 import { object, string, TypeOf } from "zod";
 
+export const CourseIdSchema = string().refine(
+  (courseId) => isValidObjectId(courseId),
+  {
+    message: "Некорректный ID курса",
+  }
+);
+
 export const CreateCourseSchema = object({
   body: object({
     title: string({
@@ -18,9 +25,7 @@ export type CreateCourseReq = TypeOf<typeof CreateCourseSchema>;
 
 export const UpdateCourseSchema = object({
   params: object({
-    course: string().refine((course) => isValidObjectId(course), {
-      message: "Некорректный ID курса",
-    }),
+    course: CourseIdSchema,
   }),
   body: object({
     title: string({
