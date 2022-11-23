@@ -6,6 +6,7 @@ import { UserRole } from "../models/user.model";
 import courseMulter from "../multer/courseMulter";
 import {
   CreateCourseSchema,
+  CreateStudentSchema,
   UpdateCourseSchema,
 } from "../schemas/course.schema";
 
@@ -53,10 +54,12 @@ coursesRouter.delete(
 );
 
 coursesRouter.post(
-  "/:course/users/:user",
+  "/:courseId/students",
   CreateAccessMiddleware([UserRole.super]),
+  Validate(CreateStudentSchema),
   coursesController.createStudent
 );
+
 coursesRouter.get(
   "/:course/users",
   CreateAccessMiddleware([UserRole.super, UserRole.teacher]),

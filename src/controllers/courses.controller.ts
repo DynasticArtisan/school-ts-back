@@ -5,7 +5,11 @@ import courseDataService from "../services/courseAccess.service";
 import courseService from "../services/course.service";
 import courseProgressService from "../services/courseProgress.service";
 import courseMastersService from "../services/courseMasters.service";
-import { CreateCourseReq, UpdateCourseReq } from "../schemas/course.schema";
+import {
+  CreateCourseReq,
+  CreateStudentReq,
+  UpdateCourseReq,
+} from "../schemas/course.schema";
 
 class CoursesController {
   async createCourse(
@@ -134,16 +138,17 @@ class CoursesController {
       next(e);
     }
   }
-  async createStudent(req: Request, res: Response, next: NextFunction) {
+  async createStudent(
+    req: Request<CreateStudentReq["params"], {}, CreateStudentReq["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { course, user } = req.params;
-      const { format } = req.body;
-      if (!user || !course || !format) {
-        next(ApiError.BadRequest("Недостаточно данных"));
-      }
+      const { courseId } = req.params;
+      const { userId, format } = req.body;
       const Student = await courseProgressService.createCourseProgress(
-        user,
-        course,
+        userId,
+        courseId,
         format
       );
       res.json(Student);
