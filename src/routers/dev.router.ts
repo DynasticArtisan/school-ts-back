@@ -1,4 +1,5 @@
 import express from "express";
+import courseModel from "../models/course.model";
 import courseProgressModel from "../models/courseProgress.model";
 import homeworkModel from "../models/homework.model";
 import lessonProgressModel from "../models/lessonProgress.model";
@@ -43,6 +44,12 @@ devrouter.delete("/courses/:course/users", async (req, res) => {
   await courseProgressModel.deleteMany({ course: req.params.course });
   await moduleProgressModel.deleteMany({ course: req.params.course });
   await lessonProgressModel.deleteMany({ course: req.params.course });
+  res.send();
+});
+devrouter.delete("/students", async (req, res) => {
+  await courseProgressModel.deleteMany();
+  await moduleProgressModel.deleteMany();
+  await lessonProgressModel.deleteMany();
   res.send();
 });
 
