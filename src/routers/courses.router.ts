@@ -84,7 +84,7 @@ coursesRouter.put(
 );
 
 coursesRouter.post(
-  "/:course/masters/:user",
+  "/:course/masters",
   CreateAccessMiddleware([UserRole.super]),
   Validate(CreateTeacherSchema),
   coursesController.createMaster

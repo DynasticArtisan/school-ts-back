@@ -179,13 +179,13 @@ class CoursesController {
   }
 
   async createMaster(
-    req: Request<CreateTeacherType["params"]>,
+    req: Request<CreateTeacherType["params"], {}, CreateTeacherType["body"]>,
     res: Response,
     next: NextFunction
   ) {
     try {
       const { courseId } = req.params;
-      const { userId } = req.params;
+      const { userId } = req.body;
       const Master = await courseMastersService.createCourseMaster(
         userId,
         courseId

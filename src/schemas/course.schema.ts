@@ -9,6 +9,7 @@ export const CourseIdSchema = string().refine(
     message: "Некорректный ID курса",
   }
 );
+
 export const CourseInputSchema = object({
   title: string({
     required_error: "Название курса обязательно",
@@ -19,14 +20,6 @@ export const CourseInputSchema = object({
   description: string({
     required_error: "Подробное описание обязательно",
   }),
-});
-export const StudentInputSchema = object({
-  format: string().refine(
-    (format) => Object.values<string>(CourseProgressFormat).includes(format),
-    {
-      message: "Некорректный формат обучения",
-    }
-  ),
 });
 
 export const CreateCourseSchema = object({
@@ -43,7 +36,7 @@ export type GetCourseType = TypeOf<typeof GetCourseSchema>;
 
 export const UpdateCourseSchema = object({
   params: object({
-    course: CourseIdSchema,
+    courseId: CourseIdSchema,
   }),
   body: CourseInputSchema,
 });
@@ -56,22 +49,20 @@ export const CreateStudentSchema = object({
   body: object({
     userId: UserIdSchema,
     format: string().refine(
-      (format) =>
-        Object.values(CourseProgressFormat).includes(
-          format as CourseProgressFormat
-        ),
+      (format) => Object.values<string>(CourseProgressFormat).includes(format),
       {
         message: "Некорректный формат обучения",
       }
     ),
   }),
 });
-
 export type CreateStudentType = TypeOf<typeof CreateStudentSchema>;
 
 export const CreateTeacherSchema = object({
   params: object({
     courseId: CourseIdSchema,
+  }),
+  body: object({
     userId: UserIdSchema,
   }),
 });
@@ -95,6 +86,3 @@ export const UpdateAccessSchema = object({
   }),
 });
 export type UpdateAccessType = TypeOf<typeof UpdateAccessSchema>;
-export type UpdateCourseReq = TypeOf<typeof UpdateCourseSchema>;
-
-export type CreateStudentReq = TypeOf<typeof CreateStudentSchema>;
