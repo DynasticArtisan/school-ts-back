@@ -1,12 +1,14 @@
 import { Document, model, Schema } from "mongoose";
 import bcrypt from "bcrypt";
+
 export enum UserRole {
-  user = "user",
-  super = "super",
-  admin = "admin",
-  curator = "curator",
-  teacher = "teacher",
+  user = "Пользователь",
+  curator = "Куратор",
+  teacher = "Учитель",
+  admin = "Администратор",
+  super = "Суперадминистратор",
 }
+
 export interface UserDocument extends Document {
   email: string;
   name: string;

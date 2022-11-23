@@ -1,5 +1,6 @@
 import { isValidObjectId } from "mongoose";
 import { object, string, boolean, TypeOf } from "zod";
+import { UserRole } from "../models/user.model";
 
 export const UserIdSchema = string().refine(
   (userId) => isValidObjectId(userId),
@@ -53,3 +54,18 @@ export const RefreshSchema = object({
   }),
 });
 export type RefreshReq = TypeOf<typeof RefreshSchema>;
+
+export const SwitchRoleSchema = object({
+  params: object({
+    userId: UserIdSchema,
+  }),
+  body: object({
+    role: string().refine(
+      (role) => Object.values<string>(UserRole).includes(role),
+      {
+        message: "Неккоректная роль",
+      }
+    ),
+  }),
+});
+export type SwitchRoleReq = TypeOf<typeof SwitchRoleSchema>;

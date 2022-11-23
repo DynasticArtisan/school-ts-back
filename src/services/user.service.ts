@@ -8,7 +8,7 @@ import UserinfoModel, {
 
 class UserService {
   async getUsers() {
-    const Users = await userModel.find();
+    const Users = await userModel.find().sort("-createdAt");
     return Users.map((user) => new UserDto(user));
   }
   async getUser(user: string) {
@@ -31,7 +31,7 @@ class UserService {
     return new UserDto(User);
   }
 
-  async updateRole(user: string, role: UserRole) {
+  async updateRole(user: string, role: string) {
     const User = await userModel.findByIdAndUpdate(
       user,
       { role },

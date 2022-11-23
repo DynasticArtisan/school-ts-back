@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions/ApiError";
 import { UserRole } from "../models/user.model";
+import { SwitchRoleReq } from "../schemas/user.schema";
 import courseService from "../services/course.service";
 import userService from "../services/user.service";
 
@@ -23,19 +24,22 @@ class UserController {
       next(e);
     }
   }
-  async setUserRole(req: Request, res: Response, next: NextFunction) {
+
+  async setUserRole(
+    req: Request<SwitchRoleReq["params"], {}, SwitchRoleReq["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { user } = req.params;
+      const { userId } = req.params;
       const { role } = req.body;
-      if (!(role in UserRole)) {
-        next(ApiError.BadRequest("Некорректная роль"));
-      }
-      const User = await userService.updateRole(user, role);
+      const User = await userService.updateRole(userId, role);
       res.json(User);
     } catch (e) {
       next(e);
     }
   }
+
   async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { user } = req.params;
