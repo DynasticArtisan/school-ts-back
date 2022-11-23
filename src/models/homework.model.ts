@@ -1,9 +1,9 @@
 import { Document, model, ObjectId, Schema } from "mongoose";
 
 export enum HomeworkStatus {
-  wait = "wait",
-  accept = "accept",
-  reject = "reject",
+  wait = "Ожидает проверки",
+  accept = "Хорошее",
+  reject = "Требует доработки",
 }
 
 export interface HomeworkDocument extends Document {

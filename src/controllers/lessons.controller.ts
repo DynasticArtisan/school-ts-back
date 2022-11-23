@@ -86,7 +86,7 @@ class LessonsController {
       const Homework = await homeworkService.createHomework(
         lesson,
         req.user.id,
-        req.file.filename,
+        req.file.originalname,
         req.file.path
       );
       res.json(Homework);
@@ -106,7 +106,7 @@ class LessonsController {
       const Homework = await homeworkService.updateHomework(
         lesson,
         req.user.id,
-        req.file.filename,
+        req.file.originalname,
         req.file.path
       );
       res.json(Homework);

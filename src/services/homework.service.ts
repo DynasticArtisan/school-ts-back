@@ -30,14 +30,13 @@ class HomeworkService {
       lesson,
       course: Progress.course,
     });
-    const Files = await homeworkFilesModel.create({
+    await homeworkFilesModel.create({
       homework: Homework._id,
       user,
       filename,
       filepath,
     });
-
-    return { ...Homework, files: Files };
+    return await homeworkModel.findById(Homework._id).populate("files").lean();
   }
   async updateHomework(
     lesson: string,
@@ -59,7 +58,7 @@ class HomeworkService {
       filename,
       filepath,
     });
-    return { ...Homework, files: Files };
+    return await homeworkModel.findById(Homework._id).populate("files").lean();
   }
 
   async getHomework(homework: string) {
