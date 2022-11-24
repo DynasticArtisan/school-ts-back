@@ -120,15 +120,29 @@ class courseService {
         mastering: CourseMasterDocument;
         progress: CourseProgressDocument;
         lastLesson: LessonDocument;
+        lesson: LessonDocument;
+        module: ModuleDocument;
       }>([
-        {
-          path: "progress",
-          match: { user },
-          populate: "lastLesson",
-        },
         {
           path: "mastering",
           match: { user },
+        },
+        {
+          path: "progress",
+          match: { user },
+          populate: {
+            path: "lastLesson",
+            populate: [
+              {
+                path: "lesson",
+                select: "title",
+              },
+              {
+                path: "module",
+                select: "title",
+              },
+            ],
+          },
         },
       ])
       .lean();
@@ -184,7 +198,17 @@ class courseService {
           },
           {
             path: "lastLesson",
-            populate: "module lesson",
+            select: "module lesson",
+            populate: [
+              {
+                path: "module",
+                select: "title",
+              },
+              {
+                path: "lesson",
+                select: "title",
+              },
+            ],
           },
         ],
       })
