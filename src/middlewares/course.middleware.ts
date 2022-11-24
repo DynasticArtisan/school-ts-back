@@ -1,4 +1,5 @@
-import { Request } from "express";
+import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
+import { unlinkSync } from "fs";
 import multer, { FileFilterCallback } from "multer";
 import path from "path";
 
@@ -44,4 +45,21 @@ const fileFilter = (
   }
 };
 
-export default multer({ storage, fileFilter }).fields(fields);
+export const CourseUploads = multer({ storage, fileFilter }).fields(fields);
+
+export const CourseUploadsCancel = (
+  err: ErrorRequestHandler,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.files && !Array.isArray(req.files)) {
+    if (req.files["image"]) {
+      unlinkSync(req.files["image"][0].path);
+    }
+    if (req.files["icon"]) {
+      unlinkSync(req.files["icon"][0].path);
+    }
+  }
+  next(err);
+};

@@ -80,40 +80,38 @@ class LessonsController {
   async createHomework(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.file) {
-        return next(ApiError.BadRequest("Ошибка в записи файла"));
+        return next(ApiError.BadRequest("Файл не загружен"));
       }
       const { lesson } = req.params;
+      const userId = req.user.id;
+      const { originalname, path } = req.file;
       const Homework = await homeworkService.createHomework(
         lesson,
-        req.user.id,
-        req.file.originalname,
-        req.file.path
+        userId,
+        originalname,
+        path
       );
       res.json(Homework);
     } catch (e) {
-      if (req.file) {
-        unlinkSync(req.file.path);
-      }
       next(e);
     }
   }
   async updateHomework(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.file) {
-        return next(ApiError.BadRequest("Ошибка в записи файла"));
+        return next(ApiError.BadRequest("Файл не загружен"));
       }
       const { lesson } = req.params;
+      const userId = req.user.id;
+      const { originalname, path } = req.file;
       const Homework = await homeworkService.updateHomework(
         lesson,
-        req.user.id,
-        req.file.originalname,
-        req.file.path
+        userId,
+        originalname,
+        path
       );
       res.json(Homework);
     } catch (e) {
-      if (req.file) {
-        unlinkSync(req.file.path);
-      }
       next(e);
     }
   }

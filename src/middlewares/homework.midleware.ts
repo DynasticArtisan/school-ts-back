@@ -1,6 +1,7 @@
-import { Request } from "express";
+import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import path from "path";
 import multer, { FileFilterCallback } from "multer";
+import { unlinkSync } from "fs";
 
 type DestinationCallback = (error: Error | null, destination: string) => void;
 type FileNameCallback = (error: Error | null, filename: string) => void;
@@ -40,4 +41,16 @@ const fileFilter = (
   }
 };
 
-export default multer({ storage, fileFilter }).single("file");
+export const HomeworkUploads = multer({ storage, fileFilter }).single("file");
+
+export const HomeworkUploadsCancel = (
+  err: ErrorRequestHandler,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.file) {
+    unlinkSync(req.file.path);
+  }
+  next(err);
+};

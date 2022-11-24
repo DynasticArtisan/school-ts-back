@@ -3,7 +3,10 @@ import coursesController from "../controllers/courses.controller";
 import CreateAccessMiddleware from "../middlewares/createAccessMiddleware";
 import Validate from "../middlewares/validate.middleware";
 import { UserRole } from "../models/user.model";
-import courseMulter from "../multer/courseMulter";
+import {
+  CourseUploads,
+  CourseUploadsCancel,
+} from "../middlewares/course.middleware";
 import {
   CreateCourseSchema,
   CreateStudentSchema,
@@ -28,17 +31,19 @@ coursesRouter.get(
 coursesRouter.post(
   "/",
   CreateAccessMiddleware([UserRole.super]),
-  courseMulter,
+  CourseUploads,
   Validate(CreateCourseSchema),
-  coursesController.createCourse
+  coursesController.createCourse,
+  CourseUploadsCancel
 );
 
 coursesRouter.put(
   "/:courseId",
   CreateAccessMiddleware([UserRole.super]),
-  courseMulter,
+  CourseUploads,
   Validate(UpdateCourseSchema),
-  coursesController.updateCourse
+  coursesController.updateCourse,
+  CourseUploadsCancel
 );
 coursesRouter.delete(
   "/:courseId",

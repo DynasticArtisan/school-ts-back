@@ -30,22 +30,26 @@ class CoursesController {
     next: NextFunction
   ) {
     try {
-      if (!req.files || Array.isArray(req.files)) {
-        return next(ApiError.BadRequest("Изображения не найдены"));
-      }
-      const image = req.files["image"][0];
-      const icon = req.files["icon"][0];
-      if (!image || !icon) {
-        return next(ApiError.BadRequest("Изображения не найдены"));
-      }
       const { title, subtitle, description } = req.body;
-      const Course = await courseService.createCourse({
+      let image, icon;
+      if (req.files && !Array.isArray(req.files)) {
+        if (req.files["image"]) {
+          image = req.files["image"][0].path;
+        }
+        if (req.files["icon"]) {
+          icon = req.files["icon"][0].path;
+        }
+      }
+      if (!image || !icon) {
+        throw ApiError.BadRequest("Изображения не загружены");
+      }
+      const Course = await courseService.createCourse(
         title,
         subtitle,
         description,
-        image: "images/" + image.filename,
-        icon: "images/" + icon.filename,
-      });
+        image,
+        icon
+      );
       res.json(Course);
     } catch (e) {
       next(e);
@@ -57,21 +61,25 @@ class CoursesController {
     next: NextFunction
   ) {
     try {
-      if (!req.files || Array.isArray(req.files)) {
-        return next(ApiError.BadRequest("Изображения не найдены"));
-      }
-      const image = req.files["image"];
-      const icon = req.files["icon"];
       const { courseId } = req.params;
       const { title, subtitle, description } = req.body;
-      const courseData: CourseInput = { title, subtitle, description };
-      if (icon) {
-        courseData.icon = "images/" + icon[0].filename;
+      let image, icon;
+      if (req.files && !Array.isArray(req.files)) {
+        if (req.files["image"]) {
+          image = req.files["image"][0].path;
+        }
+        if (req.files["icon"]) {
+          icon = req.files["icon"][0].path;
+        }
       }
-      if (image) {
-        courseData.image = "images/" + image[0].filename;
-      }
-      const Course = await courseService.updateCourse(courseId, courseData);
+      const Course = await courseService.updateCourse(
+        courseId,
+        title,
+        subtitle,
+        description,
+        image,
+        icon
+      );
       res.json(Course);
     } catch (e) {
       next(e);

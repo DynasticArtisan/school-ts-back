@@ -3,7 +3,7 @@ import CourseDto from "../dtos/CourseDto";
 import LessonDto from "../dtos/LessonDto";
 import ModuleDto from "../dtos/ModuleDto";
 import ApiError from "../exceptions/ApiError";
-import courseModel, { CourseInput } from "../models/course.model";
+import courseModel from "../models/course.model";
 import { CourseMasterDocument } from "../models/courseMaster.model";
 import { CourseProgressDocument } from "../models/courseProgress.model";
 import { HomeworkDocument } from "../models/homework.model";
@@ -12,14 +12,37 @@ import moduleModel, { ModuleDocument } from "../models/module.model";
 import { UserDocument } from "../models/user.model";
 
 class courseService {
-  async createCourse(courseData: CourseInput) {
-    const Course = await courseModel.create(courseData);
+  async createCourse(
+    title: string,
+    subtitle: string,
+    description: string,
+    image: string,
+    icon: string
+  ) {
+    const Course = await courseModel.create({
+      title,
+      subtitle,
+      description,
+      image,
+      icon,
+    });
     return Course;
   }
-  async updateCourse(id: ObjectId | string, courseData: CourseInput) {
-    const Course = await courseModel.findByIdAndUpdate(id, courseData, {
-      new: true,
-    });
+  async updateCourse(
+    courseId: string,
+    title: string,
+    subtitle: string,
+    description: string,
+    image?: string,
+    icon?: string
+  ) {
+    const Course = await courseModel.findByIdAndUpdate(
+      courseId,
+      { title, subtitle, description, image, icon },
+      {
+        new: true,
+      }
+    );
     if (!Course) {
       throw ApiError.BadRequest("Курс не найден");
     }

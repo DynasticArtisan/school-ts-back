@@ -2,7 +2,10 @@ import express from "express";
 import lessonsController from "../controllers/lessons.controller";
 import CreateAccessMiddleware from "../middlewares/createAccessMiddleware";
 import { UserRole } from "../models/user.model";
-import homeworkMulter from "../multer/homeworkMulter";
+import {
+  HomeworkUploads,
+  HomeworkUploadsCancel,
+} from "../middlewares/homework.midleware";
 
 const lessonsRouter = express.Router();
 // SUPER ROUTES
@@ -30,14 +33,16 @@ lessonsRouter.post(
 lessonsRouter.post(
   "/:lesson/homework",
   CreateAccessMiddleware([UserRole.user]),
-  homeworkMulter,
-  lessonsController.createHomework
+  HomeworkUploads,
+  lessonsController.createHomework,
+  HomeworkUploadsCancel
 );
 lessonsRouter.put(
   "/:lesson/homework",
   CreateAccessMiddleware([UserRole.user]),
-  homeworkMulter,
-  lessonsController.updateHomework
+  HomeworkUploads,
+  lessonsController.updateHomework,
+  HomeworkUploadsCancel
 );
 // COMMON ROUTES
 lessonsRouter.get(

@@ -19,17 +19,15 @@ app.use(cookieParser());
 app.use(cors({ credentials: true, origin: config.get("SITEURL") }));
 app.use("/api", router);
 app.use("/dev", devrouter);
-app.use(errorMiddleware);
-
 app.use(
-  "/images",
+  "/filestore/images",
   express.static(path.join(__dirname, "..", "filestore/images"))
 );
 app.use(
-  "/homeworks",
-  express.static(path.join(__dirname, "filestore/homeworks/"))
+  "/filestore/homeworks",
+  express.static(path.join(__dirname, "..", "filestore/homeworks/"))
 );
-app.use("/avatars", express.static(path.join(__dirname, "filestore/avatars/")));
+app.use(errorMiddleware);
 
 const start = async () => {
   try {
