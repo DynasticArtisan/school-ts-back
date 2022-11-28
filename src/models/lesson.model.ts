@@ -23,6 +23,21 @@ const LessonSchema = new Schema<LessonDocument>({
   exercise: { type: String },
 });
 
+LessonSchema.virtual("prev", {
+  ref: "Lessons",
+  localField: "module",
+  foreignField: "module",
+  match: (curLesson: LessonDocument) => ({ index: curLesson.index - 1 }),
+  justOne: true,
+});
+LessonSchema.virtual("next", {
+  ref: "Lessons",
+  localField: "module",
+  foreignField: "module",
+  match: (curLesson: LessonDocument) => ({ index: curLesson.index + 1 }),
+  justOne: true,
+});
+
 LessonSchema.virtual("progress", {
   ref: "UsersLessonProgress",
   localField: "_id",

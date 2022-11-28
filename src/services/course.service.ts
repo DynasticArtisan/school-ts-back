@@ -377,6 +377,17 @@ class courseService {
     }
     return Lesson;
   }
+  async getLessonContent(lesson: string) {
+    const Lesson = await lessonModel
+      .findById(lesson)
+      .populate("prev")
+      .populate("next")
+      .lean();
+    if (!Lesson) {
+      throw ApiError.BadRequest("Урок не найден");
+    }
+    return Lesson;
+  }
   async getUserLesson(lesson: string, user: string) {
     const Lesson = await lessonModel
       .findById(lesson)

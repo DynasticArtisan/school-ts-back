@@ -63,14 +63,14 @@ class CourseAccessService {
         return await courseService.getUserLesson(lesson, user.id);
       case UserRole.teacher:
       case UserRole.curator:
-        const MasterLesson = await courseService.getLesson(lesson);
+        const MasterLesson = await courseService.getLessonContent(lesson);
         await courseMastersService.getCourseMasterAccess(
           user.id,
           String(MasterLesson.course)
         );
         return MasterLesson;
       case UserRole.super:
-        return await courseService.getLesson(lesson);
+        return await courseService.getLessonContent(lesson);
       default:
         throw ApiError.Forbidden();
     }
