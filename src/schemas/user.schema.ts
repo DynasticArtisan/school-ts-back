@@ -69,3 +69,17 @@ export const SwitchRoleSchema = object({
   }),
 });
 export type SwitchRoleReq = TypeOf<typeof SwitchRoleSchema>;
+
+export const UpdatePasswordSchema = object({
+  body: object({
+    password: string({
+      required_error: "Пароль обязателен",
+    }),
+    newPassword: string({
+      required_error: "Пароль обязателен",
+    }).min(8, "Пароль должен состоять минимум из 8 символов"),
+  }).refine(({ password, newPassword }) => password !== newPassword, {
+    message: "Новый пароль должен отличаться",
+  }),
+});
+export type UpdatePasswordReq = TypeOf<typeof UpdatePasswordSchema>;

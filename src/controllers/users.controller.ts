@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions/ApiError";
 import { UserRole } from "../models/user.model";
-import { SwitchRoleReq } from "../schemas/user.schema";
+import { SwitchRoleReq, UpdatePasswordReq } from "../schemas/user.schema";
 import courseService from "../services/course.service";
 import userService from "../services/user.service";
 
@@ -63,7 +63,11 @@ class UserController {
       next(e);
     }
   }
-  async updatePassword(req: Request, res: Response, next: NextFunction) {
+  async updatePassword(
+    req: Request<{}, {}, UpdatePasswordReq["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const { id } = req.user;
       const { password, newPassword } = req.body;

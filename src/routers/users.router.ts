@@ -3,7 +3,7 @@ import usersController from "../controllers/users.controller";
 import CreateAccessMiddleware from "../middlewares/createAccessMiddleware";
 import Validate from "../middlewares/validate.middleware";
 import { UserRole } from "../models/user.model";
-import { SwitchRoleSchema } from "../schemas/user.schema";
+import { SwitchRoleSchema, UpdatePasswordSchema } from "../schemas/user.schema";
 
 const usersRouter = express.Router();
 
@@ -30,6 +30,10 @@ usersRouter.delete(
 );
 
 usersRouter.put("/me", usersController.updateProfile);
-usersRouter.put("/me/password", usersController.updatePassword);
+usersRouter.put(
+  "/me/password",
+  Validate(UpdatePasswordSchema),
+  usersController.updatePassword
+);
 
 export default usersRouter;
