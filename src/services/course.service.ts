@@ -391,16 +391,24 @@ class courseService {
   async getUserLesson(lesson: string, user: string) {
     const Lesson = await lessonModel
       .findById(lesson)
-      .populate({
-        path: "progress",
-        match: { user },
-        populate: {
-          path: "homework",
+      .populate([
+        {
+          path: "progress",
+          match: { user },
           populate: {
-            path: "files",
+            path: "homework",
+            populate: {
+              path: "files",
+            },
           },
         },
-      })
+        {
+          path: "prev",
+        },
+        {
+          path: "next",
+        },
+      ])
       .lean();
     if (!Lesson) {
       throw ApiError.BadRequest("Урок не найден");
