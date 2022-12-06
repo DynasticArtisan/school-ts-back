@@ -1,59 +1,76 @@
 import express from "express";
-import lessonsController from "../controllers/lessons.controller";
 import CreateAccessMiddleware from "../middlewares/createAccessMiddleware";
 import { UserRole } from "../models/user.model";
 import {
   HomeworkUploads,
   HomeworkUploadsCancel,
 } from "../middlewares/homework.midleware";
+import Validate from "../middlewares/validate.middleware";
+import {
+  CreateLessonSchema,
+  GetLessonSchema,
+  UpdateLessonSchema,
+} from "../schemas/lesson.schema";
+import LessonsController from "../controllers/lessons.controller";
 
-const lessonsRouter = express.Router();
-// SUPER ROUTES
-lessonsRouter.post(
+const LessonsRouter = express.Router();
+
+LessonsRouter.post(
   "/",
   CreateAccessMiddleware([UserRole.super]),
-  lessonsController.createLesson
+  Validate(CreateLessonSchema),
+  LessonsController.createLesson
 );
-lessonsRouter.put(
+
+LessonsRouter.put(
   "/:lesson",
   CreateAccessMiddleware([UserRole.super]),
-  lessonsController.updateLesson
+  Validate(UpdateLessonSchema),
+  LessonsController.updateLesson
 );
-lessonsRouter.delete(
-  "/:lesson",
+
+LessonsRouter.delete(
+  "/:lessonId",
   CreateAccessMiddleware([UserRole.super]),
-  lessonsController.deleteLesson
+  Validate(GetLessonSchema),
+  LessonsController.deleteLesson
 );
-// USER ROUTES
-lessonsRouter.post(
-  "/:lesson",
-  CreateAccessMiddleware([UserRole.user]),
-  lessonsController.completeLesson
-);
-lessonsRouter.post(
-  "/:lesson/homework",
-  CreateAccessMiddleware([UserRole.user]),
-  HomeworkUploads,
-  lessonsController.createHomework,
-  HomeworkUploadsCancel
-);
-lessonsRouter.put(
-  "/:lesson/homework",
-  CreateAccessMiddleware([UserRole.user]),
-  HomeworkUploads,
-  lessonsController.updateHomework,
-  HomeworkUploadsCancel
-);
-// COMMON ROUTES
-lessonsRouter.get(
-  "/:lesson",
+
+LessonsRouter.get(
+  "/:lessonId",
   CreateAccessMiddleware([
     UserRole.super,
     UserRole.teacher,
     UserRole.curator,
     UserRole.user,
   ]),
-  lessonsController.getLesson
+  Validate(GetLessonSchema),
+  LessonsController.getLesson
 );
 
-export default lessonsRouter;
+LessonsRouter.post(
+  "/:lessonId",
+  Validate(GetLessonSchema),
+  CreateAccessMiddleware([UserRole.user]),
+  LessonsController.completeLesson
+);
+
+LessonsRouter.post(
+  "/:lesson/homework",
+  Validate(GetLessonSchema),
+  CreateAccessMiddleware([UserRole.user]),
+  HomeworkUploads,
+  LessonsController.createHomework,
+  HomeworkUploadsCancel
+);
+
+LessonsRouter.put(
+  "/:lesson/homework",
+  Validate(GetLessonSchema),
+  CreateAccessMiddleware([UserRole.user]),
+  HomeworkUploads,
+  LessonsController.updateHomework,
+  HomeworkUploadsCancel
+);
+
+export default LessonsRouter;

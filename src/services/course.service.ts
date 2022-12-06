@@ -317,7 +317,7 @@ class courseService {
     description: string,
     content: string,
     withExercise: boolean,
-    exercise: string
+    exercise?: string
   ) {
     const Module = await moduleModel
       .findById(module)
@@ -344,7 +344,7 @@ class courseService {
     description: string,
     content: string,
     withExercise: boolean,
-    exercise: string
+    exercise?: string
   ) {
     const Lesson = await lessonModel.findByIdAndUpdate(
       id,

@@ -1,17 +1,24 @@
 import { NextFunction, Request, Response } from "express";
-import ApiError from "../exceptions/ApiError";
-import courseDataService from "../services/courseAccess.service";
+import {
+  CreateLessonType,
+  CreateModuleType,
+  GetModuleType,
+  UpdateModuleType,
+} from "../schemas/module.schema";
 import courseService from "../services/course.service";
+import courseDataService from "../services/courseAccess.service";
+import ApiError from "../exceptions/ApiError";
 
 class ModulesController {
-  async createModule(req: Request, res: Response, next: NextFunction) {
+  async createModule(
+    req: Request<{}, {}, CreateModuleType["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { course, title, description } = req.body;
-      if (!course || !title || !description) {
-        next(ApiError.BadRequest("Недостаточно данных"));
-      }
+      const { courseId, title, description } = req.body;
       const Module = await courseService.createModule(
-        course,
+        courseId,
         title,
         description
       );
@@ -20,15 +27,17 @@ class ModulesController {
       next(e);
     }
   }
-  async updateModule(req: Request, res: Response, next: NextFunction) {
+
+  async updateModule(
+    req: Request<UpdateModuleType["params"], {}, UpdateModuleType["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { module } = req.params;
+      const { moduleId } = req.params;
       const { title, description } = req.body;
-      if (!title || !description) {
-        next(ApiError.BadRequest("Недостаточно данных"));
-      }
       const Module = await courseService.updateModule(
-        module,
+        moduleId,
         title,
         description
       );
@@ -37,25 +46,51 @@ class ModulesController {
       next(e);
     }
   }
-  async deleteModule(req: Request, res: Response, next: NextFunction) {
+
+  async getLessons(
+    req: Request<GetModuleType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { module } = req.params;
-      await courseService.deleteModule(module);
+      const { moduleId } = req.params;
+      const Module = await courseDataService.getModuleLessonsByRoles(
+        moduleId,
+        req.user
+      );
+      res.json(Module);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async deleteModule(
+    req: Request<GetModuleType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { moduleId } = req.params;
+      await courseService.deleteModule(moduleId);
       res.json({ message: "Модуль успешно удален" });
     } catch (e) {
       next(e);
     }
   }
 
-  async createLesson(req: Request, res: Response, next: NextFunction) {
+  async createLesson(
+    req: Request<CreateLessonType["params"], {}, CreateLessonType["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { module } = req.params;
+      const { moduleId } = req.params;
       const { title, description, content, withExercise, exercise } = req.body;
       if (!module || !title || !description || !content) {
         next(ApiError.BadRequest("Недостаточно данных"));
       }
       const Lesson = await courseService.createLesson(
-        module,
+        moduleId,
         title,
         description,
         content,
@@ -63,18 +98,6 @@ class ModulesController {
         exercise
       );
       res.json(Lesson);
-    } catch (e) {
-      next(e);
-    }
-  }
-  async getLessons(req: Request, res: Response, next: NextFunction) {
-    try {
-      const { module } = req.params;
-      const Module = await courseDataService.getModuleLessonsByRoles(
-        module,
-        req.user
-      );
-      res.json(Module);
     } catch (e) {
       next(e);
     }

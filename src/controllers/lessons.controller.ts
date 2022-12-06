@@ -1,22 +1,26 @@
 import { NextFunction, Request, Response } from "express";
-
-import { unlinkSync } from "fs";
-import ApiError from "../exceptions/ApiError";
-import courseDataService from "../services/courseAccess.service";
+import {
+  CreateLessonType,
+  GetLessonType,
+  UpdateLessonType,
+} from "../schemas/lesson.schema";
 import courseService from "../services/course.service";
-import homeworkService from "../services/homework.service";
+import courseDataService from "../services/courseAccess.service";
 import courseProgressService from "../services/courseProgress.service";
+import homeworkService from "../services/homework.service";
+import ApiError from "../exceptions/ApiError";
 
 class LessonsController {
-  async createLesson(req: Request, res: Response, next: NextFunction) {
+  async createLesson(
+    req: Request<{}, {}, CreateLessonType["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { module, title, description, content, withExercise, exercise } =
+      const { moduleId, title, description, content, withExercise, exercise } =
         req.body;
-      if (!module || !title || !description || !content) {
-        next(ApiError.BadRequest("Недостаточно данных"));
-      }
       const Lesson = await courseService.createLesson(
-        module,
+        moduleId,
         title,
         description,
         content,
@@ -28,12 +32,17 @@ class LessonsController {
       next(e);
     }
   }
-  async updateLesson(req: Request, res: Response, next: NextFunction) {
+
+  async updateLesson(
+    req: Request<UpdateLessonType["params"], {}, UpdateLessonType["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { lesson } = req.params;
+      const { lessonId } = req.params;
       const { title, description, content, withExercise, exercise } = req.body;
       const Lesson = await courseService.updateLesson(
-        lesson,
+        lessonId,
         title,
         description,
         content,
@@ -45,48 +54,69 @@ class LessonsController {
       next(e);
     }
   }
-  async deleteLesson(req: Request, res: Response, next: NextFunction) {
+
+  async deleteLesson(
+    req: Request<GetLessonType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { lesson } = req.params;
-      await courseService.deleteLesson(lesson);
+      const { lessonId } = req.params;
+      await courseService.deleteLesson(lessonId);
       res.json({ message: "Запись об уроке удалена" });
     } catch (e) {
       next(e);
     }
   }
 
-  async getLesson(req: Request, res: Response, next: NextFunction) {
+  async getLesson(
+    req: Request<GetLessonType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { lesson } = req.params;
-      const Lesson = await courseDataService.getLessonByRoles(lesson, req.user);
+      const { lessonId } = req.params;
+      const Lesson = await courseDataService.getLessonByRoles(
+        lessonId,
+        req.user
+      );
       res.json(Lesson);
     } catch (e) {
       next(e);
     }
   }
 
-  async completeLesson(req: Request, res: Response, next: NextFunction) {
+  async completeLesson(
+    req: Request<GetLessonType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { lesson } = req.params;
+      const { lessonId } = req.params;
       const Progress = await courseProgressService.completeLessonProgress(
         req.user.id,
-        lesson
+        lessonId
       );
       res.json(Progress);
     } catch (e) {
       next(e);
     }
   }
-  async createHomework(req: Request, res: Response, next: NextFunction) {
+
+  async createHomework(
+    req: Request<GetLessonType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       if (!req.file) {
         return next(ApiError.BadRequest("Файл не загружен"));
       }
-      const { lesson } = req.params;
+      const { lessonId } = req.params;
       const userId = req.user.id;
       const { originalname, path } = req.file;
       const Homework = await homeworkService.createHomework(
-        lesson,
+        lessonId,
         userId,
         originalname,
         path
@@ -96,16 +126,21 @@ class LessonsController {
       next(e);
     }
   }
-  async updateHomework(req: Request, res: Response, next: NextFunction) {
+
+  async updateHomework(
+    req: Request<GetLessonType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       if (!req.file) {
         return next(ApiError.BadRequest("Файл не загружен"));
       }
-      const { lesson } = req.params;
+      const { lessonId } = req.params;
       const userId = req.user.id;
       const { originalname, path } = req.file;
       const Homework = await homeworkService.updateHomework(
-        lesson,
+        lessonId,
         userId,
         originalname,
         path

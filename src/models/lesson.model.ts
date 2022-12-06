@@ -9,7 +9,7 @@ export interface LessonDocument extends Document {
   description: string;
   content: string;
   withExercise: boolean;
-  exercise: string;
+  exercise?: string;
 }
 
 const LessonSchema = new Schema<LessonDocument>({

@@ -1,27 +1,55 @@
 import express from "express";
-import modulesController from "../controllers/modules.controller";
 import CreateAccessMiddleware from "../middlewares/createAccessMiddleware";
 import { UserRole } from "../models/user.model";
+import Validate from "../middlewares/validate.middleware";
+import {
+  CreateLessonSchema,
+  CreateModuleSchema,
+  GetModuleSchema,
+  UpdateModuleSchema,
+} from "../schemas/module.schema";
+import ModulesController from "../controllers/modules.controller";
 
-const modulesRouter = express.Router();
-modulesRouter.post(
+const ModulesRouter = express.Router();
+
+ModulesRouter.post(
   "/",
   CreateAccessMiddleware([UserRole.super]),
-  modulesController.createModule
+  Validate(CreateModuleSchema),
+  ModulesController.createModule
 );
-modulesRouter.put(
-  "/:module",
+
+ModulesRouter.put(
+  "/:moduleId",
   CreateAccessMiddleware([UserRole.super]),
-  modulesController.updateModule
+  Validate(UpdateModuleSchema),
+  ModulesController.updateModule
 );
-modulesRouter.delete(
-  "/:module",
+
+ModulesRouter.get(
+  "/:moduleId/lessons",
+  CreateAccessMiddleware([
+    UserRole.user,
+    UserRole.curator,
+    UserRole.teacher,
+    UserRole.super,
+  ]),
+  Validate(GetModuleSchema),
+  ModulesController.getLessons
+);
+
+ModulesRouter.delete(
+  "/:moduleId",
   CreateAccessMiddleware([UserRole.super]),
-  modulesController.deleteModule
+  Validate(GetModuleSchema),
+  ModulesController.deleteModule
 );
 
-modulesRouter.post("/:module/lessons", modulesController.createLesson);
+ModulesRouter.post(
+  "/:moduleId/lessons",
+  CreateAccessMiddleware([UserRole.super]),
+  Validate(CreateLessonSchema),
+  ModulesController.createLesson
+);
 
-modulesRouter.get("/:module/lessons", modulesController.getLessons);
-
-export default modulesRouter;
+export default ModulesRouter;

@@ -1,9 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import ApiError from "../exceptions/ApiError";
-import courseDataService from "../services/courseAccess.service";
-import courseService from "../services/course.service";
-import courseProgressService from "../services/courseProgress.service";
-import courseMastersService from "../services/courseMasters.service";
 import {
   CreateCourseType,
   CreateStudentType,
@@ -13,6 +8,11 @@ import {
   UpdateAccessType,
   UpdateCourseType,
 } from "../schemas/course.schema";
+import courseService from "../services/course.service";
+import courseDataService from "../services/courseAccess.service";
+import courseProgressService from "../services/courseProgress.service";
+import courseMastersService from "../services/courseMasters.service";
+import ApiError from "../exceptions/ApiError";
 
 class CoursesController {
   async getCourses(req: Request, res: Response, next: NextFunction) {
