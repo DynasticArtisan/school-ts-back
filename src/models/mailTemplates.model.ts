@@ -1,7 +1,7 @@
 import { Document, model, Schema } from "mongoose";
 import { UserDocument } from "./user.model";
 
-export enum MailTemplateType {
+export enum MailTypes {
   custom = "custom",
   activate = "activate",
   resetpassword = "resetpassword",
@@ -11,7 +11,7 @@ interface PopulateDocuments {
 }
 
 export interface MailTemplateDocument extends Document {
-  type: MailTemplateType;
+  type: MailTypes;
   title: string;
   subject: string;
   html: string;
@@ -19,7 +19,7 @@ export interface MailTemplateDocument extends Document {
 }
 
 const MailTemplateSchema = new Schema<MailTemplateDocument>({
-  type: { type: String, default: MailTemplateType.custom },
+  type: { type: String, default: MailTypes.custom },
   title: { type: String, required: true },
   subject: { type: String, required: true },
   html: { type: String, required: true },

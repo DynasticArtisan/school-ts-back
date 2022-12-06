@@ -72,10 +72,7 @@ class UserController {
     try {
       const { id } = req.user;
       const { name, lastname, ...info } = req.body;
-      const User = await userService.updateUser(id, {
-        name,
-        lastname,
-      });
+      const User = await userService.updateUser(id, name, lastname);
       const userinfo = await userService.updateUserinfo(id, info);
       res.json({ ...User, userinfo });
     } catch (e) {

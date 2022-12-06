@@ -63,7 +63,7 @@ NoteRouter.delete(
   "/me/:noteId",
   CreateAccessMiddleware([UserRole.user]),
   Validate(GetNoteSchema),
-  NoteController.deleteUserNotification
+  NoteController.deleteUserNote
 );
 
 export default NoteRouter;

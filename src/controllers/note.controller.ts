@@ -6,8 +6,8 @@ import {
   GetTemplateType,
   UpdateTemplateType,
 } from "../schemas/note.schema";
-import NoteService from "../services/notification.service";
-import TemplateService from "../services/notifTemplate.service.ts";
+import NoteService from "../services/notes.service";
+import TemplateService from "../services/noteTemplates.service.ts";
 
 class NotifController {
   async getTemplates(req: Request, res: Response, next: NextFunction) {
@@ -26,12 +26,12 @@ class NotifController {
   ) {
     try {
       const { title, image, icon, body } = req.body;
-      const Template = await TemplateService.createTemplate({
+      const Template = await TemplateService.createCustomTemplate(
         title,
-        image,
-        icon,
         body,
-      });
+        image,
+        icon
+      );
       res.json(Template);
     } catch (e) {
       next(e);
@@ -46,12 +46,13 @@ class NotifController {
     try {
       const { templateId } = req.params;
       const { title, image, icon, body } = req.body;
-      const Template = await TemplateService.updateTemplate(templateId, {
+      const Template = await TemplateService.updateCustomTemplate(
+        templateId,
         title,
-        image,
-        icon,
         body,
-      });
+        image,
+        icon
+      );
       res.json(Template);
     } catch (e) {
       next(e);
@@ -65,7 +66,7 @@ class NotifController {
   ) {
     try {
       const { templateId } = req.params;
-      await TemplateService.deleteTemplate(templateId);
+      await TemplateService.deleteCustomTemplate(templateId);
       res.json({ message: "Шаблон уведомления удален" });
     } catch (e) {
       next(e);
@@ -80,7 +81,7 @@ class NotifController {
     try {
       const { templateId } = req.params;
       const { users } = req.body;
-      const Notif = await NoteService.createManyCustomNotif(templateId, users);
+      const Notif = await NoteService.createCustomNotes(templateId, users);
       res.json(Notif);
     } catch (e) {
       next(e);
@@ -89,7 +90,7 @@ class NotifController {
 
   async checkNewNotifications(req: Request, res: Response, next: NextFunction) {
     try {
-      const Count = await NoteService.checkNewNotifs(req.user.id);
+      const Count = await NoteService.checkNotes(req.user.id);
       res.json(Count);
     } catch (e) {
       next(e);
@@ -98,21 +99,21 @@ class NotifController {
 
   async getUserNotifications(req: Request, res: Response, next: NextFunction) {
     try {
-      const Notifs = await NoteService.getUserNotifs(req.user.id);
+      const Notifs = await NoteService.getUserNotes(req.user.id);
       res.json(Notifs);
     } catch (e) {
       next(e);
     }
   }
 
-  async deleteUserNotification(
+  async deleteUserNote(
     req: Request<GetNoteType["params"]>,
     res: Response,
     next: NextFunction
   ) {
     try {
       const { noteId } = req.params;
-      await NoteService.deleteUserNotif(noteId, req.user.id);
+      await NoteService.deleteUserNote(noteId, req.user.id);
       res.json({ message: "Уведомление удалено" });
     } catch (e) {
       next(e);

@@ -5,12 +5,13 @@ import {
   GetTemplateType,
   UpdateTemplateType,
 } from "../schemas/mail.schema";
-import MailService from "../services/mail.service";
+import MailService from "../services/mails.service";
+import MailTemplatesService from "../services/mailTemplates.service";
 
 class MailsController {
   async getTemplates(req: Request, res: Response, next: NextFunction) {
     try {
-      const Templates = await MailService.getCustomTemplates();
+      const Templates = await MailTemplatesService.getCustomTemplates();
       res.json(Templates);
     } catch (e) {
       next(e);
@@ -24,7 +25,7 @@ class MailsController {
   ) {
     try {
       const { title, subject, html } = req.body;
-      const Template = await MailService.createCustomTemplate(
+      const Template = await MailTemplatesService.createCustomTemplate(
         title,
         subject,
         html
@@ -43,7 +44,7 @@ class MailsController {
     try {
       const { templateId } = req.params;
       const { title, subject, html } = req.body;
-      const Template = await MailService.updateCustomTemplate(
+      const Template = await MailTemplatesService.updateCustomTemplate(
         templateId,
         title,
         subject,
@@ -62,7 +63,7 @@ class MailsController {
   ) {
     try {
       const { templateId } = req.params;
-      await MailService.deleteCustomTemplate(templateId);
+      await MailTemplatesService.deleteCustomTemplate(templateId);
       res.json({ message: "Шаблон письма удален" });
     } catch (e) {
       next(e);
@@ -77,7 +78,7 @@ class MailsController {
     try {
       const { templateId } = req.params;
       const { users } = req.body;
-      await MailService.sendCustomMails(templateId, users);
+      await MailService.createCustomMails(templateId, users);
       res.json("Письма отправлены");
     } catch (e) {
       next(e);

@@ -11,7 +11,7 @@ import moduleProgressModel from "../models/moduleProgress.model";
 import userModel, { UserRole } from "../models/user.model";
 
 import courseService from "./course.service";
-import notificationService from "./notification.service";
+import notificationService from "./notes.service";
 
 class CourseProgressService {
   async createCourseProgress(user: string, course: string, format: string) {
@@ -86,12 +86,12 @@ class CourseProgressService {
     const Course = await courseService.getCourse(Progress.course);
     try {
       if (isAvailable) {
-        await notificationService.createCourseUnlockNotif(
+        await notificationService.createCourseUnlockNote(
           String(Progress.user),
           Course
         );
       } else {
-        await notificationService.createCourseLockNotif(
+        await notificationService.createCourseLockNote(
           String(Progress.user),
           Course
         );

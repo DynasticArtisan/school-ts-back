@@ -3,7 +3,7 @@ import { CourseDocument } from "./course.model";
 import { LessonDocument } from "./lesson.model";
 import { UserDocument } from "./user.model";
 
-export enum NotifTemplateTypes {
+export enum NoteTemplateTypes {
   custom = "custom",
   newUser = "new-user",
   courseLock = "course-lock",
@@ -19,7 +19,7 @@ interface PopulateDocuments {
 }
 
 export interface TemplateDocument extends Document {
-  type: NotifTemplateTypes;
+  type: NoteTemplateTypes;
   title: string;
   image?: string;
   icon?: string;
@@ -33,7 +33,7 @@ export interface TemplateDocument extends Document {
 }
 
 const TemplateSchema = new Schema<TemplateDocument>({
-  type: { type: String, required: true, default: NotifTemplateTypes.custom },
+  type: { type: String, required: true, default: NoteTemplateTypes.custom },
   title: { type: String, required: true },
   image: { type: String },
   icon: { type: String },

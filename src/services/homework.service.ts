@@ -5,7 +5,7 @@ import homeworkVerifyModel from "../models/homeworkVerify.model";
 import courseService from "./course.service";
 import courseMastersService from "./courseMasters.service";
 import courseProgressService from "./courseProgress.service";
-import notificationService from "./notification.service";
+import notificationService from "./notes.service";
 
 class HomeworkService {
   async createHomework(
@@ -82,7 +82,7 @@ class HomeworkService {
     }
     try {
       const Lesson = await courseService.getLesson(Homework.lesson);
-      await notificationService.createHomeworkAcceptNotif(
+      await notificationService.createHomeworkAcceptNote(
         String(Homework.user),
         Lesson
       );
@@ -99,7 +99,7 @@ class HomeworkService {
     }
     try {
       const Lesson = await courseService.getLesson(Homework.lesson);
-      await notificationService.createHomeworkRejectNotif(
+      await notificationService.createHomeworkRejectNote(
         String(Homework.user),
         Lesson
       );

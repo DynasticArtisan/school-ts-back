@@ -1,4 +1,4 @@
-import { array, intersection, object, string, TypeOf } from "zod";
+import { array, object, string, TypeOf } from "zod";
 import { isValidObjectId } from "mongoose";
 import { UserIdSchema } from "./user.schema";
 

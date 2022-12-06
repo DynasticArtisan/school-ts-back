@@ -1,5 +1,4 @@
 import express from "express";
-import courseModel from "../models/course.model";
 import courseProgressModel from "../models/courseProgress.model";
 import homeworkModel from "../models/homework.model";
 import homeworkFilesModel from "../models/homeworkFiles.model";
@@ -8,8 +7,8 @@ import moduleProgressModel from "../models/moduleProgress.model";
 import UserModel from "../models/user.model";
 import authService from "../services/auth.service";
 import courseService from "../services/course.service";
-import mailService from "../services/mail.service";
-import notifTemplateService from "../services/notifTemplate.service.ts";
+import mailService from "../services/mails.service";
+import notifTemplateService from "../services/noteTemplates.service.ts";
 import userService from "../services/user.service";
 const devrouter = express.Router();
 
@@ -36,7 +35,7 @@ devrouter.get("/mailtemplate", async (req, res) => {
   res.json(await mailService.getTemplates());
 });
 devrouter.get("/notiftemplate", async (req, res) => {
-  res.json(await notifTemplateService.getAllTemplates());
+  res.json(await notifTemplateService.getTemplates());
 });
 devrouter.delete("/courses/:course", async (req, res) => {
   res.json(await courseService.deleteCourse(req.params.course));
