@@ -8,6 +8,18 @@ export const UserIdSchema = string().refine(
     message: "Некорректный ID пользователя",
   }
 );
+const UserEmailSchema = string({
+  required_error: "Email адрес обязателен",
+}).email("Некорректный email");
+const UserPasswordSchema = string({
+  required_error: "Пароль обязателен",
+}).min(8, "Пароль должен состоять минимум из 8 символов");
+const UserRoleSchema = string().refine(
+  (role) => Object.values<string>(UserRole).includes(role),
+  {
+    message: "Неккоректная роль",
+  }
+);
 
 export const CreateUserSchema = object({
   body: object({
@@ -17,12 +29,8 @@ export const CreateUserSchema = object({
     lastname: string({
       required_error: "Фамилия пользователя обязательна",
     }),
-    email: string({
-      required_error: "Email адрес обязателен",
-    }).email("Некорректный email"),
-    password: string({
-      required_error: "Пароль обязателен",
-    }).min(8, "Пароль должен состоять минимум из 8 символов"),
+    email: UserEmailSchema,
+    password: UserPasswordSchema,
   }),
 });
 export type CreateUserReq = TypeOf<typeof CreateUserSchema>;
@@ -33,51 +41,49 @@ export const ActivateUserSchema = object({
     activatecode: string(),
   }),
 });
-export type ActivateUserReq = TypeOf<typeof ActivateUserSchema>;
+export type ActivateUserType = TypeOf<typeof ActivateUserSchema>;
 
 export const LoginUserSchema = object({
   body: object({
-    email: string({
-      required_error: "Email адрес обязателен",
-    }).email("Некорректный email"),
-    password: string({
-      required_error: "Пароль обязателен",
-    }).min(8, "Пароль должен состоять минимум из 8 символов"),
+    email: UserEmailSchema,
+    password: UserPasswordSchema,
     remember: boolean(),
   }),
 });
-export type LoginUserReq = TypeOf<typeof LoginUserSchema>;
+export type LoginUserType = TypeOf<typeof LoginUserSchema>;
 
-export const RefreshSchema = object({
-  query: object({
-    remember: boolean().optional(),
+export const ForgotPasswordSchema = object({
+  body: object({
+    email: UserEmailSchema,
   }),
 });
-export type RefreshReq = TypeOf<typeof RefreshSchema>;
+export type ForgotPasswordType = TypeOf<typeof ForgotPasswordSchema>;
+
+export const ResetPasswordSchema = object({
+  params: object({
+    userId: UserIdSchema,
+    passwordResetCode: string(),
+  }),
+  body: object({
+    password: UserPasswordSchema,
+  }),
+});
+export type ResetPasswordType = TypeOf<typeof ResetPasswordSchema>;
 
 export const SwitchRoleSchema = object({
   params: object({
     userId: UserIdSchema,
   }),
   body: object({
-    role: string().refine(
-      (role) => Object.values<string>(UserRole).includes(role),
-      {
-        message: "Неккоректная роль",
-      }
-    ),
+    role: UserRoleSchema,
   }),
 });
-export type SwitchRoleReq = TypeOf<typeof SwitchRoleSchema>;
+export type SwitchRoleType = TypeOf<typeof SwitchRoleSchema>;
 
 export const UpdatePasswordSchema = object({
   body: object({
-    password: string({
-      required_error: "Пароль обязателен",
-    }),
-    newPassword: string({
-      required_error: "Пароль обязателен",
-    }).min(8, "Пароль должен состоять минимум из 8 символов"),
+    password: UserPasswordSchema,
+    newPassword: UserPasswordSchema,
   }).refine(({ password, newPassword }) => password !== newPassword, {
     message: "Новый пароль должен отличаться",
   }),

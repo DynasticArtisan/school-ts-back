@@ -1,34 +1,40 @@
 import express from "express";
-import authController from "../controllers/auth.controller";
+import AuthController from "../controllers/auth.controller";
 import Validate from "../middlewares/validate.middleware";
 import {
   ActivateUserSchema,
   CreateUserSchema,
+  ForgotPasswordSchema,
   LoginUserSchema,
-  RefreshSchema,
+  ResetPasswordSchema,
 } from "../schemas/user.schema";
 
-const authRouter = express.Router();
+const AuthRouter = express.Router();
 
-authRouter.post(
+AuthRouter.post(
   "/registration",
   Validate(CreateUserSchema),
-  authController.registration
+  AuthController.registration
 );
-authRouter.post(
+AuthRouter.post(
   "/activation/:user/:activatecode",
   Validate(ActivateUserSchema),
-  authController.activation
+  AuthController.activation
 );
 
-authRouter.post("/login", Validate(LoginUserSchema), authController.login);
-authRouter.get("/refresh", Validate(RefreshSchema), authController.refresh);
-authRouter.post("/logout", authController.logout);
+AuthRouter.post("/login", Validate(LoginUserSchema), AuthController.login);
+AuthRouter.get("/refresh", AuthController.refresh);
+AuthRouter.post("/logout", AuthController.logout);
 
-authRouter.post("/forgotpassword", authController.forgotPassword);
-authRouter.post(
-  "/resetpassword/:user/:passwordResetCode",
-  authController.resetPassword
+AuthRouter.post(
+  "/forgotpassword",
+  Validate(ForgotPasswordSchema),
+  AuthController.forgotPassword
+);
+AuthRouter.post(
+  "/resetpassword/:userId/:passwordResetCode",
+  Validate(ResetPasswordSchema),
+  AuthController.resetPassword
 );
 
-export default authRouter;
+export default AuthRouter;
