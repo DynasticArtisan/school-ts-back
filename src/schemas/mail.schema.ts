@@ -1,21 +1,20 @@
-import { array, object, string, TypeOf } from "zod";
+import { array, intersection, object, string, TypeOf } from "zod";
 import { isValidObjectId } from "mongoose";
 import { UserIdSchema } from "./user.schema";
 
 export const TemplateIdSchema = string().refine((id) => isValidObjectId(id), {
   message: "Некорректный ID шаблона",
 });
-export const NoteIdSchema = string().refine((id) => isValidObjectId(id), {
-  message: "Некорректный ID уведомления",
-});
+
 const TemplateSchema = object({
   title: string({
     required_error: "Поле title не может быть пустым",
   }),
-  image: string().optional(),
-  icon: string().optional(),
-  body: string({
-    required_error: "Поле body не может быть пустым",
+  subject: string({
+    required_error: "Поле subject не может быть пустым",
+  }),
+  html: string({
+    required_error: "Поле html не может быть пустым",
   }),
 });
 
@@ -35,19 +34,11 @@ export const UpdateTemplateSchema =
   GetTemplateSchema.merge(CreateTemplateSchema);
 export type UpdateTemplateType = TypeOf<typeof UpdateTemplateSchema>;
 
-export const CreateNoteSchema = object({
-  params: object({
-    templateId: TemplateIdSchema,
-  }),
-  body: object({
-    users: array(UserIdSchema).nonempty(),
-  }),
-});
-export type CreateNoteType = TypeOf<typeof CreateNoteSchema>;
-
-export const GetNoteSchema = object({
-  params: object({
-    noteId: NoteIdSchema,
-  }),
-});
-export type GetNoteType = TypeOf<typeof GetNoteSchema>;
+export const CreateMailsSchema = GetTemplateSchema.merge(
+  object({
+    body: object({
+      users: array(UserIdSchema).nonempty(),
+    }),
+  })
+);
+export type CreateMailsType = TypeOf<typeof CreateMailsSchema>;

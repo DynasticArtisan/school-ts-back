@@ -58,12 +58,14 @@ class MailService {
         subject,
         html: html.replace("#activate-link#", activateLink),
       });
-      return true
+      return true;
     }
     await this.transporter.sendmail({
-      to, subject: "Активация аккаунта в онлайн школе Актив", html: `Для активации пройдите по <a href="${activateLink}"><b>ссылке</b></a>`
-    })
-    return true
+      to,
+      subject: "Активация аккаунта в онлайн школе Актив",
+      html: `Для активации пройдите по <a href="${activateLink}"><b>ссылке</b></a>`,
+    });
+    return true;
   }
   async sendResetPasswordMail(to: string, passwordResetLink: string) {
     const Template = await MailTemplateModel.findOne({
