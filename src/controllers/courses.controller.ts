@@ -1,6 +1,5 @@
-import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions/ApiError";
-import { CourseInput } from "../models/course.model";
 import courseDataService from "../services/courseAccess.service";
 import courseService from "../services/course.service";
 import courseProgressService from "../services/courseProgress.service";
@@ -98,7 +97,6 @@ class CoursesController {
       next(e);
     }
   }
-
   async getModules(
     req: Request<GetCourseType["params"]>,
     res: Response,
@@ -131,7 +129,6 @@ class CoursesController {
       next(e);
     }
   }
-
   async createStudent(
     req: Request<CreateStudentType["params"], {}, CreateStudentType["body"]>,
     res: Response,

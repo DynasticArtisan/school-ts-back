@@ -9,7 +9,6 @@ export const CourseIdSchema = string().refine(
     message: "Некорректный ID курса",
   }
 );
-
 export const CourseInputSchema = object({
   title: string({
     required_error: "Название курса обязательно",
