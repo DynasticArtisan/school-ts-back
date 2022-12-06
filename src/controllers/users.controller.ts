@@ -1,7 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import ApiError from "../exceptions/ApiError";
 import { UserRole } from "../models/user.model";
-import { SwitchRoleReq, UpdatePasswordReq } from "../schemas/user.schema";
+import {
+  GetUserType,
+  SwitchRoleType,
+  UpdatePasswordType,
+  UpdateProfileType,
+} from "../schemas/user.schema";
 import courseService from "../services/course.service";
 import userService from "../services/user.service";
 
@@ -14,11 +19,16 @@ class UserController {
       next(e);
     }
   }
-  async getUserProfile(req: Request, res: Response, next: NextFunction) {
+
+  async getUserProfile(
+    req: Request<GetUserType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { user } = req.params;
-      const UserProfile = await userService.getUserProfile(user);
-      const UserCourses = await courseService.getProfileCourses(user);
+      const { userId } = req.params;
+      const UserProfile = await userService.getUserProfile(userId);
+      const UserCourses = await courseService.getProfileCourses(userId);
       res.json({ user: UserProfile, courses: UserCourses });
     } catch (e) {
       next(e);
@@ -26,7 +36,7 @@ class UserController {
   }
 
   async setUserRole(
-    req: Request<SwitchRoleReq["params"], {}, SwitchRoleReq["body"]>,
+    req: Request<SwitchRoleType["params"], {}, SwitchRoleType["body"]>,
     res: Response,
     next: NextFunction
   ) {
@@ -40,16 +50,25 @@ class UserController {
     }
   }
 
-  async deleteUser(req: Request, res: Response, next: NextFunction) {
+  async deleteUser(
+    req: Request<GetUserType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { user } = req.params;
-      await userService.deleteUser(user);
+      const { userId } = req.params;
+      await userService.deleteUser(userId);
       res.json("Пользователь был удален");
     } catch (e) {
       next(e);
     }
   }
-  async updateProfile(req: Request, res: Response, next: NextFunction) {
+
+  async updateProfile(
+    req: Request<{}, {}, UpdateProfileType["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const { id } = req.user;
       const { name, lastname, ...info } = req.body;
@@ -64,7 +83,7 @@ class UserController {
     }
   }
   async updatePassword(
-    req: Request<{}, {}, UpdatePasswordReq["body"]>,
+    req: Request<{}, {}, UpdatePasswordType["body"]>,
     res: Response,
     next: NextFunction
   ) {

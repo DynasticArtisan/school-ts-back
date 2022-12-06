@@ -1,39 +1,54 @@
 import express from "express";
-import usersController from "../controllers/users.controller";
 import CreateAccessMiddleware from "../middlewares/createAccessMiddleware";
-import Validate from "../middlewares/validate.middleware";
 import { UserRole } from "../models/user.model";
-import { SwitchRoleSchema, UpdatePasswordSchema } from "../schemas/user.schema";
+import Validate from "../middlewares/validate.middleware";
+import {
+  GetUserSchema,
+  SwitchRoleSchema,
+  UpdatePasswordSchema,
+  UpdateProfileSchema,
+} from "../schemas/user.schema";
+import UsersController from "../controllers/users.controller";
 
-const usersRouter = express.Router();
+const UsersRouter = express.Router();
 
-usersRouter.get(
+UsersRouter.get(
   "/",
   CreateAccessMiddleware([UserRole.super, UserRole.admin]),
-  usersController.getUsers
+  UsersController.getUsers
 );
-usersRouter.get(
-  "/:user/profile",
+
+UsersRouter.get(
+  "/:userId/profile",
   CreateAccessMiddleware([UserRole.super, UserRole.admin]),
-  usersController.getUserProfile
+  Validate(GetUserSchema),
+  UsersController.getUserProfile
 );
-usersRouter.put(
+
+UsersRouter.put(
   "/:userId/role",
   CreateAccessMiddleware([UserRole.super]),
   Validate(SwitchRoleSchema),
-  usersController.setUserRole
-);
-usersRouter.delete(
-  "/:user",
-  CreateAccessMiddleware([UserRole.super]),
-  usersController.deleteUser
+  UsersController.setUserRole
 );
 
-usersRouter.put("/me", usersController.updateProfile);
-usersRouter.put(
+UsersRouter.delete(
+  "/:userId",
+  CreateAccessMiddleware([UserRole.super]),
+  Validate(GetUserSchema),
+  UsersController.deleteUser
+);
+
+UsersRouter.put(
+  "/me",
+  Validate(UpdateProfileSchema),
+  UsersController.updateProfile
+);
+
+UsersRouter.put(
   "/me/password",
   Validate(UpdatePasswordSchema),
-  usersController.updatePassword
+  UsersController.updatePassword
 );
 
-export default usersRouter;
+export default UsersRouter;

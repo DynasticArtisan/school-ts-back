@@ -1,5 +1,5 @@
 import { isValidObjectId } from "mongoose";
-import { object, string, boolean, TypeOf } from "zod";
+import { object, string, boolean, TypeOf, number } from "zod";
 import { UserRole } from "../models/user.model";
 
 export const UserIdSchema = string().refine(
@@ -70,6 +70,13 @@ export const ResetPasswordSchema = object({
 });
 export type ResetPasswordType = TypeOf<typeof ResetPasswordSchema>;
 
+export const GetUserSchema = object({
+  params: object({
+    userId: UserIdSchema,
+  }),
+});
+export type GetUserType = TypeOf<typeof GetUserSchema>;
+
 export const SwitchRoleSchema = object({
   params: object({
     userId: UserIdSchema,
@@ -80,6 +87,24 @@ export const SwitchRoleSchema = object({
 });
 export type SwitchRoleType = TypeOf<typeof SwitchRoleSchema>;
 
+export const UpdateProfileSchema = object({
+  body: object({
+    name: string({
+      required_error: "Имя пользователя обязательно",
+    }),
+    lastname: string({
+      required_error: "Фамилия пользователя обязательна",
+    }),
+    birthday: string().optional(),
+    phone: string().optional(),
+    city: string().optional(),
+    gender: string().optional(),
+    status: string().optional(),
+    avatar: number().optional(),
+  }),
+});
+export type UpdateProfileType = TypeOf<typeof UpdateProfileSchema>;
+
 export const UpdatePasswordSchema = object({
   body: object({
     password: UserPasswordSchema,
@@ -88,4 +113,4 @@ export const UpdatePasswordSchema = object({
     message: "Новый пароль должен отличаться",
   }),
 });
-export type UpdatePasswordReq = TypeOf<typeof UpdatePasswordSchema>;
+export type UpdatePasswordType = TypeOf<typeof UpdatePasswordSchema>;
