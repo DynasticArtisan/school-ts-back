@@ -2,12 +2,9 @@ import { isValidObjectId } from "mongoose";
 import { object, string, boolean, TypeOf, number } from "zod";
 import { UserRole } from "../models/user.model";
 
-export const UserIdSchema = string().refine(
-  (userId) => isValidObjectId(userId),
-  {
-    message: "Некорректный ID пользователя",
-  }
-);
+export const UserIdSchema = string().refine((id) => isValidObjectId(id), {
+  message: "Некорректный ID пользователя",
+});
 const UserEmailSchema = string({
   required_error: "Email адрес обязателен",
 }).email("Некорректный email");

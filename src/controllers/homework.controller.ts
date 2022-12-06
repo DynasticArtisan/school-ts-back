@@ -1,4 +1,7 @@
 import { NextFunction, Request, Response } from "express";
+import { GetCourseType } from "../schemas/course.schema";
+import { GetHomeworkType } from "../schemas/homework.schema";
+import { GetLessonType } from "../schemas/lesson.schema";
 import courseDataService from "../services/courseAccess.service";
 
 class HomeworkController {
@@ -12,11 +15,16 @@ class HomeworkController {
       next(e);
     }
   }
-  async getCourseLessons(req: Request, res: Response, next: NextFunction) {
+
+  async getCourseLessons(
+    req: Request<GetCourseType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { course } = req.params;
+      const { courseId } = req.params;
       const CourseExercises = await courseDataService.getCourseExerciseByRoles(
-        course,
+        courseId,
         req.user
       );
       res.json(CourseExercises);
@@ -24,11 +32,16 @@ class HomeworkController {
       next(e);
     }
   }
-  async getLessonHomeworks(req: Request, res: Response, next: NextFunction) {
+
+  async getLessonHomeworks(
+    req: Request<GetLessonType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { lesson } = req.params;
+      const { lessonId } = req.params;
       const LessonHomeworks = await courseDataService.getLessonHomeworksByRole(
-        lesson,
+        lessonId,
         req.user
       );
       res.json(LessonHomeworks);
@@ -36,11 +49,16 @@ class HomeworkController {
       next(e);
     }
   }
-  async getHomework(req: Request, res: Response, next: NextFunction) {
+
+  async getHomework(
+    req: Request<GetHomeworkType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { homework } = req.params;
+      const { homeworkId } = req.params;
       const Homework = await courseDataService.getHomeworkByRoles(
-        homework,
+        homeworkId,
         req.user
       );
       res.json(Homework);
@@ -49,11 +67,15 @@ class HomeworkController {
     }
   }
 
-  async acceptHomework(req: Request, res: Response, next: NextFunction) {
+  async acceptHomework(
+    req: Request<GetHomeworkType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { homework } = req.params;
+      const { homeworkId } = req.params;
       const Homework = await courseDataService.acceptHomeworkByRoles(
-        homework,
+        homeworkId,
         req.user
       );
       res.json(Homework);
@@ -61,11 +83,16 @@ class HomeworkController {
       next(e);
     }
   }
-  async rejectHomework(req: Request, res: Response, next: NextFunction) {
+
+  async rejectHomework(
+    req: Request<GetHomeworkType["params"]>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
-      const { homework } = req.params;
+      const { homeworkId } = req.params;
       const Homework = await courseDataService.rejectHomeworkByRoles(
-        homework,
+        homeworkId,
         req.user
       );
       res.json(Homework);

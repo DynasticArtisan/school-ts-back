@@ -1,40 +1,53 @@
 import express from "express";
-import homeworkController from "../controllers/homework.controller";
 import CreateAccessMiddleware from "../middlewares/createAccessMiddleware";
 import { UserRole } from "../models/user.model";
+import Validate from "../middlewares/validate.middleware";
+import { GetCourseSchema } from "../schemas/course.schema";
+import { GetLessonSchema } from "../schemas/lesson.schema";
+import { GetHomeworkSchema } from "../schemas/homework.schema";
+import HomeworkController from "../controllers/homework.controller";
 
-const homeworkRouter = express.Router();
+const HomeworkRouter = express.Router();
 
-homeworkRouter.get(
+HomeworkRouter.get(
   "/courses",
   CreateAccessMiddleware([UserRole.super, UserRole.teacher, UserRole.curator]),
-  homeworkController.getCourses
-);
-homeworkRouter.get(
-  "/courses/:course",
-  CreateAccessMiddleware([UserRole.super, UserRole.teacher, UserRole.curator]),
-  homeworkController.getCourseLessons
-);
-homeworkRouter.get(
-  "/lessons/:lesson",
-  CreateAccessMiddleware([UserRole.super, UserRole.teacher, UserRole.curator]),
-  homeworkController.getLessonHomeworks
+  HomeworkController.getCourses
 );
 
-homeworkRouter.get(
-  "/:homework",
+HomeworkRouter.get(
+  "/courses/:courseId",
   CreateAccessMiddleware([UserRole.super, UserRole.teacher, UserRole.curator]),
-  homeworkController.getHomework
+  Validate(GetCourseSchema),
+  HomeworkController.getCourseLessons
 );
-homeworkRouter.put(
+
+HomeworkRouter.get(
+  "/lessons/:lessonId",
+  CreateAccessMiddleware([UserRole.super, UserRole.teacher, UserRole.curator]),
+  Validate(GetLessonSchema),
+  HomeworkController.getLessonHomeworks
+);
+
+HomeworkRouter.get(
+  "/:homeworkId",
+  CreateAccessMiddleware([UserRole.super, UserRole.teacher, UserRole.curator]),
+  Validate(GetHomeworkSchema),
+  HomeworkController.getHomework
+);
+
+HomeworkRouter.put(
   "/:homework/accept",
   CreateAccessMiddleware([UserRole.super, UserRole.teacher, UserRole.curator]),
-  homeworkController.acceptHomework
-);
-homeworkRouter.put(
-  "/:homework/reject",
-  CreateAccessMiddleware([UserRole.super, UserRole.teacher, UserRole.curator]),
-  homeworkController.rejectHomework
+  Validate(GetHomeworkSchema),
+  HomeworkController.acceptHomework
 );
 
-export default homeworkRouter;
+HomeworkRouter.put(
+  "/:homework/reject",
+  CreateAccessMiddleware([UserRole.super, UserRole.teacher, UserRole.curator]),
+  Validate(GetHomeworkSchema),
+  HomeworkController.rejectHomework
+);
+
+export default HomeworkRouter;

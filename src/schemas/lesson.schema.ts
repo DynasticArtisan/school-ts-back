@@ -2,12 +2,9 @@ import { object, string, TypeOf, intersection, boolean } from "zod";
 import { isValidObjectId } from "mongoose";
 import { ModuleIdSchema } from "./module.schema";
 
-export const LessonIdSchema = string().refine(
-  (course) => isValidObjectId(course),
-  {
-    message: "Некорректный ID урока",
-  }
-);
+export const LessonIdSchema = string().refine((id) => isValidObjectId(id), {
+  message: "Некорректный ID урока",
+});
 export const LessonSchema = object({
   title: string({
     required_error: "Поле title не может быть пустым",

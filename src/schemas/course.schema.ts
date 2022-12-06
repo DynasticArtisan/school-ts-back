@@ -3,12 +3,9 @@ import { object, string, TypeOf, boolean } from "zod";
 import { CourseProgressFormat } from "../models/courseProgress.model";
 import { UserIdSchema } from "./user.schema";
 
-export const CourseIdSchema = string().refine(
-  (course) => isValidObjectId(course),
-  {
-    message: "Некорректный ID курса",
-  }
-);
+export const CourseIdSchema = string().refine((id) => isValidObjectId(id), {
+  message: "Некорректный ID курса",
+});
 export const CourseInputSchema = object({
   title: string({
     required_error: "Название курса обязательно",

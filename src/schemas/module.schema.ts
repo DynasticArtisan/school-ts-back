@@ -3,12 +3,9 @@ import { object, string, TypeOf, intersection } from "zod";
 import { CourseIdSchema } from "./course.schema";
 import { LessonSchema } from "./lesson.schema";
 
-export const ModuleIdSchema = string().refine(
-  (course) => isValidObjectId(course),
-  {
-    message: "Некорректный ID модуля",
-  }
-);
+export const ModuleIdSchema = string().refine((id) => isValidObjectId(id), {
+  message: "Некорректный ID модуля",
+});
 const ModuleSchema = object({
   title: string({
     required_error: "Поле title не может быть пустым",
