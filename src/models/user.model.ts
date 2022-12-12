@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 export enum UserRole {
   user = "Пользователь",
   curator = "Куратор",
-  teacher = "Учитель",
+  teacher = "Преподаватель",
   admin = "Администратор",
   super = "Суперадминистратор",
 }

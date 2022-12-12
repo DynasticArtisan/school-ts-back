@@ -23,7 +23,7 @@ LessonsRouter.post(
 );
 
 LessonsRouter.put(
-  "/:lesson",
+  "/:lessonId",
   CreateAccessMiddleware([UserRole.super]),
   Validate(UpdateLessonSchema),
   LessonsController.updateLesson
@@ -56,7 +56,7 @@ LessonsRouter.post(
 );
 
 LessonsRouter.post(
-  "/:lesson/homework",
+  "/:lessonId/homework",
   Validate(GetLessonSchema),
   CreateAccessMiddleware([UserRole.user]),
   HomeworkUploads,
@@ -65,7 +65,7 @@ LessonsRouter.post(
 );
 
 LessonsRouter.put(
-  "/:lesson/homework",
+  "/:lessonId/homework",
   Validate(GetLessonSchema),
   CreateAccessMiddleware([UserRole.user]),
   HomeworkUploads,

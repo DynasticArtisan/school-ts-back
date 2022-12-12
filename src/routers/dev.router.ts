@@ -7,7 +7,6 @@ import moduleProgressModel from "../models/moduleProgress.model";
 import UserModel from "../models/user.model";
 import authService from "../services/auth.service";
 import courseService from "../services/course.service";
-import mailService from "../services/mails.service";
 import notifTemplateService from "../services/noteTemplates.service.ts";
 import userService from "../services/user.service";
 const devrouter = express.Router();
@@ -25,14 +24,6 @@ devrouter.delete("/users/:id", async (req, res) => {
 });
 devrouter.put("/users/:id/role", async (req, res) => {
   res.json(await userService.updateRole(req.params.id, req.body.role));
-});
-devrouter.post("/mailtemplate", async (req, res) => {
-  // @ts-ignore
-  const { type, title, subject, html } = req.body;
-  res.json(await mailService.createTemplate(type, title, subject, html));
-});
-devrouter.get("/mailtemplate", async (req, res) => {
-  res.json(await mailService.getTemplates());
 });
 devrouter.get("/notiftemplate", async (req, res) => {
   res.json(await notifTemplateService.getTemplates());

@@ -94,7 +94,7 @@ CoursesRouter.put(
 );
 
 CoursesRouter.post(
-  "/:course/masters",
+  "/:courseId/masters",
   CreateAccessMiddleware([UserRole.super]),
   Validate(CreateTeacherSchema),
   CoursesController.createMaster
