@@ -136,13 +136,13 @@ class AuthService {
     passwordResetCode: string,
     password: string
   ) {
-    const User = await userModel.findOneAndUpdate(
-      { _id: userId, passwordResetCode },
-      { password, passwordResetCode: null }
-    );
+    const User = await userModel.findOne({ _id: userId, passwordResetCode });
     if (!User) {
       throw ApiError.BadRequest("Пользователь не найден");
     }
+    User.password = password;
+    User.passwordResetCode = null;
+    await User.save();
     return true;
   }
 }
