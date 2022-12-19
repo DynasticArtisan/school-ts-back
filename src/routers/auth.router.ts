@@ -17,7 +17,7 @@ AuthRouter.post(
   AuthController.registration
 );
 AuthRouter.post(
-  "/activation/:user/:activatecode",
+  "/activation/:userId/:activatecode",
   Validate(ActivateUserSchema),
   AuthController.activation
 );

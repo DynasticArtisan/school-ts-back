@@ -47,6 +47,14 @@ class CourseProgressService {
     }
     return Progress;
   }
+
+  async getCourseProgressById(progressId: string) {
+    const Progress = await courseProgressModel.findById(progressId);
+    if (!Progress) {
+      throw ApiError.BadRequest("Прогресс пользователя не найден");
+    }
+    return Progress;
+  }
   async getCourseProgress(user: string, course: string) {
     const Progress = await courseProgressModel.findOne({
       user,
@@ -57,6 +65,7 @@ class CourseProgressService {
     }
     return Progress;
   }
+
   async getCourseProgressAccess(user: string, course: string) {
     const Progress = await courseProgressModel.findOne({
       user,
@@ -99,6 +108,40 @@ class CourseProgressService {
     } catch (e) {
       console.log(e);
     }
+    return Progress;
+  }
+  async updateCourseProgressAccessById(
+    progressId: string,
+    isAvailable: boolean
+  ) {
+    const Progress = await courseProgressModel.findByIdAndUpdate(
+      progressId,
+      { isAvailable },
+      {
+        new: true,
+      }
+    );
+    if (!Progress) {
+      throw ApiError.BadRequest("Прогресс пользователя не найден");
+    }
+
+    try {
+      const Course = await courseService.getCourse(Progress.course);
+      if (isAvailable) {
+        await notificationService.createCourseUnlockNote(
+          String(Progress.user),
+          Course
+        );
+      } else {
+        await notificationService.createCourseLockNote(
+          String(Progress.user),
+          Course
+        );
+      }
+    } catch (e) {
+      console.log(e);
+    }
+
     return Progress;
   }
   async completeCourseProgress(user: string, course: string) {

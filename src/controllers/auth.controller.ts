@@ -34,8 +34,8 @@ class AuthController {
     next: NextFunction
   ) {
     try {
-      const { user, activatecode } = req.params;
-      await authService.activate(user, activatecode);
+      const { userId, activatecode } = req.params;
+      await authService.activate(userId, activatecode);
       res.json({ message: "Активация прошла успешно" });
     } catch (e) {
       next(e);

@@ -6,6 +6,12 @@ import { UserIdSchema } from "./user.schema";
 export const CourseIdSchema = string().refine((id) => isValidObjectId(id), {
   message: "Некорректный ID курса",
 });
+export const StudentIdSchema = string().refine((id) => isValidObjectId(id), {
+  message: "Некорректный ID студента",
+});
+export const MasterIdSchema = string().refine((id) => isValidObjectId(id), {
+  message: "Некорректный ID преподавателя",
+});
 export const CourseInputSchema = object({
   title: string({
     required_error: "Название курса обязательно",
@@ -69,6 +75,17 @@ export const CreateStudentSchema = object({
 });
 export type CreateStudentType = TypeOf<typeof CreateStudentSchema>;
 
+export const UpdateStudentSchema = object({
+  params: object({
+    courseId: CourseIdSchema,
+    studentId: StudentIdSchema,
+  }),
+  body: object({
+    isAvailable: boolean(),
+  }),
+});
+export type UpdateStudentType = TypeOf<typeof UpdateStudentSchema>;
+
 export const CreateTeacherSchema = object({
   params: object({
     courseId: CourseIdSchema,
@@ -78,6 +95,17 @@ export const CreateTeacherSchema = object({
   }),
 });
 export type CreateTeacherType = TypeOf<typeof CreateTeacherSchema>;
+
+export const UpdateTeacherAccessSchema = object({
+  params: object({
+    courseId: CourseIdSchema,
+    masterId: MasterIdSchema,
+  }),
+  body: object({
+    isAvailable: boolean(),
+  }),
+});
+export type UpdateTeacherAccessType = TypeOf<typeof UpdateTeacherAccessSchema>;
 
 export const GetStudentSchema = object({
   params: object({

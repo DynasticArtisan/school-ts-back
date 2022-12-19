@@ -108,6 +108,22 @@ class CourseAccessService {
         throw ApiError.Forbidden();
     }
   }
+  async getStudentProfileByRoles(studentId: string, user: TokenDto) {
+    const Progress = await courseProgressService.getCourseProgressById(
+      studentId
+    );
+    switch (user.role) {
+      case UserRole.teacher:
+      case UserRole.curator:
+        const courseId = String(Progress.course);
+        await courseMastersService.getCourseMasterAccess(user.id, courseId);
+      default:
+        const userId = String(Progress.user);
+        const Profile = await userService.getUserProfile(userId);
+        const Courses = await courseService.getProfileCourses(userId);
+        return { user: Profile, courses: Courses };
+    }
+  }
 
   async getHomeworkCoursesByRoles(user: TokenDto) {
     switch (user.role) {

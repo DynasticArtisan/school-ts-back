@@ -34,7 +34,7 @@ export type CreateUserReq = TypeOf<typeof CreateUserSchema>;
 
 export const ActivateUserSchema = object({
   params: object({
-    user: UserIdSchema,
+    userId: UserIdSchema,
     activatecode: string(),
   }),
 });
