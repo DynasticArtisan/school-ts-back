@@ -38,6 +38,21 @@ export const UpdateCourseSchema = object({
 });
 export type UpdateCourseType = TypeOf<typeof UpdateCourseSchema>;
 
+export const CreateModuleSchema = object({
+  params: object({
+    courseId: CourseIdSchema,
+  }),
+  body: object({
+    title: string({
+      required_error: "Поле title не может быть пустым",
+    }),
+    description: string({
+      required_error: "Поле description не может быть пустым",
+    }),
+  }),
+});
+export type CreateModuleType = TypeOf<typeof CreateModuleSchema>;
+
 export const CreateStudentSchema = object({
   params: object({
     courseId: CourseIdSchema,

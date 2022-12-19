@@ -37,14 +37,14 @@ HomeworkRouter.get(
 );
 
 HomeworkRouter.put(
-  "/:homework/accept",
+  "/:homeworkId/accept",
   CreateAccessMiddleware([UserRole.super, UserRole.teacher, UserRole.curator]),
   Validate(GetHomeworkSchema),
   HomeworkController.acceptHomework
 );
 
 HomeworkRouter.put(
-  "/:homework/reject",
+  "/:homeworkId/reject",
   CreateAccessMiddleware([UserRole.super, UserRole.teacher, UserRole.curator]),
   Validate(GetHomeworkSchema),
   HomeworkController.rejectHomework

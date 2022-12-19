@@ -9,6 +9,7 @@ import {
 } from "../middlewares/course.middleware";
 import {
   CreateCourseSchema,
+  CreateModuleSchema,
   CreateStudentSchema,
   CreateTeacherSchema,
   GetCourseSchema,
@@ -65,6 +66,13 @@ CoursesRouter.get(
   ]),
   Validate(GetCourseSchema),
   CoursesController.getModules
+);
+
+CoursesRouter.post(
+  "/:courseId/modules",
+  CreateAccessMiddleware([UserRole.super]),
+  Validate(CreateModuleSchema),
+  CoursesController.createModule
 );
 
 CoursesRouter.get(

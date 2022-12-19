@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import {
   CreateCourseType,
+  CreateModuleType,
   CreateStudentType,
   CreateTeacherType,
   GetCourseType,
@@ -113,6 +114,25 @@ class CoursesController {
       next(e);
     }
   }
+  async createModule(
+    req: Request<CreateModuleType["params"], {}, CreateModuleType["body"]>,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const { courseId } = req.params;
+      const { title, description } = req.body;
+      const Module = await courseService.createModule(
+        courseId,
+        title,
+        description
+      );
+      res.json(Module);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async getStudents(
     req: Request<GetCourseType["params"]>,
     res: Response,
