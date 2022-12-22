@@ -274,7 +274,10 @@ class CourseProgressService {
     if (!Progress) {
       throw ApiError.BadRequest("Прогресс пользователя не найден");
     }
-    if (Progress.lesson.withExercise && !Progress.homework) {
+    if (
+      Progress.lesson.withExercise &&
+      Progress.homework?.status !== HomeworkStatus.accept
+    ) {
       throw ApiError.BadRequest("Домашнее задание не выполнено");
     }
     await this.getModuleProgressAccess(user, String(Progress.module));

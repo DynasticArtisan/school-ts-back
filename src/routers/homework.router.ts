@@ -4,7 +4,10 @@ import { UserRole } from "../models/user.model";
 import Validate from "../middlewares/validate.middleware";
 import { GetCourseSchema } from "../schemas/course.schema";
 import { GetLessonSchema } from "../schemas/lesson.schema";
-import { GetHomeworkSchema } from "../schemas/homework.schema";
+import {
+  GetHomeworkSchema,
+  VerifyHomeworkSchema,
+} from "../schemas/homework.schema";
 import HomeworkController from "../controllers/homework.controller";
 
 const HomeworkRouter = express.Router();
@@ -39,14 +42,14 @@ HomeworkRouter.get(
 HomeworkRouter.put(
   "/:homeworkId/accept",
   CreateAccessMiddleware([UserRole.super, UserRole.teacher, UserRole.curator]),
-  Validate(GetHomeworkSchema),
+  Validate(VerifyHomeworkSchema),
   HomeworkController.acceptHomework
 );
 
 HomeworkRouter.put(
   "/:homeworkId/reject",
   CreateAccessMiddleware([UserRole.super, UserRole.teacher, UserRole.curator]),
-  Validate(GetHomeworkSchema),
+  Validate(VerifyHomeworkSchema),
   HomeworkController.rejectHomework
 );
 

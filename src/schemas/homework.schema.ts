@@ -11,3 +11,12 @@ export const GetHomeworkSchema = object({
   }),
 });
 export type GetHomeworkType = TypeOf<typeof GetHomeworkSchema>;
+
+export const VerifyHomeworkSchema = GetHomeworkSchema.merge(
+  object({
+    body: object({
+      comment: string().optional(),
+    }),
+  })
+);
+export type VerifyHomeworkType = TypeOf<typeof VerifyHomeworkSchema>;

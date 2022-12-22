@@ -73,9 +73,10 @@ class HomeworkService {
     return Homework;
   }
 
-  async acceptHomework(homework: string) {
+  async acceptHomework(homework: string, comment?: string | undefined) {
     const Homework = await homeworkModel.findByIdAndUpdate(homework, {
       status: HomeworkStatus.accept,
+      comment,
     });
     if (!Homework) {
       throw ApiError.BadRequest("Домашнее задание не найдено");
@@ -90,9 +91,10 @@ class HomeworkService {
     return Homework;
   }
 
-  async rejectHomework(homework: string) {
+  async rejectHomework(homework: string, comment?: string | undefined) {
     const Homework = await homeworkModel.findByIdAndUpdate(homework, {
       status: HomeworkStatus.reject,
+      comment,
     });
     if (!Homework) {
       throw ApiError.BadRequest("Домашнее задание не найдено");

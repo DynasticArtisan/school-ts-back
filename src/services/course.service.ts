@@ -221,8 +221,18 @@ class courseService {
   async getCourseExercises(course: string) {
     const Course = await courseModel
       .findById(course)
-      .populate<{ exercises: LessonDocument[] }>("exercises")
+      .populate({
+        path: "exercises",
+        populate: {
+          path: "module",
+          model: "Modules",
+          select: "title",
+        },
+      })
       .lean();
+    if (!Course) {
+      throw ApiError.BadRequest("Курс не найден");
+    }
     return Course;
   }
 
@@ -418,7 +428,13 @@ class courseService {
   async getLessonHomeworks(lesson: string) {
     const Lesson = await lessonModel
       .findById(lesson)
-      .populate<{ homeworks: HomeworkDocument[] }>("homeworks")
+      .populate<{ homeworks: HomeworkDocument[]; user: UserDocument }>({
+        path: "homeworks",
+        populate: {
+          path: "user",
+          select: "name lastname",
+        },
+      })
       .lean();
     if (!Lesson) {
       throw ApiError.BadRequest("Урок не найден");

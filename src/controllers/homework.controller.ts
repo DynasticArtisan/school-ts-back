@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { GetCourseType } from "../schemas/course.schema";
-import { GetHomeworkType } from "../schemas/homework.schema";
+import {
+  GetHomeworkType,
+  VerifyHomeworkType,
+} from "../schemas/homework.schema";
 import { GetLessonType } from "../schemas/lesson.schema";
 import courseDataService from "../services/courseAccess.service";
 
@@ -68,14 +71,16 @@ class HomeworkController {
   }
 
   async acceptHomework(
-    req: Request<GetHomeworkType["params"]>,
+    req: Request<VerifyHomeworkType["params"], {}, VerifyHomeworkType["body"]>,
     res: Response,
     next: NextFunction
   ) {
     try {
       const { homeworkId } = req.params;
+      const { comment } = req.body;
       const Homework = await courseDataService.acceptHomeworkByRoles(
         homeworkId,
+        comment,
         req.user
       );
       res.json(Homework);
@@ -85,14 +90,16 @@ class HomeworkController {
   }
 
   async rejectHomework(
-    req: Request<GetHomeworkType["params"]>,
+    req: Request<VerifyHomeworkType["params"], {}, VerifyHomeworkType["body"]>,
     res: Response,
     next: NextFunction
   ) {
     try {
       const { homeworkId } = req.params;
+      const { comment } = req.body;
       const Homework = await courseDataService.rejectHomeworkByRoles(
         homeworkId,
+        comment,
         req.user
       );
       res.json(Homework);

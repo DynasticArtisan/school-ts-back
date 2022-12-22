@@ -141,7 +141,8 @@ class CourseAccessService {
       case UserRole.teacher:
       case UserRole.curator:
         await courseMastersService.getCourseMasterAccess(user.id, course);
-        return await courseService.getCourseExercises(course);
+      case UserRole.teacher:
+      case UserRole.curator:
       case UserRole.super:
         return await courseService.getCourseExercises(course);
       default:
@@ -180,7 +181,11 @@ class CourseAccessService {
         throw ApiError.Forbidden();
     }
   }
-  async acceptHomeworkByRoles(homework: string, user: TokenDto) {
+  async acceptHomeworkByRoles(
+    homework: string,
+    comment: string | undefined,
+    user: TokenDto
+  ) {
     switch (user.role) {
       case UserRole.teacher:
       case UserRole.curator:
@@ -190,12 +195,16 @@ class CourseAccessService {
         );
         return MasterAcceptedHomework;
       case UserRole.super:
-        return await homeworkService.acceptHomework(homework);
+        return await homeworkService.acceptHomework(homework, comment);
       default:
         throw ApiError.Forbidden();
     }
   }
-  async rejectHomeworkByRoles(homework: string, user: TokenDto) {
+  async rejectHomeworkByRoles(
+    homework: string,
+    comment: string | undefined,
+    user: TokenDto
+  ) {
     switch (user.role) {
       case UserRole.teacher:
       case UserRole.curator:
@@ -205,7 +214,10 @@ class CourseAccessService {
         );
         return MasterRejectedHomework;
       case UserRole.super:
-        const RejectedHomework = await homeworkService.rejectHomework(homework);
+        const RejectedHomework = await homeworkService.rejectHomework(
+          homework,
+          comment
+        );
         return RejectedHomework;
       default:
         throw ApiError.Forbidden();
