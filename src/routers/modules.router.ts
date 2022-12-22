@@ -1,5 +1,5 @@
 import express from "express";
-import CreateAccessMiddleware from "../middlewares/createAccessMiddleware";
+import RoleMiddleware from "../middlewares/role.middleware";
 import { UserRole } from "../models/user.model";
 import Validate from "../middlewares/validate.middleware";
 import {
@@ -14,21 +14,21 @@ const ModulesRouter = express.Router();
 
 ModulesRouter.post(
   "/",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(CreateModuleSchema),
   ModulesController.createModule
 );
 
 ModulesRouter.put(
   "/:moduleId",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(UpdateModuleSchema),
   ModulesController.updateModule
 );
 
 ModulesRouter.get(
   "/:moduleId/lessons",
-  CreateAccessMiddleware([
+  RoleMiddleware([
     UserRole.user,
     UserRole.curator,
     UserRole.teacher,
@@ -40,14 +40,14 @@ ModulesRouter.get(
 
 ModulesRouter.delete(
   "/:moduleId",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(GetModuleSchema),
   ModulesController.deleteModule
 );
 
 ModulesRouter.post(
   "/:moduleId/lessons",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(CreateLessonSchema),
   ModulesController.createLesson
 );

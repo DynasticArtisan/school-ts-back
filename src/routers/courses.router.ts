@@ -1,6 +1,6 @@
 import express from "express";
 import CoursesController from "../controllers/courses.controller";
-import CreateAccessMiddleware from "../middlewares/createAccessMiddleware";
+import RoleMiddleware from "../middlewares/role.middleware";
 import Validate from "../middlewares/validate.middleware";
 import { UserRole } from "../models/user.model";
 import {
@@ -22,7 +22,7 @@ const CoursesRouter = express.Router();
 
 CoursesRouter.get(
   "/",
-  CreateAccessMiddleware([
+  RoleMiddleware([
     UserRole.super,
     UserRole.teacher,
     UserRole.curator,
@@ -33,7 +33,7 @@ CoursesRouter.get(
 
 CoursesRouter.post(
   "/",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   CourseUploads,
   Validate(CreateCourseSchema),
   CoursesController.createCourse,
@@ -42,7 +42,7 @@ CoursesRouter.post(
 
 CoursesRouter.put(
   "/:courseId",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   CourseUploads,
   Validate(UpdateCourseSchema),
   CoursesController.updateCourse,
@@ -51,20 +51,20 @@ CoursesRouter.put(
 
 CoursesRouter.delete(
   "/:courseId",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(GetCourseSchema),
   CoursesController.deleteCourse
 );
 
 CoursesRouter.post(
   "/:courseId/modules",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(CreateModuleSchema),
   CoursesController.createModule
 );
 CoursesRouter.get(
   "/:courseId/modules",
-  CreateAccessMiddleware([
+  RoleMiddleware([
     UserRole.super,
     UserRole.teacher,
     UserRole.curator,
@@ -76,42 +76,42 @@ CoursesRouter.get(
 
 CoursesRouter.post(
   "/:courseId/students",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(CreateStudentSchema),
   CoursesController.createStudent
 );
 
 CoursesRouter.get(
   "/:courseId/students",
-  CreateAccessMiddleware([UserRole.super, UserRole.teacher]),
+  RoleMiddleware([UserRole.super, UserRole.teacher]),
   Validate(GetCourseSchema),
   CoursesController.getStudents
 );
 
 CoursesRouter.get(
   "/:courseId/students/:userId",
-  CreateAccessMiddleware([UserRole.super, UserRole.teacher]),
+  RoleMiddleware([UserRole.super, UserRole.teacher]),
   Validate(GetStudentSchema),
   CoursesController.getStudentProfile
 );
 
 CoursesRouter.put(
   "/:courseId/users/:userId",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(UpdateAccessSchema),
   CoursesController.updateStudentAccess
 );
 
 CoursesRouter.post(
   "/:courseId/masters",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(CreateTeacherSchema),
   CoursesController.createMaster
 );
 
 CoursesRouter.put(
   "/:courseId/masters/:userId",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(UpdateAccessSchema),
   CoursesController.updateMasterAccess
 );

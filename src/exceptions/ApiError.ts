@@ -3,33 +3,41 @@ enum HTTPErrorStatuses {
   UNAUTHORIZED = 401,
   PAYMENT_REQUIRED = 402,
   FORBIDDEN = 403,
+  NOTFOUND = 404,
 }
 
 export default class ApiError extends Error {
   status;
-  errors;
-  constructor(
-    status: HTTPErrorStatuses,
-    message: string,
-    errors: Error[] = []
-  ) {
+  constructor(status: HTTPErrorStatuses, message: string) {
     super(message);
     this.status = status;
-    this.errors = errors;
   }
 
-  static UnauthorizedError() {
+  static BadRequest(message?: string) {
     return new ApiError(
-      HTTPErrorStatuses.UNAUTHORIZED,
-      "Требуется авторизация"
+      HTTPErrorStatuses.BAD_REQUEST,
+      message || "Некорректный запрос"
     );
   }
 
-  static BadRequest(message: string, errors = []) {
-    return new ApiError(HTTPErrorStatuses.BAD_REQUEST, message, errors);
+  static UnauthorizedError(message?: string) {
+    return new ApiError(
+      HTTPErrorStatuses.UNAUTHORIZED,
+      message || "Требуется авторизация"
+    );
   }
 
-  static Forbidden() {
-    return new ApiError(HTTPErrorStatuses.FORBIDDEN, "Доступ запрещен");
+  static Forbidden(message?: string) {
+    return new ApiError(
+      HTTPErrorStatuses.FORBIDDEN,
+      message || "Доступ запрещен"
+    );
+  }
+
+  static NotFound(message?: string) {
+    return new ApiError(
+      HTTPErrorStatuses.NOTFOUND,
+      message || "Данные не найдены"
+    );
   }
 }

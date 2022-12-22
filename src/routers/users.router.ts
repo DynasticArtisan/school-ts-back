@@ -1,5 +1,5 @@
 import express from "express";
-import CreateAccessMiddleware from "../middlewares/createAccessMiddleware";
+import RoleMiddleware from "../middlewares/role.middleware";
 import { UserRole } from "../models/user.model";
 import Validate from "../middlewares/validate.middleware";
 import {
@@ -14,27 +14,27 @@ const UsersRouter = express.Router();
 
 UsersRouter.get(
   "/",
-  CreateAccessMiddleware([UserRole.super, UserRole.admin]),
+  RoleMiddleware([UserRole.super, UserRole.admin]),
   UsersController.getUsers
 );
 
 UsersRouter.get(
   "/:userId/profile",
-  CreateAccessMiddleware([UserRole.super, UserRole.admin]),
+  RoleMiddleware([UserRole.super, UserRole.admin]),
   Validate(GetUserSchema),
   UsersController.getUserProfile
 );
 
 UsersRouter.put(
   "/:userId/role",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(SwitchRoleSchema),
   UsersController.setUserRole
 );
 
 UsersRouter.delete(
   "/:userId",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(GetUserSchema),
   UsersController.deleteUser
 );

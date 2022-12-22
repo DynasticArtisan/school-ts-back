@@ -1,6 +1,6 @@
 import { Router } from "express";
 import StudentsController from "../controllers/students.controller";
-import CreateAccessMiddleware from "../middlewares/createAccessMiddleware";
+import RoleMiddleware from "../middlewares/role.middleware";
 import Validate from "../middlewares/validate.middleware";
 import { UserRole } from "../models/user.model";
 import {
@@ -13,21 +13,21 @@ const StudentsRouter = Router();
 
 StudentsRouter.post(
   "/",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(CreateStudentSchema),
   StudentsController.createStudent
 );
 
 StudentsRouter.get(
   "/:studentId",
-  CreateAccessMiddleware([UserRole.super, UserRole.teacher]),
+  RoleMiddleware([UserRole.super, UserRole.teacher]),
   Validate(GetStudentSchema),
   StudentsController.getStudentProfile
 );
 
 StudentsRouter.patch(
   "/:studentId",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(UpdStudentAccessSchema),
   StudentsController.updateStudentAccess
 );

@@ -1,5 +1,5 @@
 import express from "express";
-import CreateAccessMiddleware from "../middlewares/createAccessMiddleware";
+import RoleMiddleware from "../middlewares/role.middleware";
 import { UserRole } from "../models/user.model";
 import {
   HomeworkUploads,
@@ -17,28 +17,28 @@ const LessonsRouter = express.Router();
 
 LessonsRouter.post(
   "/",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(CreateLessonSchema),
   LessonsController.createLesson
 );
 
 LessonsRouter.put(
   "/:lessonId",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(UpdateLessonSchema),
   LessonsController.updateLesson
 );
 
 LessonsRouter.delete(
   "/:lessonId",
-  CreateAccessMiddleware([UserRole.super]),
+  RoleMiddleware([UserRole.super]),
   Validate(GetLessonSchema),
   LessonsController.deleteLesson
 );
 
 LessonsRouter.get(
   "/:lessonId",
-  CreateAccessMiddleware([
+  RoleMiddleware([
     UserRole.super,
     UserRole.teacher,
     UserRole.curator,
@@ -51,14 +51,14 @@ LessonsRouter.get(
 LessonsRouter.post(
   "/:lessonId",
   Validate(GetLessonSchema),
-  CreateAccessMiddleware([UserRole.user]),
+  RoleMiddleware([UserRole.user]),
   LessonsController.completeLesson
 );
 
 LessonsRouter.post(
   "/:lessonId/homework",
   Validate(GetLessonSchema),
-  CreateAccessMiddleware([UserRole.user]),
+  RoleMiddleware([UserRole.user]),
   HomeworkUploads,
   LessonsController.createHomework,
   HomeworkUploadsCancel
@@ -67,7 +67,7 @@ LessonsRouter.post(
 LessonsRouter.put(
   "/:lessonId/homework",
   Validate(GetLessonSchema),
-  CreateAccessMiddleware([UserRole.user]),
+  RoleMiddleware([UserRole.user]),
   HomeworkUploads,
   LessonsController.updateHomework,
   HomeworkUploadsCancel

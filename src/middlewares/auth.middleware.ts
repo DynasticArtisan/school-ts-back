@@ -13,16 +13,16 @@ export default async function AuthMiddleware(
       ""
     );
     if (!accessToken) {
-      return next(ApiError.Forbidden());
+      return next(ApiError.UnauthorizedError());
     }
-    const userData = tokenService.validateAccessToken(accessToken);
-    if (!userData) {
+    const tokenData = tokenService.validateAccessToken(accessToken);
+    if (!tokenData) {
       return next(ApiError.UnauthorizedError());
     }
     // @ts-ignore
-    req.user = userData;
+    req.user = tokenData;
     next();
   } catch (e) {
-    return next(ApiError.Forbidden());
+    next(e);
   }
 }
